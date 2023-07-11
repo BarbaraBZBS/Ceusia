@@ -1,25 +1,27 @@
-module.exports = app => {
-    const posts = require( "../controllers/post.controller.js" );
+const express = require( 'express' );
+const router = express.Router();
+// const multer = require( '../middleware/multer-config' );
+const postCtrl = require( '../controllers/post.controller' );
 
-    var router = require( "express" ).Router();
 
-    // Create a new Post
-    router.post( "/", posts.create );
 
-    // Retrieve all Posts
-    router.get( "/", posts.findAll );
+// Create a new Post
+router.post( "/", postCtrl.createPost );
 
-    // Retrieve a single Post with id
-    router.get( "/:id", posts.findOne );
+// Retrieve all Posts
+router.get( "/", postCtrl.getAllPosts );
 
-    // Update a Post with id
-    router.put( "/:id", posts.update );
+// Retrieve a single Post with id
+router.get( "/:id", postCtrl.findOnePost );
 
-    // Delete a Tutorial with id
-    router.delete( "/:id", posts.delete );
+// Update a Post with id
+router.put( "/:id", postCtrl.updatePost );
 
-    // Delete all Tutorials
-    router.delete( "/", posts.deleteAll );
+// Delete a Post with id
+router.delete( "/:id", postCtrl.deletePost );
 
-    app.use( '/api/post', router );
-};
+// Like Post
+// router.post( "/:id/like", postCtrl.likeUnlikePost );
+// router.post( '/liked', postCtrl.postLiked );
+
+module.exports = router;
