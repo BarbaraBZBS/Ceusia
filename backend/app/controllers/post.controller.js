@@ -9,25 +9,30 @@ exports.createPost = async ( req, res, next ) => {
     try {
         let imagePath = '';
         if ( req.file ) {
-            if ( req.file.mimetype !== 'image/jpg' && req.file.mimetype !== 'image/png' && req.file.mimetype !== 'image/gif' ) {
+            if ( req.file.mimetype !== 'image/jpg' &&
+                req.file.mimetype !== 'image/jpeg' &&
+                req.file.mimetype !== 'image/png' &&
+                req.file.mimetype !== 'image/gif' ) {
                 return res.status( 400 ).json( { message: "Bad image type." } )
             }
             else {
                 imagePath = `${ req.protocol }://${ req.get( "host" ) }/images/${ req.file.filename }`;
+                console.log( 'user: ', req.auth.user_id )
                 await post.create( {
                     title: req.body.title,
                     content: req.body.content,
                     imageUrl: imagePath,
-                    user_id: req.body.user_id
+                    user_id: req.auth.user_id
                 } )
                 // else if for videourl, musicurl ...
             }
         }
         else {
+            console.log( 'user: ', req.auth.user_id )
             await post.create( {
                 title: req.body.title,
                 content: req.body.content,
-                user_id: req.body.user_id
+                user_id: req.auth.user_id
             } )
         }
         res.status( 201 ).json( { message: 'post created' } );
@@ -90,7 +95,10 @@ exports.updatePost = async ( req, res, next ) => {
         await post.findByPk( req.params.id )
             .then( ( post ) => {
                 if ( req.file ) {
-                    if ( req.file.mimetype !== 'image/jpg' && req.file.mimetype !== 'image/png' && req.file.mimetype !== 'image/gif' ) {
+                    if ( req.file.mimetype !== 'image/jpg' &&
+                        req.file.mimetype !== 'image/jpeg' &&
+                        req.file.mimetype !== 'image/png' &&
+                        req.file.mimetype !== 'image/gif' ) {
                         return res.status( 400 ).json( { message: "Bad file type." } )
                     }
                     else {

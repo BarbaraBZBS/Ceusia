@@ -1,6 +1,5 @@
 const { sequelize } = require( './db.js' );
 const { DataTypes } = require( 'sequelize' );
-// const bcrypt = require( 'bcrypt' );
 // const post = require( '../models/post' );
 
 
