@@ -4,15 +4,15 @@ const jwt = require( 'jsonwebtoken' );
 // const Role = require( '../models/role' );
 
 const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,15})$/;
+const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,35})$/;
 
 exports.signup = ( req, res, next ) => {
     if ( req.body.email == null || req.body.password == null ) {
         return res.status( 400 ).json( { message: 'empty field(s)' } )
     }
 
-    if ( req.body.username.length >= 11 || req.body.username.length <= 4 ) {
-        return res.status( 400 ).json( { message: 'username must be 5 to 10 characters.' } )
+    if ( req.body.username.length >= 16 || req.body.username.length <= 3 ) {
+        return res.status( 400 ).json( { message: 'username must be 4 to 15 characters.' } )
     }
 
     if ( !EMAIL_REGEX.test( req.body.email ) ) {
@@ -20,7 +20,7 @@ exports.signup = ( req, res, next ) => {
     }
 
     if ( !PASSWORD_REGEX.test( req.body.password ) ) {
-        return res.status( 400 ).json( { message: 'password must be 6 to 15 characters and contain at least 1 number and 1 letter.' } )
+        return res.status( 400 ).json( { message: 'password must be 6 to 35 characters and contain at least 1 number and 1 letter.' } )
     }
 
     bcrypt.hash( req.body.password, 15 )
@@ -161,7 +161,9 @@ exports.logout = async ( req, res, next ) => {
 
 // Retrieve all Users from the database (with condition).
 exports.getAllUsers = ( req, res, next ) => {
-    user.findAll()
+    user.findAll( {
+        attributes: { exclude: [ 'password' ] }
+    } )
         .then( ( users ) => {
             if ( users ) {
                 res.status( 200 ).json( users )
@@ -189,25 +191,64 @@ exports.findOneUser = async ( req, res, next ) => {
 
 // Update a User identified by the id in the request
 exports.updateUser = async ( req, res ) => {
+    // if ( req.body.email == null || req.body.password == null ) {
+    //     return res.status( 400 ).json( { message: 'empty field(s)' } )
+    // }
     await user.findByPk( req.params.id )
         .then( ( user ) => {
             if ( !user ) {
                 res.status( 404 ).json( { message: 'User not found' } )
             }
             else {
-                user.update( { username: req.body.username, email: req.body.email, password: req.body.password } )
-                    .then( () => {
-                        console.log( req.body.username )
-                        res.status( 200 ).json( { message: 'Success: user info modified !' } )
-                    } )
-                    .catch( err => {
-                        //check valid and not valid
-                        console.log( 'error: ', err )
-                        res.status( 409 ).json( { message: 'username/email might be taken, or field not valid (5 to 10 characters for username, 1 number and 1 letter - 6 to 15 characters for password).' } )
-                    } )
+                if ( req.body.password ) {
+                    if ( !PASSWORD_REGEX.test( req.body.password ) ) {
+                        return res.status( 409 ).json( { message: 'password must be 6 to 35 characters and contain at least 1 number and 1 letter.' } )
+                    }
+                    bcrypt.hash( req.body.password, 15 )
+                        .then( hash => {
+                            user.update( { password: hash } )
+                                .then( () => {
+                                    res.status( 200 ).json( { message: 'success: user password modified.' } )
+                                } )
+                                .catch( err => res.status( 500 ).send( { message: err.message } ) );
+                        } )
+                        .catch( err => res.status( 400 ).json( { err } ) )
+                }
+                else if ( req.body.username ) {
+                    if ( req.body.username.length <= 4 || req.body.username.length >= 16 ) {
+                        return res.status( 409 ).json( { message: 'username must be 4 to 15 characters.' } )
+                    }
+                    else {
+                        user.update( { username: req.body.username } )
+                            .then( () => {
+                                console.log( req.body.username )
+                                res.status( 200 ).json( { message: 'Success: username modified.' } )
+                            } )
+                            .catch( err => {
+                                console.log( 'error: ', err )
+                                res.status( 400 ).json( { message: err } )
+                            } )
+                    }
+                }
+                else if ( req.body.email ) {
+                    if ( !EMAIL_REGEX.test( req.body.email ) ) {
+                        return res.status( 409 ).json( { message: 'invalid email' } )
+                    }
+                    else {
+                        user.update( { username: req.body.email } )
+                            .then( () => {
+                                console.log( req.body.email )
+                                res.status( 200 ).json( { message: 'Success: user email modified.' } )
+                            } )
+                            .catch( err => {
+                                console.log( 'error: ', err )
+                                res.status( 400 ).json( { message: err } )
+                            } )
+                    }
+                }
             }
         } )
-        .catch( error => res.status( 400 ).json( { error } ) )
+        .catch( error => res.status( 500 ).json( { error } ) )
 };
 
 // Delete a Post with the specified id in the request

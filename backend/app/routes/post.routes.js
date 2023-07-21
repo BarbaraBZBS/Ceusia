@@ -3,7 +3,7 @@ const router = express.Router();
 const auth = require( '../../middleware/auth' );
 const multer = require( '../../middleware/multer-config' );
 const postCtrl = require( '../controllers/post.controller' );
-
+const likeCtrl = require( '../controllers/like.controller' );
 
 
 // Create a new Post
@@ -21,8 +21,13 @@ router.put( "/:id", auth, multer, postCtrl.updatePost );
 // Delete a Post with id
 router.delete( "/:id", auth, postCtrl.deletePost );
 
-// Like Post
-// router.post( "/:id/like", auth, postCtrl.likeUnlikePost );
-// router.post( '/liked', auth??, postCtrl.postLiked );
+// Like - dislike Post
+router.post( "/:id/like", auth, likeCtrl.likePost );
+
+router.post( "/:id/dislike", auth, likeCtrl.dislikePost );
+
+router.post( "/likestatus", likeCtrl.postLikedDisliked );
+// router.post/patch( "/disliked", auth??, postCtrl.postDisliked );
+
 
 module.exports = router;

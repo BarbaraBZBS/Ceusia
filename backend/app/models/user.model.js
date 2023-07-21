@@ -5,7 +5,17 @@ const { DataTypes } = require( 'sequelize' );
 
 const User = sequelize.define( "user", {
     username: {
-        type: DataTypes.STRING, allowNull: false, unique: true,
+        type: DataTypes.STRING(), allowNull: false, unique: true,
+        validate: {
+            max: {
+                args: [ 15 ],
+                msg: "Maximum 15 characters allowed in username"
+            },
+            min: {
+                args: [ 4 ],
+                msg: "Minimum 4 characters required in username"
+            }
+        }
     },
     email: {
         type: DataTypes.STRING, allowNull: false, unique: true,
@@ -14,8 +24,22 @@ const User = sequelize.define( "user", {
         }
     },
     password: {
-        type: DataTypes.STRING, allowNull: false
+        type: DataTypes.STRING, allowNull: false,
+        validate: {
+            max: {
+                args: [ 35 ],
+                msg: "Maximum 35 characters allowed in password"
+            },
+            min: {
+                args: [ 6 ],
+                msg: "Minimum 6 characters required in password"
+            }
+        }
     },
+    picture: {
+        type: DataTypes.STRING, default: ""
+    }
+    // motto or bio ?
     // role: {
     //     type: DataTypes.STRING, default: "user"
     // }
@@ -26,3 +50,5 @@ const User = sequelize.define( "user", {
 // User.sync()
 
 module.exports = User;
+
+//followers, following

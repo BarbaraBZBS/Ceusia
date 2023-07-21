@@ -1,6 +1,9 @@
 //const Post = require( "../models/post.model.js" );
 const post = require( '../models/post.model' );
 const user = require( '../models/user.model' );
+// const Like = require('../models/like.model');
+const fs = require( 'fs' );
+
 
 // Create and Save a new Post
 exports.createPost = async ( req, res, next ) => {
@@ -89,7 +92,6 @@ exports.findOnePost = ( req, res ) => {
 
 // Update a Post identified by the id in the request
 exports.updatePost = async ( req, res, next ) => {
-    //add fs unlink image removal
     try {
         let imagePath = '';
         await post.findByPk( req.params.id )
@@ -99,23 +101,35 @@ exports.updatePost = async ( req, res, next ) => {
                         req.file.mimetype !== 'image/jpeg' &&
                         req.file.mimetype !== 'image/png' &&
                         req.file.mimetype !== 'image/gif' ) {
-                        return res.status( 400 ).json( { message: "Bad file type." } )
+                        return res.status( 409 ).json( { message: "Bad file type." } )
                     }
                     else {
+                        if ( post.imageUrl ) {
+                            const oldFile = post.imageUrl.split( '/images/' )[ 1 ];
+                            console.log( 'old image file: ', oldFile );
+                            fs.unlinkSync( `images/${ oldFile }` );
+                        }
                         imagePath = `${ req.protocol }://${ req.get( "host" ) }/images/${ req.file.filename }`;
                         post.update( {
                             title: req.body.title,
                             content: req.body.content,
                             imageUrl: imagePath,
                             user_id: req.body.user_id,
-                            post_id: req.body.post_id //postId??
+                            post_id: req.body.post_id
                         } )
                         console.log( 'success, post updated: ', post )
                         res.status( 200 ).json( { message: 'post updated' } )
-
                     }
                 }
                 else {
+                    if ( req.body.imageUrl == '' ) {
+                        const oldFile = post.imageUrl.split( '/images/' )[ 1 ];
+                        console.log( 'old image file: ', oldFile );
+                        fs.unlinkSync( `images/${ oldFile }` );
+                        post.update( {
+                            imageUrl: null
+                        } )
+                    }
                     post.update( {
                         title: req.body.title,
                         content: req.body.content
@@ -127,8 +141,8 @@ exports.updatePost = async ( req, res, next ) => {
     }
     catch ( err ) {
         console.log( err );
-        res.status( 400 ).json( { err } );
         console.log( 'error: post not updated', res.statusCode )
+        res.status( 400 ).json( { err } );
     }
 };
 
@@ -136,8 +150,13 @@ exports.updatePost = async ( req, res, next ) => {
 exports.deletePost = ( req, res ) => {
     post.findByPk( req.params.id )
         .then( ( post ) => {
-            if ( post.imageUrl ) {
-                const filename = post.image.split( '/images/' )[ 1 ];
+            if ( post.user_id != req.auth.user_id ) {
+                res.status( 401 ).json( { message: 'Unauthorized' } )
+            }
+            else if ( post.imageUrl ) {
+                // console.log( 'imageurl: ', post.imageUrl )
+                const filename = post.imageUrl.split( '/images/' )[ 1 ];
+                console.log( 'filename: ', filename );
                 fs.unlink( `images/${ filename }`, () => {
                     post.destroy()
                         .then( () => {
@@ -160,20 +179,31 @@ exports.deletePost = ( req, res ) => {
 
 //like Post
 // exports.likeStatusPost = async ( req, res ) => {
-//     const userId = req.body.userId;
+//     const userId = req.auth.user_Id;
 //     const postId = parseInt( req.params.id );
 
 //     if ( postId <= 0 ) {
 //         return res.status( 400 ).json( { message: 'invalid parameters' } )
 //     }
-//     Post.findOne( { where: { id: postId } } )
-//     User.findOne( { where: { id: userId } } )
-//     Like.findOne( { where: { postId: postId, userId: userId } } )
+//     post.findOne( { where: { id: postId } } )
+//     user.findOne( { where: { id: userId } } )
+
+//try {
+// if (req.body.like == 1)
+
+//}
+// catch(err) {
+//
+//}
+
+
+
+//     Like.findOne( { where: { post_id: postId, user_id: userId } } )
 //         .then( async like => {
 //             if ( like ) {
-//                 await Like.destroy( { where: { postId: postId, userId: userId } } )
+//                 await Like.destroy( { where: { post_id: postId, user_id: userId } } )
 //                     .then( () => {
-//                         Post.findOne( { where: { id: postId } } )
+//                         post.findOne( { where: { id: postId } } )
 //                             .then( ( post ) => {
 //                                 post.update( { likes: sequelize.literal( 'likes - 1' ) } )
 //                                 res.status( 200 ).json( { message: 'post unliked !' } )
@@ -208,22 +238,9 @@ exports.deletePost = ( req, res ) => {
 // }
 
 // exports.postLiked = ( req, res ) => {
-//     const { userId, postId } = req.body
-//     Like.findOne( { where: { postId: postId, userId: userId } } )
+//     const { user_id, post_id } = req.body
+//     Like.findOne( { where: { post_id: post_id, user_id: user_id } } )
 //         .then( ( liked ) => {
 //             res.status( 200 ).json( liked )
 //         } )
 // }
-
-
-// // Delete all Posts from the database.
-// exports.deleteAll = ( req, res ) => {
-//     Post.removeAll( ( err, data ) => {
-//         if ( err )
-//             res.status( 500 ).send( {
-//                 message:
-//                     err.message || "Some error occurred while removing all Posts."
-//             } );
-//         else res.send( { message: `All Posts were deleted successfully!` } );
-//     } );
-// };
