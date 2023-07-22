@@ -1,10 +1,10 @@
-const { sequelize } = require( './db.js' );
-const { DataTypes } = require( 'sequelize' );
-const user = require( '../models/user.model.js' );
-const post = require( '../models/post.model.js' );
+import { db } from './db.js';
+import { DataTypes } from 'sequelize';
+import User from '../models/user.model.js';
+import Post from '../models/post.model.js';
 
 
-const Dislike = sequelize.define( 'dislike', {
+const Dislike = db.define( 'dislike', {
     post_id: {
         type: DataTypes.INTEGER, allowNull: false,
         references: {
@@ -25,14 +25,14 @@ const Dislike = sequelize.define( 'dislike', {
     tableName: 'dislike'
 } );
 
-module.exports = Dislike;
+export default Dislike;
 
-user.belongsToMany( post, {
+User.belongsToMany( Post, {
     through: Dislike,
     foreignKey: 'user_id',
     otherKey: 'post_id'
 } );
-post.belongsToMany( user, {
+Post.belongsToMany( User, {
     through: Dislike,
     foreignKey: 'post_id',
     otherKey: 'user_id'

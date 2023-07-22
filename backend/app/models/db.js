@@ -1,8 +1,9 @@
-const dbConfig = require( "../config/db.config.js" );
-const { Sequelize } = require( 'sequelize' );
+// const dbConfig = require( "../config/db.config.js" );
+import dbConfig from "../config/db.config.js";
+import Sequelize from 'sequelize';
 //const database = require()
 
-const sequelize = new Sequelize( dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
+const db = new Sequelize( dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
     host: dbConfig.HOST,
     dialect: dbConfig.dialect,
     pool: {
@@ -15,7 +16,7 @@ const sequelize = new Sequelize( dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, 
 
 const connectToDb = async () => {
     try {
-        await sequelize.authenticate();
+        await db.authenticate();
         console.log( "Successfully connected to db" );
     }
     catch ( error ) {
@@ -23,7 +24,7 @@ const connectToDb = async () => {
     }
 };
 
-module.exports = { sequelize, connectToDb }
+export { db, connectToDb };
 
 // const db = {};
 

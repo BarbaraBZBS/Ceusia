@@ -1,12 +1,11 @@
-//const Post = require( "../models/post.model.js" );
-const post = require( '../models/post.model' );
-const user = require( '../models/user.model' );
-// const Like = require('../models/like.model');
-const fs = require( 'fs' );
+import Post from '../models/post.model.js';
+import User from '../models/user.model.js';
+// import Like from '../models/like.model.js';
+import fs from 'fs';
 
 
 // Create and Save a new Post
-exports.createPost = async ( req, res, next ) => {
+const createPost = async ( req, res, next ) => {
     console.log( req.body );
     console.log( req.file );
     try {
@@ -21,7 +20,7 @@ exports.createPost = async ( req, res, next ) => {
             else {
                 imagePath = `${ req.protocol }://${ req.get( "host" ) }/images/${ req.file.filename }`;
                 console.log( 'user: ', req.auth.user_id )
-                await post.create( {
+                await Post.create( {
                     title: req.body.title,
                     content: req.body.content,
                     imageUrl: imagePath,
@@ -32,7 +31,7 @@ exports.createPost = async ( req, res, next ) => {
         }
         else {
             console.log( 'user: ', req.auth.user_id )
-            await post.create( {
+            await Post.create( {
                 title: req.body.title,
                 content: req.body.content,
                 user_id: req.auth.user_id
@@ -49,12 +48,12 @@ exports.createPost = async ( req, res, next ) => {
 };
 
 // Retrieve all Posts from the database.
-exports.getAllPosts = async ( req, res ) => {
+const getAllPosts = async ( req, res ) => {
     //console.log( posts )
-    await post.findAll( {
+    await Post.findAll( {
         order: [ [ 'createdAt', 'DESC' ] ],
         include: {
-            model: user,
+            model: User,
             attributes: [ 'username', 'email' ]
         }
     } )
@@ -72,10 +71,10 @@ exports.getAllPosts = async ( req, res ) => {
 };
 
 // Find a single Post with an id
-exports.findOnePost = ( req, res ) => {
-    post.findByPk( req.params.id, {
+const findOnePost = ( req, res ) => {
+    Post.findByPk( req.params.id, {
         include: {
-            model: user,
+            model: User,
             attributes: [ 'username', 'email' ]
         }
     } )
@@ -91,10 +90,10 @@ exports.findOnePost = ( req, res ) => {
 };
 
 // Update a Post identified by the id in the request
-exports.updatePost = async ( req, res, next ) => {
+const updatePost = async ( req, res, next ) => {
     try {
         let imagePath = '';
-        await post.findByPk( req.params.id )
+        await Post.findByPk( req.params.id )
             .then( ( post ) => {
                 if ( req.file ) {
                     if ( req.file.mimetype !== 'image/jpg' &&
@@ -147,8 +146,8 @@ exports.updatePost = async ( req, res, next ) => {
 };
 
 // Delete a Post with the specified id in the request
-exports.deletePost = ( req, res ) => {
-    post.findByPk( req.params.id )
+const deletePost = ( req, res ) => {
+    Post.findByPk( req.params.id )
         .then( ( post ) => {
             if ( post.user_id != req.auth.user_id ) {
                 res.status( 401 ).json( { message: 'Unauthorized' } )
@@ -178,7 +177,7 @@ exports.deletePost = ( req, res ) => {
 
 
 //like Post
-// exports.likeStatusPost = async ( req, res ) => {
+// const likeStatusPost = async ( req, res ) => {
 //     const userId = req.auth.user_Id;
 //     const postId = parseInt( req.params.id );
 
@@ -237,10 +236,12 @@ exports.deletePost = ( req, res ) => {
 //     // console.log( userId )
 // }
 
-// exports.postLiked = ( req, res ) => {
+// const postLiked = ( req, res ) => {
 //     const { user_id, post_id } = req.body
 //     Like.findOne( { where: { post_id: post_id, user_id: user_id } } )
 //         .then( ( liked ) => {
 //             res.status( 200 ).json( liked )
 //         } )
 // }
+
+export { createPost, getAllPosts, findOnePost, updatePost, deletePost };

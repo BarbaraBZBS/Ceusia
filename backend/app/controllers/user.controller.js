@@ -1,12 +1,12 @@
-const user = require( "../models/user.model.js" );
-const bcrypt = require( 'bcrypt' );
-const jwt = require( 'jsonwebtoken' );
+import User from "../models/user.model.js";
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 // const Role = require( '../models/role' );
 
 const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,35})$/;
 
-exports.signup = ( req, res, next ) => {
+const signup = ( req, res, next ) => {
     if ( req.body.email == null || req.body.password == null ) {
         return res.status( 400 ).json( { message: 'empty field(s)' } )
     }
@@ -25,7 +25,7 @@ exports.signup = ( req, res, next ) => {
 
     bcrypt.hash( req.body.password, 15 )
         .then( hash => {
-            user.create( { username: req.body.username, email: req.body.email, password: hash } )
+            User.create( { username: req.body.username, email: req.body.email, password: hash } )
                 .then( user => {
                     // if ( req.body.role ) {
                     //     user.update( {
@@ -56,18 +56,18 @@ exports.signup = ( req, res, next ) => {
         .catch( error => res.status( 400 ).json( { error } ) )
 };
 
-exports.login = async ( req, res, next ) => {
+const login = async ( req, res, next ) => {
     const maxAge = 3 * 24 * 60 * 60 * 1000;
     console.log( req.body.email )
     console.log( req.body.password )
     try {
-        const User = await user.findOne( { where: { email: req.body.email } } )
+        const user = await User.findOne( { where: { email: req.body.email } } )
         console.log( req.body.email )
-        console.log( User )
-        if ( !User ) {
+        console.log( user )
+        if ( !user ) {
             return res.status( 401 ).json( { message: 'incorrect login details' } );
         }
-        await bcrypt.compare( req.body.password, User.password )
+        await bcrypt.compare( req.body.password, user.password )
             .then( valid => {
                 if ( !valid ) {
                     return res.status( 401 ).json( { message: 'incorrect login details' } );
@@ -75,7 +75,7 @@ exports.login = async ( req, res, next ) => {
 
                 const token = jwt.sign(
                     {
-                        user_id: User.id,
+                        user_id: user.id,
                         // role: user.role
                     },
                     process.env.SECRET_TOKEN,
@@ -84,11 +84,11 @@ exports.login = async ( req, res, next ) => {
                 res.cookie( 'jwt', token, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 } )
 
                 res.status( 200 ).json( {
-                    user_id: User.id,
+                    user_id: user.id,
                     // role: user.role,
                     token: jwt.sign(
                         {
-                            user_id: User.id,
+                            user_id: user.id,
                             // role: user.role
                         },
                         process.env.SECRET_TOKEN,
@@ -116,12 +116,12 @@ exports.login = async ( req, res, next ) => {
     }
 };
 
-exports.logout = async ( req, res, next ) => {
+const logout = async ( req, res, next ) => {
     // On client, also delete the accessToken
     const cookies = req.cookies;
     if ( !cookies?.jwt ) return res.sendStatus( 204 ); //No content
     const token = cookies.jwt;
-    const user = await user.findOne( { token } )
+    const user = await User.findOne( { token } )
     if ( !user ) {
         res.clearCookie( 'jwt', { httpOnly: true, sameSite: 'None', secure: true } );
         return res.sendStatus( 204 );
@@ -132,38 +132,11 @@ exports.logout = async ( req, res, next ) => {
     res.sendStatus( 204 );
 };
 
-// Create and Save a new User
-// exports.create = ( req, res ) => {
-//     // Validate request
-//     if ( !req.body ) {
-//         res.status( 400 ).send( {
-//             message: "Content can not be empty!"
-//         } );
-//     }
-
-//     // Create a User
-//     const user = new User( {
-//         email: req.body.email,
-//         password: req.body.password,
-//     } );
-
-//     // Save user in the database
-//     User.create( user, ( err, data ) => {
-//         if ( err )
-//             res.status( 500 ).send( {
-//                 message:
-//                     err.message || "Some error occurred while creating new user."
-//             } );
-//         else res.send( data );
-//     } );
-
-// };
-
 // Retrieve all Users from the database (with condition).
-exports.getAllUsers = ( req, res, next ) => {
-    user.findAll( {
+const getAllUsers = ( req, res, next ) => {
+    User.findAll( {
         attributes: { exclude: [ 'password' ] }
-    } )
+    } ) //not an issue on front?
         .then( ( users ) => {
             if ( users ) {
                 res.status( 200 ).json( users )
@@ -176,8 +149,10 @@ exports.getAllUsers = ( req, res, next ) => {
 };
 
 // Find a single User with an id
-exports.findOneUser = async ( req, res, next ) => {
-    await user.findByPk( req.params.id )
+const findOneUser = async ( req, res, next ) => {
+    await User.findByPk( req.params.id, {
+        attributes: { exclude: [ 'password' ] }
+    } )
         .then( ( user ) => {
             if ( user ) {
                 res.status( 200 ).json( user )
@@ -190,11 +165,11 @@ exports.findOneUser = async ( req, res, next ) => {
 };
 
 // Update a User identified by the id in the request
-exports.updateUser = async ( req, res ) => {
+const updateUser = async ( req, res ) => {
     // if ( req.body.email == null || req.body.password == null ) {
     //     return res.status( 400 ).json( { message: 'empty field(s)' } )
     // }
-    await user.findByPk( req.params.id )
+    await User.findByPk( req.params.id )
         .then( ( user ) => {
             if ( !user ) {
                 res.status( 404 ).json( { message: 'User not found' } )
@@ -235,7 +210,7 @@ exports.updateUser = async ( req, res ) => {
                         return res.status( 409 ).json( { message: 'invalid email' } )
                     }
                     else {
-                        user.update( { username: req.body.email } )
+                        user.update( { email: req.body.email } )
                             .then( () => {
                                 console.log( req.body.email )
                                 res.status( 200 ).json( { message: 'Success: user email modified.' } )
@@ -252,8 +227,8 @@ exports.updateUser = async ( req, res ) => {
 };
 
 // Delete a Post with the specified id in the request
-exports.deleteUser = async ( req, res, next ) => {
-    await user.findByPk( req.params.id )
+const deleteUser = async ( req, res, next ) => {
+    await User.findByPk( req.params.id )
         .then( ( user ) => {
             if ( !user ) {
                 res.status( 404 ).json( { message: 'User not found' } )
@@ -278,3 +253,5 @@ exports.deleteUser = async ( req, res, next ) => {
 //         else res.send( { message: `All Users were deleted successfully!` } );
 //     } );
 // };
+
+export { signup, login, logout, getAllUsers, findOneUser, updateUser, deleteUser };

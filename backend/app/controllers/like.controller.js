@@ -1,25 +1,25 @@
-const post = require( '../models/post.model' );
-const user = require( '../models/user.model' );
-const Like = require( '../models/like.model' );
-const Dislike = require( '../models/dislike.model' );
-const { sequelize } = require( '../models/db' );
+import Post from '../models/post.model.js';
+import User from '../models/user.model.js';
+import Like from '../models/like.model.js';
+import Dislike from '../models/dislike.model.js';
+import { db } from '../models/db.js';
 
 
 
 //like post
-exports.likePost = async ( req, res ) => {
+const likePost = async ( req, res ) => {
     const userId = req.auth.user_id;
     const postId = parseInt( req.params.id );
 
     if ( postId <= 0 ) {
         return res.status( 400 ).json( { message: 'invalid parameters' } )
     }
-    post.findOne( { where: { id: postId } } )
+    Post.findOne( { where: { id: postId } } )
         .then( ( post ) => {
             console.log( 'post found: ', post )
         } )
 
-    user.findOne( { where: { id: userId } } )
+    User.findOne( { where: { id: userId } } )
         .then( ( user ) => {
             console.log( 'user found: ', user.username )
         } )
@@ -29,9 +29,9 @@ exports.likePost = async ( req, res ) => {
             if ( alreadyLiked ) {
                 await Like.destroy( { where: { post_id: postId, user_id: userId } } )
                     .then( () => {
-                        post.findOne( { where: { id: postId } } )
+                        Post.findOne( { where: { id: postId } } )
                             .then( ( post ) => {
-                                post.update( { likes: sequelize.literal( 'likes - 1' ) } )
+                                post.update( { likes: db.literal( 'likes - 1' ) } )
                                 res.status( 200 ).json( { message: 'post unliked !' } )
                             } )
                             .catch( error => res.status( 400 ).json( error ) )
@@ -47,9 +47,9 @@ exports.likePost = async ( req, res ) => {
                         if ( disliked ) {
                             await Dislike.destroy( { where: { post_id: postId, user_id: userId } } )
                                 .then( () => {
-                                    post.findOne( { where: { id: postId } } )
+                                    Post.findOne( { where: { id: postId } } )
                                         .then( ( post ) => {
-                                            post.update( { dislikes: sequelize.literal( 'dislikes - 1' ) } )
+                                            post.update( { dislikes: db.literal( 'dislikes - 1' ) } )
                                             console.log( 'post dislike removed' )
                                         } )
                                         .catch( err => { res.status( 400 ).json( { err } ) } )
@@ -60,9 +60,9 @@ exports.likePost = async ( req, res ) => {
                             user_id: userId
                         } )
                             .then( () => {
-                                post.findOne( { where: { id: postId } } )
+                                Post.findOne( { where: { id: postId } } )
                                     .then( ( post ) => {
-                                        post.update( { likes: sequelize.literal( 'likes + 1' ) } )
+                                        post.update( { likes: db.literal( 'likes + 1' ) } )
                                         res.status( 201 ).json( { message: 'post liked !' } )
                                     } )
                                     .catch( error => res.status( 400 ).json( { error } ) )
@@ -78,19 +78,19 @@ exports.likePost = async ( req, res ) => {
 }
 
 //dislike post
-exports.dislikePost = async ( req, res ) => {
+const dislikePost = async ( req, res ) => {
     const userId = req.auth.user_id;
     const postId = parseInt( req.params.id );
 
     if ( postId <= 0 ) {
         return res.status( 400 ).json( { message: 'invalid parameters' } )
     }
-    post.findOne( { where: { id: postId } } )
+    Post.findOne( { where: { id: postId } } )
         .then( ( post ) => {
             console.log( 'post found: ', post )
         } )
 
-    user.findOne( { where: { id: userId } } )
+    User.findOne( { where: { id: userId } } )
         .then( ( user ) => {
             console.log( 'user found: ', user.username )
         } )
@@ -100,9 +100,9 @@ exports.dislikePost = async ( req, res ) => {
             if ( alreadyDisliked ) {
                 await Dislike.destroy( { where: { post_id: postId, user_id: userId } } )
                     .then( () => {
-                        post.findOne( { where: { id: postId } } )
+                        Post.findOne( { where: { id: postId } } )
                             .then( ( post ) => {
-                                post.update( { dislikes: sequelize.literal( 'dislikes - 1' ) } )
+                                post.update( { dislikes: db.literal( 'dislikes - 1' ) } )
                                 res.status( 200 ).json( { message: 'post dislike removed !' } )
                             } )
                             .catch( error => res.status( 400 ).json( error ) )
@@ -119,9 +119,9 @@ exports.dislikePost = async ( req, res ) => {
                         if ( liked ) {
                             await Like.destroy( { where: { post_id: postId, user_id: userId } } )
                                 .then( () => {
-                                    post.findOne( { where: { id: postId } } )
+                                    Post.findOne( { where: { id: postId } } )
                                         .then( ( post ) => {
-                                            post.update( { likes: sequelize.literal( 'likes - 1' ) } )
+                                            post.update( { likes: db.literal( 'likes - 1' ) } )
                                             console.log( 'post unliked' )
                                         } )
                                         .catch( err => { res.status( 400 ).json( { err } ) } )
@@ -132,9 +132,9 @@ exports.dislikePost = async ( req, res ) => {
                             user_id: userId
                         } )
                             .then( () => {
-                                post.findOne( { where: { id: postId } } )
+                                Post.findOne( { where: { id: postId } } )
                                     .then( ( post ) => {
-                                        post.update( { dislikes: sequelize.literal( 'dislikes + 1' ) } )
+                                        post.update( { dislikes: db.literal( 'dislikes + 1' ) } )
                                         res.status( 201 ).json( { message: 'post disliked !' } )
                                     } )
                                     .catch( error => res.status( 400 ).json( { error } ) )
@@ -150,7 +150,7 @@ exports.dislikePost = async ( req, res ) => {
 }
 
 //like dislike display
-exports.postLikedDisliked = ( req, res, next ) => {
+const postLikedDisliked = ( req, res, next ) => {
     const { user_id, post_id } = req.body
     Like.findOne( { where: { post_id: post_id, user_id: user_id } } )
         .then( ( liked ) => {
@@ -174,10 +174,12 @@ exports.postLikedDisliked = ( req, res, next ) => {
         } )
 }
 
-// exports.postDisliked = ( req, res ) => {
+// const postDisliked = ( req, res ) => {
 //     const { user_id, post_id } = req.body
 //     Dislike.findOne( { where: { post_id: post_id, user_id: user_id } } )
 //         .then( ( disliked ) => {
 //             res.status( 200 ).json( disliked )
 //         } )
 // }
+
+export { likePost, dislikePost, postLikedDisliked };

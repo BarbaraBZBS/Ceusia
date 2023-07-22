@@ -1,9 +1,9 @@
-const { sequelize } = require( './db.js' );
-const { DataTypes } = require( 'sequelize' );
-const user = require( '../models/user.model.js' );
+import { db } from './db.js';
+import { DataTypes } from 'sequelize';
+import User from '../models/user.model.js';
 
 
-const Post = sequelize.define( "post", {
+const Post = db.define( "post", {
     title: {
         type: DataTypes.STRING, allowNull: true
     },
@@ -30,11 +30,11 @@ const Post = sequelize.define( "post", {
     }
 } );
 
-module.exports = Post;
+export default Post;
 
-user.hasMany( Post, {
+User.hasMany( Post, {
     foreignKey: 'user_id'
 } );
-Post.belongsTo( user, {
+Post.belongsTo( User, {
     foreignKey: 'user_id'
 } );

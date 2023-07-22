@@ -1,33 +1,33 @@
-const express = require( 'express' );
-const router = express.Router();
-const auth = require( '../../middleware/auth' );
-const multer = require( '../../middleware/multer-config' );
-const postCtrl = require( '../controllers/post.controller' );
-const likeCtrl = require( '../controllers/like.controller' );
+import express from 'express';
+const postRoutes = express.Router();
+import auth from '../../middleware/auth.js';
+// const multer = require( '../../middleware/multer-config' );
+import * as postCtrl from '../controllers/post.controller.js';
+import * as likeCtrl from '../controllers/like.controller.js';
 
 
 // Create a new Post
-router.post( "/", auth, multer, postCtrl.createPost );
+postRoutes.post( "/", auth, postCtrl.createPost ); // multer,
 
 // Retrieve all Posts
-router.get( "/", auth, postCtrl.getAllPosts );
+postRoutes.get( "/", auth, postCtrl.getAllPosts );
 
 // Retrieve a single Post with id
-router.get( "/:id", auth, postCtrl.findOnePost );
+postRoutes.get( "/:id", auth, postCtrl.findOnePost );
 
 // Update a Post with id
-router.put( "/:id", auth, multer, postCtrl.updatePost );
+postRoutes.put( "/:id", auth, postCtrl.updatePost );//multer,
 
 // Delete a Post with id
-router.delete( "/:id", auth, postCtrl.deletePost );
+postRoutes.delete( "/:id", auth, postCtrl.deletePost );
 
 // Like - dislike Post
-router.post( "/:id/like", auth, likeCtrl.likePost );
+postRoutes.post( "/:id/like", auth, likeCtrl.likePost );
 
-router.post( "/:id/dislike", auth, likeCtrl.dislikePost );
+postRoutes.post( "/:id/dislike", auth, likeCtrl.dislikePost );
 
-router.post( "/likestatus", likeCtrl.postLikedDisliked );
+postRoutes.post( "/likestatus", likeCtrl.postLikedDisliked );
 // router.post/patch( "/disliked", auth??, postCtrl.postDisliked );
 
 
-module.exports = router;
+export default postRoutes;

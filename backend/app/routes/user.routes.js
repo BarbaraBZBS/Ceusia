@@ -1,25 +1,33 @@
-const userCtrl = require( "../controllers/user.controller.js" );
-const router = require( "express" ).Router();
+import express from 'express'
+const userRoutes = express.Router();
+import * as userCtrl from "../controllers/user.controller.js";
+import * as uploadCtrl from "../controllers/upload.controller.js";
+import multer from 'multer';
+const upload = multer();
+console.log( 'multer: ', multer );
 
 // new User signup
-router.post( "/signup", userCtrl.signup );
+userRoutes.post( "/signup", userCtrl.signup );
 
 // User login
-router.post( "/login", userCtrl.login );
+userRoutes.post( "/login", userCtrl.login );
 
 // User logout
-router.get( "/logout", userCtrl.logout );
+userRoutes.get( "/logout", userCtrl.logout );
 
 // Retrieve all Users
-router.get( "/users", userCtrl.getAllUsers );
+userRoutes.get( "/users", userCtrl.getAllUsers );
 
 // Retrieve a single User with id
-router.get( "/user/:id", userCtrl.findOneUser );
+userRoutes.get( "/user/:id", userCtrl.findOneUser );
 
 // Update User with id
-router.put( "/user/:id", userCtrl.updateUser );
+userRoutes.put( "/user/:id", userCtrl.updateUser );
 
 // Delete User with id
-router.delete( "/user/:id", userCtrl.deleteUser );
+userRoutes.delete( "/user/:id", userCtrl.deleteUser );
 
-module.exports = router;
+// User profile image handle
+userRoutes.post( "/upload", upload.single( 'picture' ), uploadCtrl.userPicture );
+
+export default userRoutes;

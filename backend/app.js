@@ -1,12 +1,14 @@
-const express = require( "express" );
-require( 'dotenv' ).config();
-const db = require( './app/models/db' );
-const path = require( 'path' );
-const cors = require( "cors" );
-const cookieParser = require( 'cookie-parser' );
+// const express = require( "express" );
+import express from 'express';
+import { } from 'dotenv/config';
+// require( 'dotenv' ).config();
+import { db, connectToDb } from './app/models/db.js';
+import path from 'path';
+import cors from "cors";
+import cookieParser from 'cookie-parser';
 
-const userRoutes = require( './app/routes/user.routes' );
-const postRoutes = require( './app/routes/post.routes' );
+import userRoutes from './app/routes/user.routes.js';
+import postRoutes from './app/routes/post.routes.js';
 
 
 const app = express();
@@ -36,7 +38,7 @@ app.get( "/", ( req, res ) => {
 } );
 //require( "./app/routes/post.routes.js" )( app )
 
-db.sequelize.sync()
+db.sync()
     .then( () => {
         console.log( 'synced db' );
     } )
@@ -44,8 +46,9 @@ db.sequelize.sync()
         console.log( "Failed to sync db:" + err.message )
     } );
 
-app.use( '/images', express.static( path.join( __dirname, 'images' ) ) );
+// app.use( '/images', express.static( path.join( `${ __dirname }`, 'images' ) ) );
 app.use( '/api/auth', userRoutes );
 app.use( '/api/posts', postRoutes );
 
-module.exports = app;
+export { app };
+// module.exports = app;

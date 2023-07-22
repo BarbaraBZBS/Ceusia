@@ -1,9 +1,9 @@
-const { sequelize } = require( './db.js' );
-const { DataTypes } = require( 'sequelize' );
+import { db } from './db.js';
+import { DataTypes } from 'sequelize';
 // const post = require( '../models/post' );
 
 
-const User = sequelize.define( "user", {
+const User = db.define( "user", {
     username: {
         type: DataTypes.STRING(), allowNull: false, unique: true,
         validate: {
@@ -37,7 +37,7 @@ const User = sequelize.define( "user", {
         }
     },
     picture: {
-        type: DataTypes.STRING, default: ""
+        type: DataTypes.STRING, default: "./images/profile/logoSm.png"
     }
     // motto or bio ?
     // role: {
@@ -49,6 +49,6 @@ const User = sequelize.define( "user", {
 
 // User.sync()
 
-module.exports = User;
+export default User;
 
 //followers, following

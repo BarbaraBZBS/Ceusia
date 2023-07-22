@@ -1,10 +1,10 @@
-const { sequelize } = require( './db.js' );
-const { DataTypes } = require( 'sequelize' );
-const user = require( '../models/user.model.js' );
-const post = require( '../models/post.model.js' );
+import { db } from './db.js';
+import { DataTypes } from 'sequelize';
+import User from '../models/user.model.js';
+import Post from '../models/post.model.js';
 
 
-const Like = sequelize.define( 'like', {
+const Like = db.define( 'like', {
     post_id: {
         type: DataTypes.INTEGER, allowNull: false,
         references: {
@@ -25,14 +25,14 @@ const Like = sequelize.define( 'like', {
     tableName: 'like'
 } );
 
-module.exports = Like;
+export default Like;
 
-user.belongsToMany( post, {
+User.belongsToMany( Post, {
     through: Like,
     foreignKey: 'user_id',
     otherKey: 'post_id'
 } );
-post.belongsToMany( user, {
+Post.belongsToMany( User, {
     through: Like,
     foreignKey: 'post_id',
     otherKey: 'user_id'
