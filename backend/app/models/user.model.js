@@ -37,7 +37,7 @@ const User = db.define( "user", {
         }
     },
     picture: {
-        type: DataTypes.STRING, default: "./images/profile/logoSm.png"
+        type: DataTypes.STRING, default: "http://localhost:8000/profile/defaultUser.png"
     }
     // motto or bio ?
     // role: {

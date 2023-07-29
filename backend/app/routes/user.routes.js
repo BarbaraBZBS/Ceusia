@@ -2,9 +2,9 @@ import express from 'express'
 const userRoutes = express.Router();
 import * as userCtrl from "../controllers/user.controller.js";
 import * as uploadCtrl from "../controllers/upload.controller.js";
+import auth from '../../middleware/auth.js';
 import multer from 'multer';
 const upload = multer();
-console.log( 'multer: ', multer );
 
 // new User signup
 userRoutes.post( "/signup", userCtrl.signup );
@@ -28,6 +28,6 @@ userRoutes.put( "/user/:id", userCtrl.updateUser );
 userRoutes.delete( "/user/:id", userCtrl.deleteUser );
 
 // User profile image handle
-userRoutes.post( "/upload", upload.single( 'picture' ), uploadCtrl.userPicture );
+userRoutes.post( "/upload", auth, upload.single( 'picture' ), uploadCtrl.userPicture );
 
 export default userRoutes;

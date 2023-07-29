@@ -10,13 +10,16 @@ const Post = db.define( "post", {
     content: {
         type: DataTypes.TEXT, allowNull: false
     },
-    imageUrl: {
+    fileUrl: {
         type: DataTypes.STRING, allowNull: true
     },
-    videoUrl: {
-        type: DataTypes.STRING, allowNull: true
-    },
-    musicUrl: {
+    // videoUrl: {
+    //     type: DataTypes.STRING, allowNull: true
+    // },
+    // musicUrl: {
+    //     type: DataTypes.STRING, allowNull: true
+    // },
+    link: {
         type: DataTypes.STRING, allowNull: true
     },
     likes: {

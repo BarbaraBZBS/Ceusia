@@ -1,7 +1,12 @@
 import Post from '../models/post.model.js';
 import User from '../models/user.model.js';
-// import Like from '../models/like.model.js';
 import fs from 'fs';
+import { promisify } from 'util';
+import stream from 'stream';
+const pipeline = promisify( stream.pipeline );
+import path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath( new URL( '..', import.meta.url ) );
 
 
 // Create and Save a new Post
@@ -9,24 +14,45 @@ const createPost = async ( req, res, next ) => {
     console.log( req.body );
     console.log( req.file );
     try {
-        let imagePath = '';
+        let filePath = '';
         if ( req.file ) {
-            if ( req.file.mimetype !== 'image/jpg' &&
-                req.file.mimetype !== 'image/jpeg' &&
-                req.file.mimetype !== 'image/png' &&
-                req.file.mimetype !== 'image/gif' ) {
-                return res.status( 400 ).json( { message: "Bad image type." } )
+            if ( !req.file.detectedMimeType.startsWith( 'image' ) && !req.file.detectedMimeType.startsWith( 'video' ) &&
+                !req.file.detectedMimeType.startsWith( 'audio' ) ) {
+                return res.status( 409 ).json( { message: "Bad file type" } )
+            }
+            else if ( req.file.size > 8000000 ) {
+                return res.status( 409 ).json( { message: "Max size reached" } );
             }
             else {
-                imagePath = `${ req.protocol }://${ req.get( "host" ) }/images/${ req.file.filename }`;
-                console.log( 'user: ', req.auth.user_id )
+                const fileName = `${ req.auth.user_id }` + `${ Date.now() }` + req.file.detectedFileExtension;
+                console.log( 'filen: ', fileName );
+                if ( req.file.detectedMimeType.startsWith( 'image' )
+                ) {
+                    filePath = `${ req.protocol }://${ req.get( "host" ) }/image/${ fileName }`;
+                    console.log( 'image: ', filePath );
+                }
+                else if ( req.file.detectedMimeType.startsWith( 'video' )
+                ) {
+                    filePath = `${ req.protocol }://${ req.get( "host" ) }/video/${ fileName }`;
+                    console.log( 'video: ', filePath );
+                }
+                else if ( req.file.detectedMimeType.startsWith( 'audio' )
+                ) {
+                    filePath = `${ req.protocol }://${ req.get( "host" ) }/audio/${ fileName }`;
+                    console.log( 'audio: ', filePath );
+                }
+
+                await pipeline( req.file.stream, fs.createWriteStream(
+                    path.join( __dirname, '/public', '/files', '/post', '/', fileName )
+                ) )
+
                 await Post.create( {
                     title: req.body.title,
                     content: req.body.content,
-                    imageUrl: imagePath,
+                    fileUrl: filePath,
+                    link: req.body.link,
                     user_id: req.auth.user_id
                 } )
-                // else if for videourl, musicurl ...
             }
         }
         else {
@@ -34,6 +60,7 @@ const createPost = async ( req, res, next ) => {
             await Post.create( {
                 title: req.body.title,
                 content: req.body.content,
+                link: req.body.link,
                 user_id: req.auth.user_id
             } )
         }
@@ -42,8 +69,8 @@ const createPost = async ( req, res, next ) => {
     }
     catch ( err ) {
         console.log( err )
-        res.status( 400 ).json( { err } )
         console.log( 'error: post not created', res.statusCode );
+        res.status( 500 ).json( { message: 'uploading file error' } )
     }
 };
 
@@ -92,46 +119,64 @@ const findOnePost = ( req, res ) => {
 // Update a Post identified by the id in the request
 const updatePost = async ( req, res, next ) => {
     try {
-        let imagePath = '';
+        let filePath = '';
         await Post.findByPk( req.params.id )
-            .then( ( post ) => {
+            .then( async ( post ) => {
+                if ( post.user_id != req.auth.user_id ) {
+                    return res.status( 401 ).json( { message: 'Unauthorized' } )
+                }
                 if ( req.file ) {
-                    if ( req.file.mimetype !== 'image/jpg' &&
-                        req.file.mimetype !== 'image/jpeg' &&
-                        req.file.mimetype !== 'image/png' &&
-                        req.file.mimetype !== 'image/gif' ) {
-                        return res.status( 409 ).json( { message: "Bad file type." } )
+                    if ( !req.file.detectedMimeType.startsWith( 'image' ) && !req.file.detectedMimeType.startsWith( 'video' ) &&
+                        !req.file.detectedMimeType.startsWith( 'audio' ) ) {
+                        return res.status( 409 ).json( { message: "Bad file type" } )
+                    }
+                    else if ( req.file.size > 8000000 ) {
+                        return res.status( 409 ).json( { message: "Max size reached" } );
                     }
                     else {
-                        if ( post.imageUrl ) {
-                            const oldFile = post.imageUrl.split( '/images/' )[ 1 ];
+                        const fileName = `${ req.auth.user_id }` + `${ Date.now() }` + req.file.detectedFileExtension;
+                        if ( post.fileUrl ) {
+                            const oldFile = post.fileUrl.split( '/image/' )[ 1 ] || post.fileUrl.split( '/video/' )[ 1 ] || post.fileUrl.split( '/audio/' )[ 1 ];
                             console.log( 'old image file: ', oldFile );
-                            fs.unlinkSync( `images/${ oldFile }` );
+                            fs.unlinkSync( `app/public/files/post/${ oldFile }` );
                         }
-                        imagePath = `${ req.protocol }://${ req.get( "host" ) }/images/${ req.file.filename }`;
-                        post.update( {
+                        if ( req.file.detectedMimeType.startsWith( 'image' ) ) {
+                            filePath = `${ req.protocol }://${ req.get( "host" ) }/image/${ fileName }`;
+                        }
+                        else if ( req.file.detectedMimeType.startsWith( 'video' ) ) {
+                            filePath = `${ req.protocol }://${ req.get( "host" ) }/video/${ fileName }`;
+                        }
+                        else if ( req.file.detectedMimeType.startsWith( 'audio' ) ) {
+                            filePath = `${ req.protocol }://${ req.get( "host" ) }/audio/${ fileName }`;
+                        }
+                        await pipeline( req.file.stream, fs.createWriteStream(
+                            path.join( __dirname, '/public', '/files', '/post', '/', fileName )
+                        ) )
+
+                        await post.update( {
                             title: req.body.title,
                             content: req.body.content,
-                            imageUrl: imagePath,
-                            user_id: req.body.user_id,
-                            post_id: req.body.post_id
+                            fileUrl: filePath,
+                            link: req.body.link,
+                            user_id: req.auth.user_id
                         } )
                         console.log( 'success, post updated: ', post )
                         res.status( 200 ).json( { message: 'post updated' } )
                     }
                 }
-                else {
-                    if ( req.body.imageUrl == '' ) {
-                        const oldFile = post.imageUrl.split( '/images/' )[ 1 ];
+                else { //to check
+                    if ( req.body.fileUrl == '' ) {
+                        const oldFile = post.fileUrl.split( '/image/' )[ 1 ] || post.fileUrl.split( '/video/' )[ 1 ] || post.fileUrl.split( '/audio/' )[ 1 ];
                         console.log( 'old image file: ', oldFile );
-                        fs.unlinkSync( `images/${ oldFile }` );
+                        fs.unlinkSync( `app/public/files/post/${ oldFile }` );
                         post.update( {
-                            imageUrl: null
+                            fileUrl: null
                         } )
                     }
                     post.update( {
                         title: req.body.title,
-                        content: req.body.content
+                        content: req.body.content,
+                        user_id: req.auth.user_id
                     } )
                     console.log( 'success, post updated: ', post )
                     res.status( 200 ).json( { message: 'post updated' } )
@@ -152,11 +197,10 @@ const deletePost = ( req, res ) => {
             if ( post.user_id != req.auth.user_id ) {
                 res.status( 401 ).json( { message: 'Unauthorized' } )
             }
-            else if ( post.imageUrl ) {
-                // console.log( 'imageurl: ', post.imageUrl )
-                const filename = post.imageUrl.split( '/images/' )[ 1 ];
+            else if ( post.fileUrl ) {
+                const filename = post.fileUrl.split( '/image/' )[ 1 ] || post.fileUrl.split( '/video/' )[ 1 ] || post.fileUrl.split( '/audio/' )[ 1 ];
                 console.log( 'filename: ', filename );
-                fs.unlink( `images/${ filename }`, () => {
+                fs.unlink( `app/public/files/post/${ filename }`, () => {
                     post.destroy()
                         .then( () => {
                             res.status( 200 ).json( { message: 'Post deleted !' } );
@@ -174,74 +218,5 @@ const deletePost = ( req, res ) => {
         } )
         .catch( err => { res.status( 500 ).json( { err } ) } );
 };
-
-
-//like Post
-// const likeStatusPost = async ( req, res ) => {
-//     const userId = req.auth.user_Id;
-//     const postId = parseInt( req.params.id );
-
-//     if ( postId <= 0 ) {
-//         return res.status( 400 ).json( { message: 'invalid parameters' } )
-//     }
-//     post.findOne( { where: { id: postId } } )
-//     user.findOne( { where: { id: userId } } )
-
-//try {
-// if (req.body.like == 1)
-
-//}
-// catch(err) {
-//
-//}
-
-
-
-//     Like.findOne( { where: { post_id: postId, user_id: userId } } )
-//         .then( async like => {
-//             if ( like ) {
-//                 await Like.destroy( { where: { post_id: postId, user_id: userId } } )
-//                     .then( () => {
-//                         post.findOne( { where: { id: postId } } )
-//                             .then( ( post ) => {
-//                                 post.update( { likes: sequelize.literal( 'likes - 1' ) } )
-//                                 res.status( 200 ).json( { message: 'post unliked !' } )
-//                             } )
-//                             .catch( error => res.status( 400 ).json( error ) )
-//                     } )
-//                     .catch( error => {
-//                         console.log( 'error : ', error )
-//                         res.status( 404 ).json( { error } )
-//                     } )
-//             }
-//             else {
-//                 await Like.create( {
-//                     postId: postId,
-//                     userId: userId
-//                 } )
-//                     .then( () => {
-//                         Post.findOne( { where: { id: postId } } )
-//                             .then( ( post ) => {
-//                                 post.update( { likes: sequelize.literal( 'likes + 1' ) } )
-//                                 res.status( 201 ).json( { message: 'post liked !' } )
-//                             } )
-//                             .catch( error => res.status( 400 ).json( { error } ) )
-//                     } )
-//                     .catch( error => {
-//                         res.status( 404 ).json( { error } )
-//                     } )
-//             }
-//         } )
-//     // console.log( postId )
-//     // console.log( userId )
-// }
-
-// const postLiked = ( req, res ) => {
-//     const { user_id, post_id } = req.body
-//     Like.findOne( { where: { post_id: post_id, user_id: user_id } } )
-//         .then( ( liked ) => {
-//             res.status( 200 ).json( liked )
-//         } )
-// }
 
 export { createPost, getAllPosts, findOnePost, updatePost, deletePost };

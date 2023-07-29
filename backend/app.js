@@ -4,6 +4,9 @@ import { } from 'dotenv/config';
 // require( 'dotenv' ).config();
 import { db, connectToDb } from './app/models/db.js';
 import path from 'path';
+import * as url from 'url';
+const __dirname = url.fileURLToPath( new URL( '.', import.meta.url ) );
+
 import cors from "cors";
 import cookieParser from 'cookie-parser';
 
@@ -46,7 +49,10 @@ db.sync()
         console.log( "Failed to sync db:" + err.message )
     } );
 
-// app.use( '/images', express.static( path.join( `${ __dirname }`, 'images' ) ) );
+app.use( '/profile', express.static( path.join( `${ __dirname }`, '/app', '/public', '/files', '/profile' ) ) );
+app.use( '/image', express.static( path.join( `${ __dirname }`, '/app', '/public', '/files', '/post' ) ) );
+app.use( '/video', express.static( path.join( `${ __dirname }`, '/app', '/public', '/files', '/post' ) ) );
+app.use( '/audio', express.static( path.join( `${ __dirname }`, '/app', '/public', '/files', '/post' ) ) );
 app.use( '/api/auth', userRoutes );
 app.use( '/api/posts', postRoutes );
 

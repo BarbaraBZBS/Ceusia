@@ -1,13 +1,19 @@
 import express from 'express';
 const postRoutes = express.Router();
 import auth from '../../middleware/auth.js';
-// const multer = require( '../../middleware/multer-config' );
+import multer from 'multer';
+const upload = multer( {
+    limits: {
+        fileSize: 4000 * 1024 * 1024,
+        fieldSize: 4000 * 1024 * 1024.
+    }
+} );
 import * as postCtrl from '../controllers/post.controller.js';
 import * as likeCtrl from '../controllers/like.controller.js';
 
 
 // Create a new Post
-postRoutes.post( "/", auth, postCtrl.createPost ); // multer,
+postRoutes.post( "/", auth, upload.single( 'fileUrl' ), postCtrl.createPost );
 
 // Retrieve all Posts
 postRoutes.get( "/", auth, postCtrl.getAllPosts );
@@ -16,7 +22,7 @@ postRoutes.get( "/", auth, postCtrl.getAllPosts );
 postRoutes.get( "/:id", auth, postCtrl.findOnePost );
 
 // Update a Post with id
-postRoutes.put( "/:id", auth, postCtrl.updatePost );//multer,
+postRoutes.put( "/:id", auth, upload.single( 'fileUrl' ), postCtrl.updatePost );
 
 // Delete a Post with id
 postRoutes.delete( "/:id", auth, postCtrl.deletePost );
