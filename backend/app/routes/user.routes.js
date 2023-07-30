@@ -30,4 +30,8 @@ userRoutes.delete( "/user/:id", userCtrl.deleteUser );
 // User profile image handle
 userRoutes.post( "/upload", auth, upload.single( 'picture' ), uploadCtrl.userPicture );
 
+//User following
+userRoutes.post( "/follow/:id", userCtrl.followUser ); //or patch
+userRoutes.post( "/unfollow/:id", userCtrl.unfollowUser ); //or patch
+
 export default userRoutes;

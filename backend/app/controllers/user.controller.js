@@ -1,6 +1,8 @@
 import User from "../models/user.model.js";
+import Followers from "../models/follower.model.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import User_Follower from "../models/follower.model.js";
 // const Role = require( '../models/role' );
 
 const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
@@ -242,16 +244,67 @@ const deleteUser = async ( req, res, next ) => {
         .catch( error => res.status( 400 ).json( { error } ) )
 };
 
-// // Delete all Users from the database.
-// exports.deleteAll = ( req, res ) => {
-//     User.removeAll( ( err, data ) => {
-//         if ( err )
-//             res.status( 500 ).send( {
-//                 message:
-//                     err.message || "Some error occurred while removing all Users."
-//             } );
-//         else res.send( { message: `All Users were deleted successfully!` } );
-//     } );
-// };
 
-export { signup, login, logout, getAllUsers, findOneUser, updateUser, deleteUser };
+const followUser = async ( req, res, next ) => {
+    try {
+        await User.findByPk( req.params.id )
+            .then( ( user ) => {
+                if ( !user ) {
+                    return res.status( 404 ).json( { message: 'user not found' } )
+                }
+                User_Follower.findOne( { where: { user_id: user.id, follower_id: req.body.follower_id } } )//or req.auth.user_id if added auth to router
+                    .then( async alreadyFollowed => {
+                        if ( alreadyFollowed ) {
+                            return res.status( 409 ).json( { message: 'cannot follow a user that is already followed' } )
+                        }
+                        else {
+                            await User_Follower.create( {
+                                user_id: user.id,
+                                follower_id: req.body.follower_id //or req.auth.user_id if added auth to router
+                            } )
+                                .then( () => {
+                                    res.status( 201 ).json( { message: 'successfully followed' } )
+                                } )
+                        }
+                    } )
+                    .catch( err => res.status( 400 ).json( { err } ) )
+            } )
+            .catch( err => res.status( 500 ).json( { err } ) )
+    }
+    catch ( err ) {
+        console.log( err )
+        console.log( 'following went wrong: ', res.statusCode )
+        res.status( 500 ).json( { err } )
+    }
+}
+
+const unfollowUser = async ( req, res, next ) => {
+    try {
+        await User.findByPk( req.params.id )
+            .then( ( user ) => {
+                if ( !user ) {
+                    return res.status( 404 ).json( { message: 'user not found' } )
+                }
+                User_Follower.findOne( { where: { user_id: user.id, follower_id: req.body.follower_id } } ) //or req.auth.user_id if added auth to router
+                    .then( ( user_follower ) => {
+                        if ( !user_follower ) {
+                            return res.status( 409 ).json( { message: 'cannot unfollow a user that is not already followed' } )
+                        }
+                        else {
+                            user_follower.destroy()
+                                .then( () => {
+                                    res.status( 200 ).json( { messaged: 'successfully unfollowed' } )
+                                } )
+                                .catch( err => res.status( 400 ).json( { err } ) )
+                        }
+                    } )
+            } )
+    }
+    catch ( err ) {
+        console.log( err )
+        console.log( 'unfollowing went wrong: ', res.statusCode )
+        res.status( 500 ).json( { err } )
+    }
+}
+
+export { signup, login, logout, getAllUsers, findOneUser, updateUser, deleteUser, followUser, unfollowUser };

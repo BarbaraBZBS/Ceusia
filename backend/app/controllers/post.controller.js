@@ -26,18 +26,15 @@ const createPost = async ( req, res, next ) => {
             else {
                 const fileName = `${ req.auth.user_id }` + `${ Date.now() }` + req.file.detectedFileExtension;
                 console.log( 'filen: ', fileName );
-                if ( req.file.detectedMimeType.startsWith( 'image' )
-                ) {
+                if ( req.file.detectedMimeType.startsWith( 'image' ) ) {
                     filePath = `${ req.protocol }://${ req.get( "host" ) }/image/${ fileName }`;
                     console.log( 'image: ', filePath );
                 }
-                else if ( req.file.detectedMimeType.startsWith( 'video' )
-                ) {
+                else if ( req.file.detectedMimeType.startsWith( 'video' ) ) {
                     filePath = `${ req.protocol }://${ req.get( "host" ) }/video/${ fileName }`;
                     console.log( 'video: ', filePath );
                 }
-                else if ( req.file.detectedMimeType.startsWith( 'audio' )
-                ) {
+                else if ( req.file.detectedMimeType.startsWith( 'audio' ) ) {
                     filePath = `${ req.protocol }://${ req.get( "host" ) }/audio/${ fileName }`;
                     console.log( 'audio: ', filePath );
                 }
@@ -122,9 +119,16 @@ const updatePost = async ( req, res, next ) => {
         let filePath = '';
         await Post.findByPk( req.params.id )
             .then( async ( post ) => {
+                if ( !post ) {
+                    return res.status( 404 ).json( { message: 'post not found' } )
+                }
+                // User.findOne({where {id: req.auth.user_id} }).then ((user) =>{
+                //     if(user.role != admin) {
                 if ( post.user_id != req.auth.user_id ) {
                     return res.status( 401 ).json( { message: 'Unauthorized' } )
                 }
+                // }
+                // })
                 if ( req.file ) {
                     if ( !req.file.detectedMimeType.startsWith( 'image' ) && !req.file.detectedMimeType.startsWith( 'video' ) &&
                         !req.file.detectedMimeType.startsWith( 'audio' ) ) {
@@ -182,6 +186,7 @@ const updatePost = async ( req, res, next ) => {
                     res.status( 200 ).json( { message: 'post updated' } )
                 }
             } )
+            .catch( err => res.status( 400 ).json( { err } ) )
     }
     catch ( err ) {
         console.log( err );
@@ -194,10 +199,17 @@ const updatePost = async ( req, res, next ) => {
 const deletePost = ( req, res ) => {
     Post.findByPk( req.params.id )
         .then( ( post ) => {
-            if ( post.user_id != req.auth.user_id ) {
-                res.status( 401 ).json( { message: 'Unauthorized' } )
+            if ( !post ) {
+                return res.status( 404 ).json( { message: 'post not found' } )
             }
-            else if ( post.fileUrl ) {
+            // User.findOne({where {id: req.auth.user_id} }).then ((user) =>{
+            //     if(user.role != admin) {
+            if ( post.user_id != req.auth.user_id ) {
+                return res.status( 401 ).json( { message: 'Unauthorized' } )
+            }
+            // }
+            // })
+            if ( post.fileUrl ) {
                 const filename = post.fileUrl.split( '/image/' )[ 1 ] || post.fileUrl.split( '/video/' )[ 1 ] || post.fileUrl.split( '/audio/' )[ 1 ];
                 console.log( 'filename: ', filename );
                 fs.unlink( `app/public/files/post/${ filename }`, () => {
