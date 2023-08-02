@@ -6,6 +6,7 @@ import stream from 'stream';
 const pipeline = promisify( stream.pipeline );
 import path from 'path';
 import * as url from 'url';
+import { abort } from 'process';
 const __dirname = url.fileURLToPath( new URL( '..', import.meta.url ) );
 
 
@@ -61,8 +62,8 @@ const createPost = async ( req, res, next ) => {
                 user_id: req.auth.user_id
             } )
         }
-        res.status( 201 ).json( { message: 'post created' } );
         console.log( 'success: post created' );
+        res.status( 201 ).json( { message: 'post created' } );
     }
     catch ( err ) {
         console.log( err )
@@ -114,21 +115,20 @@ const findOnePost = ( req, res ) => {
 };
 
 // Update a Post identified by the id in the request
-const updatePost = async ( req, res, next ) => {
+const updatePost = ( req, res, next ) => {
     try {
         let filePath = '';
-        await Post.findByPk( req.params.id )
+        Post.findByPk( req.params.id )
             .then( async ( post ) => {
+                // console.log( 'file mimetype: ', req.file.detectedMimeType )
+                // console.log( post );
+                // console.log( req.auth.role );
                 if ( !post ) {
                     return res.status( 404 ).json( { message: 'post not found' } )
                 }
-                // User.findOne({where {id: req.auth.user_id} }).then ((user) =>{
-                //     if(user.role != admin) {
-                if ( post.user_id != req.auth.user_id ) {
+                if ( req.auth.role != 'admin' && post.user_id != req.auth.user_id ) {
                     return res.status( 401 ).json( { message: 'Unauthorized' } )
                 }
-                // }
-                // })
                 if ( req.file ) {
                     if ( !req.file.detectedMimeType.startsWith( 'image' ) && !req.file.detectedMimeType.startsWith( 'video' ) &&
                         !req.file.detectedMimeType.startsWith( 'audio' ) ) {
@@ -156,19 +156,22 @@ const updatePost = async ( req, res, next ) => {
                         await pipeline( req.file.stream, fs.createWriteStream(
                             path.join( __dirname, '/public', '/files', '/post', '/', fileName )
                         ) )
-
-                        await post.update( {
+                        post.update( {
                             title: req.body.title,
                             content: req.body.content,
                             fileUrl: filePath,
                             link: req.body.link,
-                            user_id: req.auth.user_id
+                            // user_id: req.auth.user_id // or post.user_id
                         } )
-                        console.log( 'success, post updated: ', post )
-                        res.status( 200 ).json( { message: 'post updated' } )
+                            .then( () => {
+                                console.log( 'success, post updated: ', post )
+                                res.status( 200 ).json( { message: 'post updated' } )
+                            } )
+                            .catch( err => res.status( 500 ).json( { err } ) )
+
                     }
                 }
-                else { //to check
+                else {
                     if ( req.body.fileUrl == '' ) {
                         const oldFile = post.fileUrl.split( '/image/' )[ 1 ] || post.fileUrl.split( '/video/' )[ 1 ] || post.fileUrl.split( '/audio/' )[ 1 ];
                         console.log( 'old image file: ', oldFile );
@@ -180,7 +183,8 @@ const updatePost = async ( req, res, next ) => {
                     post.update( {
                         title: req.body.title,
                         content: req.body.content,
-                        user_id: req.auth.user_id
+                        link: req.body.link,
+                        // user_id: req.auth.user_id // or post.user_id
                     } )
                     console.log( 'success, post updated: ', post )
                     res.status( 200 ).json( { message: 'post updated' } )
@@ -202,13 +206,9 @@ const deletePost = ( req, res ) => {
             if ( !post ) {
                 return res.status( 404 ).json( { message: 'post not found' } )
             }
-            // User.findOne({where {id: req.auth.user_id} }).then ((user) =>{
-            //     if(user.role != admin) {
-            if ( post.user_id != req.auth.user_id ) {
+            if ( req.auth.role != 'admin' && post.user_id != req.auth.user_id ) {
                 return res.status( 401 ).json( { message: 'Unauthorized' } )
             }
-            // }
-            // })
             if ( post.fileUrl ) {
                 const filename = post.fileUrl.split( '/image/' )[ 1 ] || post.fileUrl.split( '/video/' )[ 1 ] || post.fileUrl.split( '/audio/' )[ 1 ];
                 console.log( 'filename: ', filename );

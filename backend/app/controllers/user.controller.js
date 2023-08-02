@@ -29,10 +29,11 @@ const signup = ( req, res, next ) => {
         .then( hash => {
             User.create( { username: req.body.username, email: req.body.email, password: hash } )
                 .then( user => {
-                    // if ( req.body.role ) {
-                    //     user.update( {
-                    //         role: req.body.role
-                    //     } )
+                    if ( req.body.role ) {
+                        user.update( {
+                            role: req.body.role
+                        } )
+                    }
                     //     Role.findAll( { where: { name: req.body.role } } )
                     //         .then( role => {
                     //             user.setRoles( role ).then( () => {
@@ -78,7 +79,7 @@ const login = async ( req, res, next ) => {
                 const token = jwt.sign(
                     {
                         user_id: user.id,
-                        // role: user.role
+                        role: user.role
                     },
                     process.env.SECRET_TOKEN,
                     { expiresIn: maxAge }
@@ -87,17 +88,17 @@ const login = async ( req, res, next ) => {
 
                 res.status( 200 ).json( {
                     user_id: user.id,
-                    // role: user.role,
+                    role: user.role,
                     token: jwt.sign(
                         {
                             user_id: user.id,
-                            // role: user.role
+                            role: user.role
                         },
                         process.env.SECRET_TOKEN,
                         { expiresIn: maxAge }
                     ),
                 } );
-                // console.log( user.role )
+                console.log( user.role )
 
                 // const authorities = [];
                 // user.getRoles().then( roles => {
@@ -137,7 +138,7 @@ const logout = async ( req, res, next ) => {
 // Retrieve all Users from the database (with condition).
 const getAllUsers = ( req, res, next ) => {
     User.findAll( {
-        attributes: { exclude: [ 'password' ] }
+        attributes: { exclude: [ 'password', 'role' ] }
     } ) //not an issue on front?
         .then( ( users ) => {
             if ( users ) {
@@ -153,7 +154,7 @@ const getAllUsers = ( req, res, next ) => {
 // Find a single User with an id
 const findOneUser = async ( req, res, next ) => {
     await User.findByPk( req.params.id, {
-        attributes: { exclude: [ 'password' ] }
+        attributes: { exclude: [ 'password', 'role' ] }
     } )
         .then( ( user ) => {
             if ( user ) {
@@ -173,10 +174,16 @@ const updateUser = async ( req, res ) => {
     // }
     await User.findByPk( req.params.id )
         .then( ( user ) => {
+            // console.log( user )
             if ( !user ) {
-                res.status( 404 ).json( { message: 'User not found' } )
+                return res.status( 404 ).json( { message: 'User not found' } )
             }
             else {
+                if ( req.auth.role != 'admin' && user.id != req.auth.user_id ) {
+                    // if ( user.id != req.auth.user_id ) {
+                    return res.status( 401 ).json( { message: 'Unauthorized' } )
+                    // }
+                }
                 if ( req.body.password ) {
                     if ( !PASSWORD_REGEX.test( req.body.password ) ) {
                         return res.status( 409 ).json( { message: 'password must be 6 to 35 characters and contain at least 1 number and 1 letter.' } )
@@ -223,6 +230,17 @@ const updateUser = async ( req, res ) => {
                             } )
                     }
                 }
+                else if ( req.body.motto ) {
+                    user.update( { motto: req.body.motto } )
+                        .then( () => {
+                            console.log( req.body.motto )
+                            res.status( 200 ).json( { message: 'Success: user motto modified.' } )
+                        } )
+                        .catch( err => {
+                            console.log( 'error: ', err )
+                            res.status( 400 ).json( { message: err } )
+                        } )
+                }
             }
         } )
         .catch( error => res.status( 500 ).json( { error } ) )
@@ -236,6 +254,11 @@ const deleteUser = async ( req, res, next ) => {
                 res.status( 404 ).json( { message: 'User not found' } )
             }
             else {
+                if ( req.auth.role != 'admin' && user.id != req.auth.user_id ) {
+                    // if ( user.id != req.auth.user_id ) {
+                    return res.status( 401 ).json( { message: 'Unauthorized' } )
+                    // }
+                }
                 user.destroy()
                     .then( () => res.status( 200 ).json( { message: 'Success: user deleted !' } ) )
                     .catch( error => res.status( 400 ).json( { error } ) )

@@ -22,10 +22,10 @@ userRoutes.get( "/users", userCtrl.getAllUsers );
 userRoutes.get( "/user/:id", userCtrl.findOneUser );
 
 // Update User with id
-userRoutes.put( "/user/:id", userCtrl.updateUser );
+userRoutes.put( "/user/:id", auth, userCtrl.updateUser );
 
 // Delete User with id
-userRoutes.delete( "/user/:id", userCtrl.deleteUser );
+userRoutes.delete( "/user/:id", auth, userCtrl.deleteUser );
 
 // User profile image handle
 userRoutes.post( "/upload", auth, upload.single( 'picture' ), uploadCtrl.userPicture );

@@ -38,11 +38,13 @@ const User = db.define( "user", {
     },
     picture: {
         type: DataTypes.STRING, default: "http://localhost:8000/profile/defaultUser.png"
+    },
+    motto: {
+        type: DataTypes.TEXT, allowNull: true,
+    },
+    role: {
+        type: DataTypes.STRING, default: "user"
     }
-    // motto or bio ?
-    // role: {
-    //     type: DataTypes.STRING, default: "user"
-    // }
 }, {
     timestamps: false,
 } );
@@ -50,5 +52,3 @@ const User = db.define( "user", {
 // User.sync()
 
 export default User;
-
-//followers, following

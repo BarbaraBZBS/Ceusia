@@ -1,7 +1,5 @@
-// const express = require( "express" );
 import express from 'express';
 import { } from 'dotenv/config';
-// require( 'dotenv' ).config();
 import { db, connectToDb } from './app/models/db.js';
 import path from 'path';
 import * as url from 'url';
@@ -22,7 +20,8 @@ var corsOptions = {
     allowedHeaders: [ "sessionId", "Content-Type" ],
     exposedHeaders: [ "sessionId" ],
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    preflightContinue: false,
+    preflightContinue: true,
+    maxAge: 600
 };
 
 app.use( cors( corsOptions ) );
@@ -39,7 +38,6 @@ app.use( cookieParser() );
 app.get( "/", ( req, res ) => {
     res.json( { message: "Welcome to ceusia api." } );
 } );
-//require( "./app/routes/post.routes.js" )( app )
 
 db.sync()
     .then( () => {
@@ -57,4 +55,3 @@ app.use( '/api/auth', userRoutes );
 app.use( '/api/posts', postRoutes );
 
 export { app };
-// module.exports = app;

@@ -5,9 +5,7 @@ import stream from 'stream';
 const pipeline = promisify( stream.pipeline );
 import path from 'path';
 import * as url from 'url';
-// const __filename = url.fileURLToPath( import.meta.url );
 const __dirname = url.fileURLToPath( new URL( '..', import.meta.url ) );
-// const __dirname = path.dirname( __filename );
 
 
 const userPicture = async ( req, res, next ) => {
@@ -17,7 +15,7 @@ const userPicture = async ( req, res, next ) => {
         if ( !req.file.detectedMimeType.startsWith( 'image' ) ) {
             return res.status( 409 ).json( { message: "Bad image type" } );
         }
-        else if ( req.file.size > 800000 ) {
+        else if ( req.file.size > 8000000 ) {
             return res.status( 409 ).json( { message: "Max size reached" } );
         }
         else {

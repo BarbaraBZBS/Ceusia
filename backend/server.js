@@ -1,14 +1,8 @@
 import dotenv from 'dotenv';
 dotenv.config();
 // import { } from 'dotenv/config';
-// const http = require( 'http' );
 import http from 'http';
-// const app = require( './app' );
-// const app = './app.js';
 import { app } from './app.js';
-// const { sequelize, connectToDb } = require( './app/models/db' )
-// const dotenv = require( 'dotenv' );
-// require( 'dotenv' ).config();
 
 
 const normalizePort = val => {
