@@ -1,16 +1,14 @@
-import { useRef, useState, useEffect } from 'react'
-// import { faCheck, faTimes, faInfoCircle, faThumbsUp, faGear } from '@fortawesome/free-solid-svg-icons'
-// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-// import axios from '../../api/axios'
-import Login from '../login/page'
+"use client";
+import React from 'react';
+import { useRef, useState, useEffect } from 'react';
 
 // eslint-disable-next-line max-len
 const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ // eslint-disable-line
 const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,15})$/
 const USER_REGEX = /^[a-zA-Z-_]{5,10}$/
-const REGISTER_URL = '/api/auth/signup'
+// const REGISTER_URL = '/api/auth/signup'
 
-function Signup() {
+export default function RegisterPage() {
     const userRef = useRef()
     const errRef = useRef()
 
@@ -206,5 +204,3 @@ function Signup() {
         {/* ) } */ }
     </>
 }
-
-export default Signup

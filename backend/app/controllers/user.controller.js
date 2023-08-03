@@ -88,6 +88,7 @@ const login = async ( req, res, next ) => {
 
                 res.status( 200 ).json( {
                     user_id: user.id,
+                    username: user.username,
                     role: user.role,
                     token: jwt.sign(
                         {
