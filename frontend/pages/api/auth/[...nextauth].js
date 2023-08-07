@@ -1,8 +1,13 @@
-import NextAuth from "next-auth/next";
+import NextAuth from "next-auth";
+import { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 
-export default NextAuth( {
+export const authOptions = {
+    session: { maxAge: 3 * 24 * 60 * 60 * 1000, strategy: 'jwt' },
+    jwt: {
+        secret: process.env.JWT_SECRET
+    },
     providers: [
         CredentialsProvider( {
             // The name to display on the sign in form (e.g. "Sign in with...")
@@ -81,4 +86,6 @@ export default NextAuth( {
     pages: {
         signIn: "/auth/signIn"
     }
-} );
+};
+
+export default NextAuth( authOptions );

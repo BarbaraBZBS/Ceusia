@@ -16,7 +16,7 @@ import * as likeCtrl from '../controllers/like.controller.js';
 postRoutes.post( "/", auth, upload.single( 'fileUrl' ), postCtrl.createPost );
 
 // Retrieve all Posts
-postRoutes.get( "/", auth, postCtrl.getAllPosts );
+postRoutes.get( "/", postCtrl.getAllPosts ); // auth,
 
 // Retrieve a single Post with id
 postRoutes.get( "/:id", auth, postCtrl.findOnePost );

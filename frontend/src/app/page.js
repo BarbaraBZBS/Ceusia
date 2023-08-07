@@ -1,14 +1,18 @@
-"use client";
 import Image from 'next/image';
-import { signIn, signOut, useSession } from "next-auth/react";
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../../pages/api/auth/[...nextauth]';
+import Link from "next/link";
+import PostCards from '@/components/posts';
 
-export default function Home() {
-    const { data: session } = useSession();
-    console.log( { session } );
+
+export default async function Home() {
+    const session = await getServerSession( authOptions );
+    console.log( session );
+    // console.log( posts )
+    //add isloading ?
 
     return (
         <>
-            {/* <Log login={ true } signup={ false } /> */ }
             { session?.user ? (
                 <>
                     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -28,7 +32,7 @@ export default function Home() {
                             </div>
                             <div>
                                 <h3>Last posts</h3>
-                                {/* posts component */ }
+                                <PostCards />
                             </div>
                         </div>
                     </main>
@@ -42,8 +46,6 @@ export default function Home() {
                     </div>
                 </>
             ) }
-
-
         </>
     )
 }

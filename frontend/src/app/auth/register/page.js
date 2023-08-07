@@ -1,206 +1,163 @@
 "use client";
-import React from 'react';
-import { useRef, useState, useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
+import { useForm } from "react-hook-form"
+import axios from "axios";
+import Link from 'next/link';
+
 
 // eslint-disable-next-line max-len
+const USER_REGEX = /(^[a-zA-Z]{2,})+([A-Za-z0-9-_])/
 const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ // eslint-disable-line
-const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,15})$/
-const USER_REGEX = /^[a-zA-Z-_]{5,10}$/
-// const REGISTER_URL = '/api/auth/signup'
+const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9])/
+// const USER_REGEX = /^[a-zA-Z-_]{5,10}$/
+// const USER_REGEX = /(^[a-zA-Z-_]{3,3})+([A-Za-z0-9]){1,12}$/
+// const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,15})$/
+const REGISTER_URL = '/api/auth/signup'
+
 
 export default function RegisterPage() {
-    const userRef = useRef()
-    const errRef = useRef()
+    const {
+        register,
+        handleSubmit,
+        getValues,
+        watch,
+        setError,
+        setFocus,
+        reset,
+        formState: { errors, isSubmitted, isSubmitSuccessful },
+    } = useForm( {
+        defaultValues: {
+            username: '',
+            email: '',
+            password: ''
+        },
+        mode: "onBlur"
+    } )
 
-    const [ username, setUserName ] = useState( '' )
-    const [ validName, setValidName ] = useState( false )
-    const [ userFocus, setUserFocus ] = useState( false )
+    const password = useRef( {} )
+    password.current = watch( 'password', '' )
 
-    const [ email, setEmail ] = useState( '' )
-    const [ validEmail, setValidEmail ] = useState( false )
-    const [ emailFocus, setEmailFocus ] = useState( false )
-
-    const [ password, setPassword ] = useState( '' )
-    const [ validPwd, setValidPwd ] = useState( false )
-    const [ pwdFocus, setPwdFocus ] = useState( false )
-
-    const [ errMsg, setErrMsg ] = useState( '' )
-    const [ success, setSuccess ] = useState( false )
-    const [ logState, setLogState ] = useState()
+    const [ signupState, setSignupState ] = useState()
     const [ load, setLoad ] = useState( false )
+    const [ errMsg, setErrMsg ] = useState( '' )
 
 
-    useEffect( () => {
-        userRef.current.focus()
-    }, [] )
-
-    useEffect( () => {
-        const result = USER_REGEX.test( username )
-        console.log( result )
-        console.log( username )
-        setValidName( result )
-    }, [ username ] )
-
-    useEffect( () => {
-        const result = EMAIL_REGEX.test( email )
-        console.log( result )
-        console.log( email )
-        setValidEmail( result )
-    }, [ email ] )
-
-    useEffect( () => {
-        const result = PASSWORD_REGEX.test( password )
-        console.log( result )
-        console.log( password )
-        setValidPwd( result )
-    }, [ password ] )
-
-    useEffect( () => {
-        setErrMsg( '' )
-    }, [ username, email, password ] )
-
-    const handleSubmit = async ( e ) => {
+    const submitForm = async ( data, e ) => {
         e.preventDefault()
         setLoad( true )
-        console.log( username, email, password )
-        // if button enabled with JS hack
-        const v1 = USER_REGEX.test( username )
-        const v2 = PASSWORD_REGEX.test( password )
-        const v3 = EMAIL_REGEX.test( email )
-        if ( !v1 || !v2 || !v3 ) {
-            setErrMsg( 'Informations invalides' )
-            return
+        data = {
+            username: getValues( 'username' ),
+            email: getValues( 'email' ),
+            password: getValues( 'password' )
+        };
+        try {
+            const response = await axios.post( process.env.NEXT_PUBLIC_API + REGISTER_URL,
+                JSON.stringify( data ), {
+                headers: { 'Content-Type': 'application/json' },
+                withCredentials: true
+            } )
+            console.log( response?.data )
+            // console.log( JSON.stringify( response ) )
+            setSignupState( 'Signed up' )
+            setLoad( false )
+            // console.log( 'data: ', data )
+            if ( isSubmitSuccessful ) {
+                reset()
+            }
         }
-        // try {
-        //     const response = await axios.post( REGISTER_URL,
-        //         JSON.stringify( { username, email, password } ),
-        //         {
-        //             headers: { 'Content-Type': 'application/json' },
-        //             withCredentials: true
-        //         }
-        //     )
-        //     console.log( response?.data )
-        //     console.log( JSON.stringify( response ) )
-        //     setSuccess( true )
-        //     //clear state and controlled inputs
-        //     //need value attrib on inputs for this
-        //     setUserName( '' )
-        //     setEmail( '' )
-        //     setPassword( '' )
-        // } catch ( err ) {
-        //     setLoad( false )
-        //     setLogState()
-        //     if ( !err?.response ) {
-        //         setErrMsg( 'Pas de réponse du serveur' )
-        //     } else if ( err.response?.status === 409 ) {
-        //         setErrMsg( 'Nom/email déja utilisé(s)' )
-        //     } else {
-        //         setErrMsg( 'Échec inscription' )
-        //     }
-        //     errRef.current.focus()
-        // }
+        catch ( err ) {
+            setLoad( false )
+            setSignupState()
+            if ( !err?.response ) {
+                setErrMsg( 'Server unresponsive, please try again or come back later.' )
+            }
+            else if ( err.response?.status === 409 ) {
+                setError( 'username', { type: 'custom', message: 'Username already taken' } );
+                setFocus( 'username' );
+            }
+            else if ( err.response?.status === 403 ) {
+                setError( 'email', { type: 'custom', message: 'Email already taken' } );
+                setFocus( 'email' );
+            }
+            else {
+                setErrMsg( 'Inscription failed, please try again.' )
+            }
+        }
     }
 
     useEffect( () => {
-        load && setLogState( 'Signing up' )
+        load && setSignupState( 'Signing up' )
     }, [ load ] )
 
-
-    return <>
-        {/* { success ? (
-            < div className='flex flex-col'>
-                <div className='success flex flex-col'>
-                    <h4>
-                        <FontAwesomeIcon icon={ faThumbsUp } />
-                        &nbsp; Inscription validée ! <br />
-                        Vous pouvez vous connecter.
-                    </h4>
-                </div>
-                <br />
+    // console.log( watch() )
+    return (
+        <>
+            <section>
                 <div>
-                    <Login />
+                    { signupState === 'Signing up' ? <p>Signing you up...</p> :
+                        isSubmitSuccessful && signupState === 'Signed up' ? <p> Registered ! You can now sign in.</p> :
+                            <div>
+                                <h1>Sign up</h1>
+                                <p>Already have an account? --&gt; <Link href='/auth/signIn'>Sign in</Link></p>
+
+                                <p className={ errMsg ? 'errMsg' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
+
+                                <form style={ { display: "flex", flexDirection: "column" } } onSubmit={ handleSubmit( submitForm ) }>
+
+                                    <input placeholder="username" autoComplete='off' { ...register( "username", {
+                                        required: 'This field is required',
+                                        minLength: {
+                                            value: 4,
+                                            message: '4 characters minimum'
+                                        },
+                                        maxLength: {
+                                            value: 15,
+                                            message: '15 characters maximum'
+                                        },
+                                        pattern: {
+                                            value: USER_REGEX,
+                                            message: 'Username must start with letters (digits, -, _ allowed)'
+                                        }
+                                    } ) } style={ { border: "2px solid purple", borderRadius: "5px", width: "50%", height: "40px", margin: "10px" } } />
+                                    { errors.username && <span id='usrnErr'>{ errors.username.message }</span> }
+
+                                    <input type="email" placeholder="email" { ...register( "email", {
+                                        required: 'This field is required',
+                                        pattern: {
+                                            value: EMAIL_REGEX,
+                                            message: 'Email must have a valid format'
+                                        }
+                                    } ) } style={ { border: "2px solid purple", borderRadius: "5px", width: "50%", height: "40px", margin: "10px" } } />
+                                    { errors.email && <span>{ errors.email.message }</span> }
+
+                                    <input type="password" placeholder="password" { ...register( "password", {
+                                        required: 'This field is required',
+                                        minLength: {
+                                            value: 6,
+                                            message: '6 characters minimum'
+                                        },
+                                        maxLength: {
+                                            value: 35,
+                                            message: '35 characters maximum'
+                                        },
+                                        pattern: {
+                                            value: PASSWORD_REGEX,
+                                            message: 'Password must have at least 1 digit and 1 letter'
+                                        }
+                                    } ) } style={ { border: "2px solid purple", borderRadius: "5px", width: "50%", height: "40px", margin: "10px" } } />
+                                    { errors.password && <span>{ errors.password.message }</span> }
+
+                                    <input type="password" placeholder="confirm password" { ...register( "confirm_password", {
+                                        validate: value => value === password.current || "Passwords do not match",
+                                    } ) } style={ { border: "2px solid purple", borderRadius: "5px", width: "50%", height: "40px", margin: "10px" } } />
+                                    { errors.confirm_password && <span>{ errors.confirm_password.message }</span> }
+
+                                    <input type="submit" onClick={ () => setErrMsg( '' ) } />
+                                </form>
+                            </div>
+                    }
                 </div>
-            </div>
-        ) : ( */}
-        <section>
-            {/* <div className='logstate-container'>
-                    { logState === 'Signing up' ? <FontAwesomeIcon icon={ faGear }
-                        className='animate-spin text-appstone text-2xl' /> : '' }
-                </div> */}
-            <p ref={ errRef } className={ errMsg ? 'errMsg' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
-            <h1 className='title2 sm:title1 text-center'>Register</h1>
-            <form className='form' onSubmit={ handleSubmit }>
-                <label htmlFor="username" className='label'>
-                    Username :
-                    {/* <FontAwesomeIcon icon={ faCheck } className={ validName ? 'valid' : 'hidden' } />
-                        <FontAwesomeIcon icon={ faTimes } className={ validName || !username ? 'hidden' : 'invalid' } /> */}
-                </label>
-                <input className='input'
-                    type="text"
-                    id="username"
-                    ref={ userRef }
-                    autoComplete="off"
-                    onChange={ ( e ) => setUserName( e.target.value ) }
-                    value={ username }
-                    required
-                    aria-invalid={ validName ? 'false' : 'true' }
-                    aria-describedby="uidnote"
-                    onFocus={ () => setUserFocus( true ) }
-                    onBlur={ () => setUserFocus( false ) }
-                />
-                {/* <p id="uidnote" className={ userFocus && username && !validName ? 'instructions' : 'offscreen' }>
-                        <FontAwesomeIcon icon={ faInfoCircle } />
-                        &nbsp; 4 à 10 charactères. <br />
-                        (lettres, _ , -)
-                    </p> */}
-
-                <label htmlFor="email" className='label'>
-                    Email :
-                    {/* <FontAwesomeIcon icon={ faCheck } className={ validEmail ? 'valid' : 'hidden' } />
-                        <FontAwesomeIcon icon={ faTimes } className={ validEmail || !email ? 'hidden' : 'invalid' } /> */}
-                </label>
-                <input className='input'
-                    type="email"
-                    id="email"
-                    onChange={ ( e ) => setEmail( e.target.value ) }
-                    value={ email }
-                    required
-                    aria-invalid={ validEmail ? 'false' : 'true' }
-                    aria-describedby='emailnote'
-                    onFocus={ () => setEmailFocus( true ) }
-                    onBlur={ () => setEmailFocus( false ) }
-                />
-                {/* <p id="emailnote" className={ emailFocus && !validEmail ? 'instructions' : 'offscreen' }>
-                        <FontAwesomeIcon icon={ faInfoCircle } />
-                        &nbsp; doit avoir un format email valide.<br />
-                    </p> */}
-
-                <label htmlFor="password" className='label'>
-                    Password :
-                    {/* <FontAwesomeIcon icon={ faCheck } className={ validPwd ? 'valid' : 'hidden' } />
-                        <FontAwesomeIcon icon={ faTimes } className={ validPwd || !password ? 'hidden' : 'invalid' } /> */}
-                </label>
-                <input className='input'
-                    type="password"
-                    id="password"
-                    onChange={ ( e ) => setPassword( e.target.value ) }
-                    value={ password }
-                    required
-                    aria-invalid={ validPwd ? 'false' : 'true' }
-                    aria-describedby='pwdnote'
-                    onFocus={ () => setPwdFocus( true ) }
-                    onBlur={ () => setPwdFocus( false ) }
-                />
-                {/* <p id="pwdnote" className={ pwdFocus && !validPwd ? 'instructions' : 'offscreen' }>
-                        <FontAwesomeIcon icon={ faInfoCircle } />
-                        &nbsp; 6 à 15 charactères. <br />
-                        (au moins un nombre et une lettre)
-                    </p> */}
-                <br />
-                <button className={ !validName || !validPwd || !validEmail ? 'self-center disabled' : 'btn btn:hover self-center mt-3' }>
-                    Proceed</button>
-            </form>
-        </section>
-        {/* ) } */ }
-    </>
+            </section>
+        </>
+    )
 }

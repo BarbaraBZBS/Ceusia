@@ -1,20 +1,20 @@
 import User from "../models/user.model.js";
-import Followers from "../models/follower.model.js";
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User_Follower from "../models/follower.model.js";
-// const Role = require( '../models/role' );
 
+
+const USER_REGEX = /(^[a-zA-Z-_]{3,3})+([A-Za-z0-9]){1,12}$/
 const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,35})$/;
 
-const signup = ( req, res, next ) => {
+const signup = async ( req, res, next ) => {
     if ( req.body.email == null || req.body.password == null ) {
         return res.status( 400 ).json( { message: 'empty field(s)' } )
     }
 
-    if ( req.body.username.length >= 16 || req.body.username.length <= 3 ) {
-        return res.status( 400 ).json( { message: 'username must be 4 to 15 characters.' } )
+    if ( !USER_REGEX.test( req.body.username ) ) {
+        return res.status( 400 ).json( { message: 'username must be 4 to 15 characters, starting with letters.' } )
     }
 
     if ( !EMAIL_REGEX.test( req.body.email ) ) {
@@ -24,6 +24,12 @@ const signup = ( req, res, next ) => {
     if ( !PASSWORD_REGEX.test( req.body.password ) ) {
         return res.status( 400 ).json( { message: 'password must be 6 to 35 characters and contain at least 1 number and 1 letter.' } )
     }
+
+    const usernameExists = await User.findOne( { where: { username: req.body.username } } );
+    if ( usernameExists ) { return res.status( 409 ).json( { message: "username already taken" } ) };
+
+    const emailExists = await User.findOne( { where: { email: req.body.email } } );
+    if ( emailExists ) { return res.status( 403 ).json( { message: "email already taken" } ) };
 
     bcrypt.hash( req.body.password, 15 )
         .then( hash => {
@@ -53,10 +59,10 @@ const signup = ( req, res, next ) => {
                     //     }
                 } )
                 .catch( error => {
-                    res.status( 500 ).send( { message: error.message } )
+                    res.status( 400 ).send( { message: error.message } )
                 } )
         } )
-        .catch( error => res.status( 400 ).json( { error } ) )
+        .catch( error => res.status( 500 ).json( { error } ) )
 };
 
 const login = async ( req, res, next ) => {
