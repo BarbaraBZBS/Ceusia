@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Ysabeau+Office:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,300&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -29,9 +30,60 @@ body {
     rgb(var(--background-start-rgb)); */
 }
 
+
 @layer base {
   /* ??? {
-    @apply text-2xl;
+    @apply text-[3vh];
   } */
   /* ... */
+  /* @screen lg { // applying font size for lg breakpoint
+    body {
+      @apply text-body-lg;
+    }
+  } */
+}
+
+@layer components {
+  .about_page {
+    @apply text-clamp4 mb-3;
+  }
+  .signLink {
+    @apply hover:text-appturq hover:translate-y-1 active:text-appturq active:underline
+  }
+  .activeLink {
+    @apply text-apppink drop-shadow-linkTxt underline 
+  }
+  .linkAnim {
+    @apply transition-all duration-200 ease-in-out 
+  }
+  .form_btn_submit_in {
+    @apply bg-appstone text-white uppercase w-fit rounded-xl px-3 py-[3px] mt-8 mb-4 transition-all duration-300 ease-in-out hover:bg-[#D9FFC5] hover:text-appblck hover:translate-y-[-7px] hover:shadow-btngreen
+  }
+  .form_btn_submit_up {
+    @apply bg-appstone text-white uppercase w-fit rounded-xl px-3 py-[3px] mt-8 mb-4 transition-all duration-300 ease-in-out hover:bg-[#ffcec9] hover:text-appblck hover:translate-y-[-7px] hover:shadow-btnpink
+  }
+  .form_container {
+    @apply border-2 border-apppink rounded-xl bg-apppink shadow-md m-5 h-fit
+  }
+  .form_container_reg {
+    @apply  border-2 border-apppastgreen rounded-xl bg-apppastgreen shadow-md m-5 h-fit
+  }
+  .form_input {
+    @apply border-2 border-appstone rounded-md h-10 my-3 drop-shadow-linkTxt
+  }
+  .errMsg {
+    @apply text-center text-red-600 bg-white font-semibold drop-shadow-light mx-6 rounded-md
+  }
+  .offscreen {
+    @apply hidden
+  }
+  .fieldErrMsg {
+    @apply text-red-600  bg-white font-semibold drop-shadow-light px-2 rounded-md
+  }
+  /* ... */
+  /* @screen lg { // applying font size for lg breakpoint
+    body {
+      @apply text-body-lg;
+    }
+  } */
 }

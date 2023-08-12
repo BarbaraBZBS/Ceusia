@@ -41,6 +41,18 @@ export default function RegisterPage() {
     const [ load, setLoad ] = useState( false )
     const [ errMsg, setErrMsg ] = useState( '' )
 
+    useEffect( () => {
+        load && setSignupState( 'Signing up' )
+    }, [ load ] )
+
+    useEffect( () => {
+        if ( errors?.username ) {
+            setFocus( "username" )
+        }
+        else if ( errors?.email ) {
+            setFocus( "email" )
+        }
+    } )
 
     const submitForm = async ( data, e ) => {
         e.preventDefault()
@@ -85,75 +97,77 @@ export default function RegisterPage() {
         }
     }
 
-    useEffect( () => {
-        load && setSignupState( 'Signing up' )
-    }, [ load ] )
 
     // console.log( watch() )
     return (
         <>
-            <section>
-                <div>
-                    { signupState === 'Signing up' ? <p>Signing you up...</p> :
-                        isSubmitSuccessful && signupState === 'Signed up' ? <p> Registered ! You can now sign in.</p> :
+            <section className='h-fit'>
+                <div className='mt-12 mb-20'>
+                    { signupState === 'Signing up' ? <p className='text-center text-clamp5'>Signing you up, please wait...</p> :
+                        isSubmitSuccessful && signupState === 'Signed up' ? <p className='text-center text-clamp5'> Registered ! You can now sign in.</p> :
                             <div>
-                                <h1>Sign up</h1>
-                                <p>Already have an account? --&gt; <Link href='/auth/signIn'>Sign in</Link></p>
+                                <p className='text-clamp7 text-center'>Already have an account ?
+                                    <Link className='text-[#DD1600] signLink uppercase' href='/auth/signIn'> Sign in</Link>
+                                </p>
 
-                                <p className={ errMsg ? 'errMsg' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
+                                <div className='form_container_reg'>
+                                    <h1 className='text-clamp5 text-center mb-4 mt-2 uppercase'>Sign up</h1>
 
-                                <form style={ { display: "flex", flexDirection: "column" } } onSubmit={ handleSubmit( submitForm ) }>
+                                    <p className={ errMsg ? 'errMsg text-clamp6' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
 
-                                    <input placeholder="username" autoComplete='off' { ...register( "username", {
-                                        required: 'This field is required',
-                                        minLength: {
-                                            value: 4,
-                                            message: '4 characters minimum'
-                                        },
-                                        maxLength: {
-                                            value: 15,
-                                            message: '15 characters maximum'
-                                        },
-                                        pattern: {
-                                            value: USER_REGEX,
-                                            message: 'Username must start with letters (digits, -, _ allowed)'
-                                        }
-                                    } ) } style={ { border: "2px solid purple", borderRadius: "5px", width: "50%", height: "40px", margin: "10px" } } />
-                                    { errors.username && <span id='usrnErr'>{ errors.username.message }</span> }
+                                    <form className='mb-3 py-2 flex flex-col items-center text-clamp6' onSubmit={ handleSubmit( submitForm ) }>
 
-                                    <input type="email" placeholder="email" { ...register( "email", {
-                                        required: 'This field is required',
-                                        pattern: {
-                                            value: EMAIL_REGEX,
-                                            message: 'Email must have a valid format'
-                                        }
-                                    } ) } style={ { border: "2px solid purple", borderRadius: "5px", width: "50%", height: "40px", margin: "10px" } } />
-                                    { errors.email && <span>{ errors.email.message }</span> }
+                                        <input placeholder="   Username" autoComplete='off' { ...register( "username", {
+                                            required: 'This field is required',
+                                            minLength: {
+                                                value: 4,
+                                                message: '4 characters minimum'
+                                            },
+                                            maxLength: {
+                                                value: 15,
+                                                message: '15 characters maximum'
+                                            },
+                                            pattern: {
+                                                value: USER_REGEX,
+                                                message: 'Username must start with letters (digits, -, _ allowed)'
+                                            }
+                                        } ) } className='form_input' />
+                                        { errors.username && <span className='fieldErrMsg' id='usrnErr'>{ errors.username.message }</span> }
 
-                                    <input type="password" placeholder="password" { ...register( "password", {
-                                        required: 'This field is required',
-                                        minLength: {
-                                            value: 6,
-                                            message: '6 characters minimum'
-                                        },
-                                        maxLength: {
-                                            value: 35,
-                                            message: '35 characters maximum'
-                                        },
-                                        pattern: {
-                                            value: PASSWORD_REGEX,
-                                            message: 'Password must have at least 1 digit and 1 letter'
-                                        }
-                                    } ) } style={ { border: "2px solid purple", borderRadius: "5px", width: "50%", height: "40px", margin: "10px" } } />
-                                    { errors.password && <span>{ errors.password.message }</span> }
+                                        <input type="email" placeholder="   Email" { ...register( "email", {
+                                            required: 'This field is required',
+                                            pattern: {
+                                                value: EMAIL_REGEX,
+                                                message: 'Email must have a valid format'
+                                            }
+                                        } ) } className='form_input' />
+                                        { errors.email && <span className='fieldErrMsg'>{ errors.email.message }</span> }
 
-                                    <input type="password" placeholder="confirm password" { ...register( "confirm_password", {
-                                        validate: value => value === password.current || "Passwords do not match",
-                                    } ) } style={ { border: "2px solid purple", borderRadius: "5px", width: "50%", height: "40px", margin: "10px" } } />
-                                    { errors.confirm_password && <span>{ errors.confirm_password.message }</span> }
+                                        <input type="password" placeholder="   Password" { ...register( "password", {
+                                            required: 'This field is required',
+                                            minLength: {
+                                                value: 6,
+                                                message: '6 characters minimum'
+                                            },
+                                            maxLength: {
+                                                value: 35,
+                                                message: '35 characters maximum'
+                                            },
+                                            pattern: {
+                                                value: PASSWORD_REGEX,
+                                                message: 'Password must have at least 1 digit and 1 letter'
+                                            }
+                                        } ) } className='form_input' />
+                                        { errors.password && <span className='fieldErrMsg'>{ errors.password.message }</span> }
 
-                                    <input type="submit" onClick={ () => setErrMsg( '' ) } />
-                                </form>
+                                        <input type="password" placeholder="   Confirm password" { ...register( "confirm_password", {
+                                            required: 'This field is required', validate: value => value === password.current || "Passwords do not match",
+                                        } ) } className='form_input' />
+                                        { errors.confirm_password && <span className='fieldErrMsg'>{ errors.confirm_password.message }</span> }
+
+                                        <button type="submit" onClick={ () => setErrMsg( '' ) } className='form_btn_submit_up'>Submit</button>
+                                    </form>
+                                </div>
                             </div>
                     }
                 </div>

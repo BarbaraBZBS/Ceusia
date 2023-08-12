@@ -37,14 +37,14 @@ export default async function Home() {
                         </div>
                     </main>
                 </> ) : (
-                <>
-                    <div>
-                        <h1> Welcome to Ceusia ! </h1>
+                <section className="h-screen flex flex-col items-center">
+                    <div className="mt-20">
+                        <h1 className="text-clamp3"> Welcome to Ceusia ! </h1>
                     </div>
-                    <div>
-                        <p> Please sign in or register </p>
+                    <div className=" mt-4">
+                        <p className="text-clamp4"> Please sign in or register </p>
                     </div>
-                </>
+                </section>
             ) }
         </>
     )

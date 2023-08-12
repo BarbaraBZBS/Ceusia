@@ -64,27 +64,27 @@ export default function LogInPage() {
 
     // console.log( watch() ) // watch input value by passing the name of it or whole form by passing nothing
     return (
-        <section>
-            <div>
-                { logState === 'Logging in' ? <p>Logging you in...</p> :
-                    <div>
-                        <h1>Sign In</h1>
-                        <p className={ errMsg ? 'errMsg' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
+        <section className='h-fit'>
+            <div className='mt-16 mb-40'>
+                { logState === 'Logging in' ? <p className='text-center text-clamp5'>Logging you in, please wait...</p> :
+                    <div className='form_container'>
+                        <h1 className='text-clamp5 text-center mb-4 mt-2 uppercase'>Sign In</h1>
+                        <p className={ errMsg ? 'errMsg text-clamp6' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
 
-                        <form style={ { display: "flex", flexDirection: "column" } } onSubmit={ handleSubmit( submitForm ) }>
+                        <form className='mb-3 py-2 flex flex-col items-center text-clamp6' onSubmit={ handleSubmit( submitForm ) }>
 
-                            <input type="email" placeholder="email" autoComplete='off' { ...register( "email", {
+                            <input type="email" placeholder="   Email" autoComplete='off' { ...register( "email", {
                                 required: true,
                                 onBlur: () => { if ( errMsg ) { setErrMsg( '' ) } }
-                            } ) } style={ { border: "2px solid purple", borderRadius: "5px", width: "50%", height: "40px", margin: "10px" } } />
-                            { errors.email && <span>This field is required</span> }
+                            } ) } className='form_input' />
+                            { errors.email && <span className='fieldErrMsg'>This field is required</span> }
 
-                            <input type="password" placeholder="password" { ...register( "password", {
+                            <input type="password" placeholder="   Password" { ...register( "password", {
                                 required: true, onBlur: () => { if ( errMsg ) { setErrMsg( '' ) } }
-                            } ) } style={ { border: "2px solid purple", borderRadius: "5px", width: "50%", height: "40px", margin: "10px" } } />
-                            { errors.password && <span>This field is required</span> }
+                            } ) } className='form_input' />
+                            { errors.password && <span className='fieldErrMsg'>This field is required</span> }
 
-                            <input type="submit" />
+                            <button type="submit" className='form_btn_submit_in'>Submit</button>
                         </form>
                     </div>
                 }
