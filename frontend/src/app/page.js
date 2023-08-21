@@ -2,21 +2,21 @@ import Image from 'next/image';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../pages/api/auth/[...nextauth]';
 import Link from "next/link";
-import PostCards from '@/components/posts';
+import Posts from '@/components/posts';
 
 
 export default async function Home() {
     const session = await getServerSession( authOptions );
     console.log( session );
-    // console.log( posts )
+
     //add isloading ?
 
     return (
         <>
             { session?.user ? (
                 <>
-                    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-                        <div className="relative flex flex-col place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700 before:dark:opacity-10 after:dark:from-sky-900 after:dark:via-[#0141ff] after:dark:opacity-40 before:lg:h-[360px]">
+                    <main className="flex min-h-screen flex-col items-center justify-between">
+                        <div className="flex flex-col items-center justify-center mx-3">
 
                             <div>
                                 <h2>What&apos;s on your mind?</h2>
@@ -30,18 +30,18 @@ export default async function Home() {
                                 />
                                 {/* send post form component */ }
                             </div>
-                            <div>
-                                <h3>Last posts</h3>
-                                <PostCards />
+                            <div className='flex flex-col items-center'>
+                                <h3 className='text-center text-clamp5 mt-8 mb-4'>Last posts :</h3>
+                                <Posts />
                             </div>
                         </div>
                     </main>
                 </> ) : (
-                <section className="h-screen flex flex-col items-center">
+                <section className="h-fit pt-10 pb-28 my-16 flex flex-col items-center">
                     <div className="mt-20">
                         <h1 className="text-clamp3"> Welcome to Ceusia ! </h1>
                     </div>
-                    <div className=" mt-4">
+                    <div className="mt-4">
                         <p className="text-clamp4"> Please sign in or register </p>
                     </div>
                 </section>

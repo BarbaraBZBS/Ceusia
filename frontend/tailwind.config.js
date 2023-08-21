@@ -36,6 +36,8 @@ module.exports = {
             boxShadow: {
                 'btnpink': '0px 15px 20px rgba(255, 206, 201, 0.4)',
                 'btngreen': '0px 15px 20px rgba(217, 255, 197, 0.4)',
+                'btnindigo': '0px 15px 20px rgba(67, 56, 202, 0.4)',
+
             }
         },
         fontFamily: {

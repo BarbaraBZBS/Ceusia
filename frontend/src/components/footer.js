@@ -1,4 +1,4 @@
-'use client'
+'use client';
 import React from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 
 
 export default function Footer() {
-    const currentRoute = usePathname()
+    const currentRoute = usePathname();
 
     return (
         <footer className="mt-5 bg-gray-200 bg-opacity-60 flex flex-col text-appmagenta">

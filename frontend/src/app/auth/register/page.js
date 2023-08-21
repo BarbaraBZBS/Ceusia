@@ -1,6 +1,6 @@
-"use client";
+'use client';
 import React, { useEffect, useState, useRef } from 'react';
-import { useForm } from "react-hook-form"
+import { useForm } from "react-hook-form";
 import axios from "axios";
 import Link from 'next/link';
 
@@ -32,31 +32,31 @@ export default function RegisterPage() {
             password: ''
         },
         mode: "onBlur"
-    } )
+    } );
 
-    const password = useRef( {} )
-    password.current = watch( 'password', '' )
+    const password = useRef( {} );
+    password.current = watch( 'password', '' );
 
-    const [ signupState, setSignupState ] = useState()
-    const [ load, setLoad ] = useState( false )
-    const [ errMsg, setErrMsg ] = useState( '' )
+    const [ signupState, setSignupState ] = useState();
+    const [ load, setLoad ] = useState( false );
+    const [ errMsg, setErrMsg ] = useState( '' );
 
     useEffect( () => {
-        load && setSignupState( 'Signing up' )
+        load && setSignupState( 'Signing up' );
     }, [ load ] )
 
     useEffect( () => {
         if ( errors?.username ) {
-            setFocus( "username" )
+            setFocus( "username" );
         }
         else if ( errors?.email ) {
-            setFocus( "email" )
+            setFocus( "email" );
         }
     } )
 
     const submitForm = async ( data, e ) => {
-        e.preventDefault()
-        setLoad( true )
+        e.preventDefault();
+        setLoad( true );
         data = {
             username: getValues( 'username' ),
             email: getValues( 'email' ),
@@ -68,20 +68,20 @@ export default function RegisterPage() {
                 headers: { 'Content-Type': 'application/json' },
                 withCredentials: true
             } )
-            console.log( response?.data )
+            console.log( response?.data );
             // console.log( JSON.stringify( response ) )
-            setSignupState( 'Signed up' )
-            setLoad( false )
+            setSignupState( 'Signed up' );
+            setLoad( false );
             // console.log( 'data: ', data )
             if ( isSubmitSuccessful ) {
-                reset()
+                reset();
             }
         }
         catch ( err ) {
-            setLoad( false )
-            setSignupState()
+            setLoad( false );
+            setSignupState();
             if ( !err?.response ) {
-                setErrMsg( 'Server unresponsive, please try again or come back later.' )
+                setErrMsg( 'Server unresponsive, please try again or come back later.' );
             }
             else if ( err.response?.status === 409 ) {
                 setError( 'username', { type: 'custom', message: 'Username already taken' } );
@@ -92,7 +92,7 @@ export default function RegisterPage() {
                 setFocus( 'email' );
             }
             else {
-                setErrMsg( 'Inscription failed, please try again.' )
+                setErrMsg( 'Inscription failed, please try again.' );
             }
         }
     }
@@ -132,7 +132,7 @@ export default function RegisterPage() {
                                                 message: 'Username must start with letters (digits, -, _ allowed)'
                                             }
                                         } ) } className='form_input' />
-                                        { errors.username && <span className='fieldErrMsg' id='usrnErr'>{ errors.username.message }</span> }
+                                        { errors.username && <span className='fieldErrMsg'>{ errors.username.message }</span> }
 
                                         <input type="email" placeholder="   Email" { ...register( "email", {
                                             required: 'This field is required',

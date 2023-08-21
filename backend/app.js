@@ -14,12 +14,12 @@ import postRoutes from './app/routes/post.routes.js';
 
 const app = express();
 
-var corsOptions = {
+const corsOptions = {
     origin: process.env.CLIENT_URL,
     credentials: true,
-    allowedHeaders: [ "sessionId", "Content-Type" ],
+    allowedHeaders: [ "Origin, X-Requested-With, Content-Type, Accept, Authorization" ],
     exposedHeaders: [ "sessionId" ],
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS",
     preflightContinue: true,
     maxAge: 600
 };

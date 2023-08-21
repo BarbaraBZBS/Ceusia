@@ -79,7 +79,7 @@ const getAllPosts = async ( req, res ) => {
         order: [ [ 'createdAt', 'DESC' ] ],
         include: {
             model: User,
-            attributes: [ 'username', 'email' ]
+            attributes: [ 'username', 'email', 'picture' ]
         }
     } )
         .then( ( posts ) => {

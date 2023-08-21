@@ -9,11 +9,11 @@ const __dirname = url.fileURLToPath( new URL( '..', import.meta.url ) );
 
 
 const userPicture = async ( req, res, next ) => {
-    console.log( req.file )
+    console.log( 'req file: ', req.file )
     try {
         let imagePath = '';
         if ( !req.file.detectedMimeType.startsWith( 'image' ) ) {
-            return res.status( 409 ).json( { message: "Bad image type" } );
+            return res.status( 403 ).json( { message: "Bad image type" } );
         }
         else if ( req.file.size > 8000000 ) {
             return res.status( 409 ).json( { message: "Max size reached" } );
@@ -21,7 +21,7 @@ const userPicture = async ( req, res, next ) => {
         else {
             await User.findOne( { where: { id: req.auth.user_id } } )
                 .then( async ( user ) => {
-                    console.log( user )
+                    console.log( 'user: ', user )
                     if ( !user ) {
                         return res.status( 404 ).json( { message: "User not found" } )
                     }
@@ -38,13 +38,15 @@ const userPicture = async ( req, res, next ) => {
                             ) ) )
                         await user.update( { picture: imagePath } )
                             .then( () => {
-                                console.log( imagePath )
+                                console.log( 'imagepath: ', imagePath )
                                 res.status( 200 ).json( { message: 'user picture updated' } )
                             } )
                             .catch( err => res.status( 400 ).json( { err } ) )
                     }
                 } )
-                .catch( err => res.status( 400 ).json( { err } ) )
+                .catch( err => {
+                    res.status( 400 ).json( { err } )
+                } )
         }
     }
     catch ( err ) {

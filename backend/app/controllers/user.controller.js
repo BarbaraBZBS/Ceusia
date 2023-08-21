@@ -40,19 +40,6 @@ const signup = async ( req, res, next ) => {
                             role: req.body.role
                         } )
                     }
-                    //     Role.findAll( { where: { name: req.body.role } } )
-                    //         .then( role => {
-                    //             user.setRoles( role ).then( () => {
-                    //                 res.send( { message: 'Utilisateur enregistré avec succès' } )
-                    //             } );
-                    //         } );
-                    // }
-                    // else {
-                    //     //user role 1
-                    //     user.update( {
-                    //         role: "user"
-                    //     } )
-                    //     user.setRoles( [ 1 ] ).then( () => {
                     res.status( 200 ).json( user ); //remove with user roles
                     // add this with user roles -- res.send( { message: 'User registered successfully' } );
                     //         } )
@@ -106,14 +93,6 @@ const login = async ( req, res, next ) => {
                     ),
                 } );
                 console.log( user.role )
-
-                // const authorities = [];
-                // user.getRoles().then( roles => {
-                //     for ( let i = 0; i < roles.length; i++ ) {
-                //         authorities.push( "ROLE_" + roles[ i ].name.toUpperCase() );
-                //     }
-                //     console.log( authorities )
-                // } );
             } )
             .catch( error => {
                 console.log( 'error where?', res.cookie )
@@ -262,16 +241,14 @@ const deleteUser = async ( req, res, next ) => {
             }
             else {
                 if ( req.auth.role != 'admin' && user.id != req.auth.user_id ) {
-                    // if ( user.id != req.auth.user_id ) {
                     return res.status( 401 ).json( { message: 'Unauthorized' } )
-                    // }
                 }
                 user.destroy()
                     .then( () => res.status( 200 ).json( { message: 'Success: user deleted !' } ) )
                     .catch( error => res.status( 400 ).json( { error } ) )
             }
         } )
-        .catch( error => res.status( 400 ).json( { error } ) )
+        .catch( error => res.status( 500 ).json( { error } ) )
 };
 
 

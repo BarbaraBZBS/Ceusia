@@ -46,11 +46,15 @@ export const authOptions = {
                 //     // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
                 // }
 
-                return axios
-                    .post( `${ process.env.NEXT_PUBLIC_API }/api/auth/login`, {
+                return axios( {
+                    method: 'post',
+                    url: `${ process.env.NEXT_PUBLIC_API }/api/auth/login`,
+                    data: {
                         email: credentials.email,
                         password: credentials.password,
-                    } )
+                    },
+                    withCredentials: true
+                } )
                     .then( ( response ) => {
                         console.log( 'res data: ', response.data )
                         return response.data;
@@ -59,8 +63,6 @@ export const authOptions = {
                         console.log( error.response );
                         throw new Error( error.response.data.message );
                     } ) || null;
-
-
             },
         } ),
         // AppleProvider( {
