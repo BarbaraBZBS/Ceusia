@@ -1,5 +1,5 @@
 'use client';
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -7,10 +7,14 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export default function AppNav() {
-    const { data: session } = useSession();
-    console.log( { session } );
+    const { data: session, update } = useSession();
     const currentRoute = usePathname();
     const router = useRouter()
+    console.log( 'nav session: ', { session } );
+
+    // if ( session == null ) {
+    //     signOut()
+    // }
 
     const signout = () => {
         router.push( '/' )

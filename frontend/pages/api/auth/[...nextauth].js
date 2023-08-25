@@ -4,9 +4,10 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 
 export const authOptions = {
-    session: { maxAge: 3 * 24 * 60 * 60 * 1000, strategy: 'jwt' },
+    session: { maxAge: 1 * 60 * 60, strategy: 'jwt' },
     jwt: {
-        secret: process.env.JWT_SECRET
+        secret: process.env.NEXTAUTH_SECRET,
+        maxAge: 3000
     },
     providers: [
         CredentialsProvider( {
@@ -21,30 +22,6 @@ export const authOptions = {
                 password: { label: "Password", type: "password" }
             },
             async authorize( credentials, req ) {
-                // Add logic here to look up the user from the credentials supplied
-                // const res = await fetch( "http://localhost:8000/api/auth/login", {
-                //     method: "POST",
-                //     headers: {
-                //         "Content-Type": "application/json",
-                //         withCredentials: true
-                //     },
-                //     body: JSON.stringify( {
-                //         email: credentials?.email,
-                //         password: credentials?.password,
-                //     } ),
-                // } );
-                // const user = await res.json();
-
-                // if ( user.is_success ) {
-                //     console.log( 'ok user' )
-                //     // Any object returned will be saved in `user` property of the JWT
-                //     return user
-                // } else {
-                //     // If you return null then an error will be displayed advising the user to check their details.
-                //     return null
-
-                //     // You can also Reject this callback with an Error thus the user will be sent to the error page with the error message as a query parameter
-                // }
 
                 return axios( {
                     method: 'post',
@@ -65,23 +42,30 @@ export const authOptions = {
                     } ) || null;
             },
         } ),
-        // AppleProvider( {
-        //     clientId: process.env.APPLE_ID,
-        //     clientSecret: process.env.APPLE_SECRET
-        // } ),
-        // GoogleProvider( {
-        //     clientId: process.env.GOOGLE_CLIENT_ID,
-        //     clientSecret: process.env.GOOGLE_CLIENT_SECRET
-        // } ),
     ],
 
     callbacks: {
-        async jwt( { token, user } ) {
+        async jwt( { token, user, trigger, session } ) {
+            if ( token.tokenExpiration < Date.now() ) {
+                const user = await axios( {
+                    method: 'post',
+                    url: 'http://localhost:8000/api/auth/refresh',
+                    data: token.refreshToken
+                } )
+                return { ...token, ...user }
+            }
+            if ( trigger === "update" && session ) {
+                console.log( 'updated sess: ', { token, user, session } )
+                return { ...token, ...user, ...session?.user }
+            }
+            console.log( 'jwt callback', { token, user, session } )
+            // return { ...token } // token
             return { ...token, ...user }
         },
 
         async session( { session, token, user } ) {
             session.user = token;
+            console.log( 'session callback: ', { session, token, user } )
             return session
         }
     },

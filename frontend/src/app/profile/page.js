@@ -5,13 +5,14 @@ import LoggedUser from '@/components/loggedUser';
 
 async function getUser() {
     const session = await getServerSession( authOptions );
-    const res = await apiCall.get( `/auth/user/${ session.user.user_id }` )
-    if ( session == null ) {
+    if ( !session || session == null ) {
         window.location( '/' )
     }
+    const res = await apiCall.get( `/auth/user/${ session.user.user_id }` )
     if ( !res.status ) {
         console.log( 'error axios: ', error );
-        throw new Error( 'Failed to fetch data' );
+        window.location( '/' )
+        // throw new Error( 'Failed to fetch data' );
     }
     const data = res.data;
     console.log( 'res data: ', data );
@@ -19,9 +20,10 @@ async function getUser() {
 }
 
 
+
 export default async function UserProfile() {
     const user = await getUser();
-    if ( user == null ) {
+    if ( !user || user == null ) {
         window.location = '/'
     }
     // console.log( 'user: ', user );
@@ -30,9 +32,9 @@ export default async function UserProfile() {
     return (
         <>
             { session?.user.user_id === user.id ? <div>
-                <LoggedUser user={ user } session={ session } />
+                <LoggedUser user={ user } />
             </div> : <div>
-
+                <p>There's an issue loading your profile</p>
             </div>
             }
         </>

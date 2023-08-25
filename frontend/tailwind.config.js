@@ -21,7 +21,8 @@ module.exports = {
                 clamp4: 'clamp(1rem, 2.5vw, 1.5rem)',
                 clamp5: 'clamp(1.2rem, 3.5vw, 1.5rem)',
                 clamp6: 'clamp(1rem, 2.3vw, 1.15rem)',
-                clamp7: 'clamp(1.13rem, 2.3vw, 1.25rem)'
+                clamp7: 'clamp(1.13rem, 2.3vw, 1.25rem)',
+                clamp8: 'clamp(1.35rem, 4vw, 2rem)',
             },
             dropShadow: {
                 '3xl': '0 35px 35px rgba(0, 0, 0, 0.25)',
@@ -37,7 +38,8 @@ module.exports = {
                 'btnpink': '0px 15px 20px rgba(255, 206, 201, 0.4)',
                 'btngreen': '0px 15px 20px rgba(217, 255, 197, 0.4)',
                 'btnindigo': '0px 15px 20px rgba(67, 56, 202, 0.4)',
-
+                'btnpastgreen': '0px 15px 20px rgba(201, 255, 221, 0.4)',
+                'btnblue': '0px 15px 20px rgba(1, 209, 253, 0.4)',
             }
         },
         fontFamily: {

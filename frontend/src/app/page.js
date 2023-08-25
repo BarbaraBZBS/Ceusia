@@ -1,9 +1,7 @@
 import Image from 'next/image';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../pages/api/auth/[...nextauth]';
-import Link from "next/link";
 import Posts from '@/components/posts';
-
 
 export default async function Home() {
     const session = await getServerSession( authOptions );
@@ -13,7 +11,7 @@ export default async function Home() {
 
     return (
         <>
-            { session?.user ? (
+            { session && session?.user ? (
                 <>
                     <main className="flex min-h-screen flex-col items-center justify-between">
                         <div className="flex flex-col items-center justify-center mx-3">

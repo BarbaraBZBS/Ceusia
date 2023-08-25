@@ -15,11 +15,14 @@ userRoutes.post( "/login", userCtrl.login );
 // User logout
 userRoutes.get( "/logout", userCtrl.logout );
 
+//User refresh token
+userRoutes.post( "/refresh", userCtrl.refreshUserToken );
+
 // Retrieve all Users
-userRoutes.get( "/users", userCtrl.getAllUsers );
+userRoutes.get( "/users", auth, userCtrl.getAllUsers );
 
 // Retrieve a single User with id
-userRoutes.get( "/user/:id", userCtrl.findOneUser );
+userRoutes.get( "/user/:id", auth, userCtrl.findOneUser );
 
 // Update User with id
 userRoutes.put( "/user/:id", auth, userCtrl.updateUser );

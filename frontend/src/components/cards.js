@@ -1,9 +1,10 @@
 'use client';
 import React, { useState } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 
-export default function Cards( { posts, session } ) {
+export default function Cards( { posts, session, params, searchParams } ) {
     console.log( 'posts props: ', posts );
     console.log( 'session props: ', session );
 
@@ -47,7 +48,7 @@ export default function Cards( { posts, session } ) {
                         { post.title ? <h2 className='text-clamp7 text-center font-semibold border-b-2'>{ post.title }</h2> : '' }
                     </div>
                     <div className={ post.fileUrl ? 'flex w-[260px] h-[150px] max-w[280px] mx-auto my-4' : '' } onClick={ handleImgZoom( index ) }>
-                        { post.fileUrl && post.fileUrl?.includes( 'image' ) ? <Image width={ 0 } height={ 0 } placeholder='post image' className={ isImgZoomed[ index ] ? 'imgZoom' : 'imgNorm' } src={ post.fileUrl } alt="post image" /> :
+                        { post.fileUrl && post.fileUrl?.includes( 'image' ) ? <Image width={ 0 } height={ 0 } placeholder='data:image/...' className={ isImgZoomed[ index ] ? 'imgZoom' : 'imgNorm' } src={ post.fileUrl } alt="post image" /> :
                             post.fileUrl?.includes( 'video' ) ? <video id={ post.id } width="320" height="176" controls > <source src={ post.fileUrl } type='video/mp4' /> Your browser does not support HTML5 video. </video> :
                                 post.fileUrl?.includes( 'audio' ) ? <audio controls > <source src={ post.fileUrl } type='audio/mp3' /> Your browser does not support the audio tag.</audio> : '' }
                     </div>
@@ -62,11 +63,11 @@ export default function Cards( { posts, session } ) {
                     </div>
                     <div className='flex text-clamp6 mx-3 my-2'>
                         <div className='w-7 h-7 rounded-full mr-1' onClick={ handlePicZoom( index ) }>
-                            <Image width={ 0 } height={ 0 } unoptimized={ true } placeholder={ `${ session.user.username } picture` } quality={ 100 } className={ isPicZoomed[ index ] ? 'postUserPicZoom' : 'postUserPic' } src={ post.user.picture } alt={ `${ post.user.username } picture` } />
+                            <Image width={ 0 } height={ 0 } unoptimized={ true } placeholder='data:image/...' quality={ 100 } className={ isPicZoomed[ index ] ? 'postUserPicZoom' : 'postUserPic' } src={ post.user.picture } alt={ `${ post.user.username } picture` } />
                         </div>
                         <div>
                             {/* onclick link to otherUsers or import component otherusers with userid props or function onclick with (userid) */ }
-                            { session?.user.username === post.user.username ? <p>You</p> : <p>{ post.user.username }</p> }
+                            { session?.user.username === post.user.username ? <p>You</p> : <Link href={ `/user/${ [ post.user_id ] }` }>{ post.user.username }</Link> }
                         </div>
                     </div>
                     <div className='flex justify-center'>

@@ -6,17 +6,18 @@ import Image from 'next/image';
 // import apiCall from '../utils/axiosConfig'
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { signOut } from 'next-auth/react';
+import { useSession, signOut } from 'next-auth/react';
 
 const USER_REGEX = /(^[a-zA-Z]{2,})+([A-Za-z0-9-_])/
 const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/ // eslint-disable-line
 const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9])/
 
 
-export default function LoggedUser( { user, session } ) {
-
-    if ( user == null ) {
+export default function LoggedUser( { user } ) {
+    const { data: session, update } = useSession()
+    if ( !user || user == null || session == null ) {
         router.push( '/' )
+        signOut()
     }
     const {
         register,
@@ -60,7 +61,6 @@ export default function LoggedUser( { user, session } ) {
         }
     } )
 
-
     const submitUpdate = async ( data ) => {
         setLoad( true )
         setPasswordUpdMsg()
@@ -82,14 +82,27 @@ export default function LoggedUser( { user, session } ) {
                 headers: headers,
                 withCredentials: true
             } )
-                .then( ( response ) => {
-                    console.log( response )
+                .then( async ( response ) => {
+                    // console.log( response )
+                    const resData = JSON.parse( response.config.data )
+                    console.log( resData.username )
+
                     setUpdateState()
                     setLoad( false )
                     if ( getValues( 'password' ) != '' ) {
                         setPasswordUpdMsg( 'Password successfully modified!' )
                     };
                     reset();
+                    const updSession = {
+                        ...session,
+                        user: {
+                            ...session?.user,
+                            username: resData.username
+                        },
+                    };
+                    await update( updSession )
+                    // console.log( session.user.username )
+                    // console.log( session )
                     router.refresh();
                 } )
                 .catch( ( err ) => {
@@ -214,7 +227,7 @@ export default function LoggedUser( { user, session } ) {
                 <p>{ user.email }</p>
                 { user.motto == '' || user.motto == null ? <p>no motto</p> : <p className='mx-2'>{ `"${ user.motto }"` }</p> }
                 {/* followers total / following total */ }
-                <Image width={ 0 } height={ 0 } unoptimized={ true } src={ user.picture } alt={ `${ user.username } picture` } className='rounded-full w-24 h-24 border-2 m-3' />
+                <Image width={ 0 } height={ 0 } unoptimized={ true } src={ user.picture } alt={ `${ user.username } picture` } placeholder='data:image/...' className='rounded-full w-24 h-24 border-2 m-3' />
             </div>
 
             <div>

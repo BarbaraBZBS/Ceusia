@@ -68,31 +68,38 @@ const login = async ( req, res, next ) => {
                 if ( !valid ) {
                     return res.status( 401 ).json( { message: 'incorrect login details' } );
                 }
-
                 const token = jwt.sign(
                     {
                         user_id: user.id,
                         role: user.role
                     },
                     process.env.SECRET_TOKEN,
+                    { expiresIn: 3000 }
+                );
+                const refreshToken = jwt.sign(
+                    {
+                        user_id: user.id,
+                        role: user.role
+                    },
+                    process.env.REFRESH_SECRET_TOKEN,
                     { expiresIn: maxAge }
-                )
-                res.cookie( 'jwt', token, { httpOnly: true, secure: true, sameSite: 'None', maxAge: 24 * 60 * 60 * 1000 } )
-
-                res.status( 200 ).json( {
-                    user_id: user.id,
-                    username: user.username,
-                    role: user.role,
-                    token: jwt.sign(
-                        {
-                            user_id: user.id,
-                            role: user.role
-                        },
-                        process.env.SECRET_TOKEN,
-                        { expiresIn: maxAge }
-                    ),
-                } );
+                );
                 console.log( user.role )
+                const sentCookie = req.cookies
+                //cookie secure is changed for production
+                return res
+                    .cookie( 'jwt', token, { httpOnly: true, secure: false, sameSite: 'None' } )
+                    .status( 200 )
+                    .json( {
+                        // sentCookie,
+                        // ...user, ?
+                        user_id: user.id,
+                        username: user.username,
+                        role: user.role,
+                        token,
+                        refreshToken
+                    } )
+                // res.send( req.cookies )
             } )
             .catch( error => {
                 console.log( 'error where?', res.cookie )
@@ -107,19 +114,65 @@ const login = async ( req, res, next ) => {
 
 const logout = async ( req, res, next ) => {
     // On client, also delete the accessToken
-    const cookies = req.cookies;
-    if ( !cookies?.jwt ) return res.sendStatus( 204 ); //No content
-    const token = cookies.jwt;
-    const user = await User.findOne( { token } )
+    // console.log( ' 1 req cookies: ', req.cookies )
+    const cookie = req.cookies;
+    // const refresh = req.body.refreshToken
+    // if ( refresh ) {
+    //     await refresh.remove()
+    // }
+    // console.log( 'jwt cookies from req.cookies.jwt: ', cookie )
+    if ( !cookie.jwt ) return res.sendStatus( 204 ); //No content 
+    const token = cookie.jwt;
+    const decodedToken = jwt.verify( token, process.env.SECRET_TOKEN );
+    const user_id = decodedToken.user_id;
+    // console.log( 'user id: ', user_id )
+    const user = await User.findOne( { where: { id: user_id } } )
+    // console.log( 'user', user )
     if ( !user ) {
         res.clearCookie( 'jwt', { httpOnly: true, sameSite: 'None', secure: true } );
         return res.sendStatus( 204 );
     }
-    user.update( { token: '' } )
-    console.log( token );
+    // user.update( { token: '' } )
+    // console.log( token );
     res.clearCookie( 'jwt', { httpOnly: true, sameSite: 'None', secure: true } );
     res.sendStatus( 204 );
 };
+
+const refreshUserToken = async ( req, res, next ) => {
+    const refresh = req.body.refreshToken
+    // const token = req.headers.authorization.split( ' ' )[ 1 ];
+    const decodedRefToken = jwt.verify( refresh, process.env.REFRESH_SECRET_TOKEN );
+    // const decodedToken = jwt.verify( token, process.env.SECRET_TOKEN );
+    const user_id = decodedRefToken.user_id;
+    // const user_id = decodedToken.user_id;
+    const user = await User.findOne( { where: { id: user_id } } )
+    if ( user_id === user.id ) {
+        const token = jwt.sign(
+            {
+                user_id: user.id,
+                role: user.role
+            },
+            process.env.SECRET_TOKEN,
+            { expiresIn: 3000 }
+        );
+        res
+            .cookie( 'jwt', token, { httpOnly: true, secure: false, sameSite: 'None' } )
+            .status( 200 )
+            .json( { token: 'jwt' + token } )
+    }
+    else {
+        res.sendStatus( 401 )
+    }
+
+}
+// const removeRefresh = async (req, res, next) => {
+//     const refresh = req.body.refreshToken
+//     if(refresh) {
+//         delete(refresh)
+//     }
+//         res.sendStatus(204)
+// }
+
 
 // Retrieve all Users from the database (with condition).
 const getAllUsers = ( req, res, next ) => {
@@ -314,4 +367,4 @@ const unfollowUser = async ( req, res, next ) => {
     }
 }
 
-export { signup, login, logout, getAllUsers, findOneUser, updateUser, deleteUser, followUser, unfollowUser };
+export { signup, login, logout, refreshUserToken, getAllUsers, findOneUser, updateUser, deleteUser, followUser, unfollowUser };

@@ -1,8 +1,14 @@
 'use client';
 import { useEffect } from 'react';
+import { useRouter } from "next/navigation";
+import { signOut } from 'next-auth/react';
+
 
 export default function Error( { error, reset } ) {
-
+    const router = useRouter()
+    // useEffect( () => {
+    //     console.error( error );
+    // }, [ error ] )
     useEffect( () => {
         console.error( error );
     }, [ error ] )
@@ -15,10 +21,25 @@ export default function Error( { error, reset } ) {
             <button className='errBtn'
                 onClick={
                     // Attempt to recover by trying to re-render the segment
-                    () => reset()
+                    // () => reset()
+                    () => router.refresh()
+                    // () => router.push( '/' )
+                    // () => signOut()
                 }
             >
                 Reload
+            </button>
+            <p>or</p>
+            <button className='errBtn'
+                onClick={
+                    // Attempt to recover by trying to re-render the segment
+                    // () => reset()
+                    // router.refresh()
+                    // router.push( '/' )
+                    () => signOut()
+                }
+            >
+                Log Out
             </button>
         </div>
     )
