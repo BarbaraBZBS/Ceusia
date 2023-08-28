@@ -2,15 +2,14 @@
 import React, { useEffect, useState } from 'react';
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Loading from './loading';
 
 export default function LogInPage() {
     const [ logState, setLogState ] = useState();
     const [ load, setLoad ] = useState( false );
-    // const errRef = useRef()
     const [ errMsg, setErrMsg ] = useState( '' );
-    const router = useRouter();
 
     const {
         register,
@@ -43,7 +42,8 @@ export default function LogInPage() {
         await signIn( "credentials", {
             email: getValues( "email" ),
             password: getValues( "password" ),
-            redirect: false
+            redirect: true,
+            callbackUrl: '/'
         } )
             .then( ( result ) => {
                 if ( result.status === 401 ) {
@@ -52,9 +52,6 @@ export default function LogInPage() {
                     setLoad( false );
                     setLogState();
                     setErrMsg( "Incorrect login details, try again or click 'Sign Up' at the top to register." );
-                }
-                else if ( !result.error ) {
-                    router.push( '/' );
                 }
                 else {
                     setLoad( false );
@@ -70,7 +67,7 @@ export default function LogInPage() {
     return (
         <section className='h-fit'>
             <div className='mt-16 mb-40'>
-                { logState === 'Logging in' ? <p className='text-center text-clamp5'>Logging you in, please wait...</p> :
+                { logState === 'Logging in' ? <Loading /> :
                     <div>
                         <p className='text-clamp7 text-center'>No account yet ?
                             <Link className='text-[#DD1600] signLink uppercase' href='/auth/register'> Sign up</Link>

@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from "react-hook-form";
 import axios from "axios";
 import Link from 'next/link';
+import Loading from './loading';
 
 
 // eslint-disable-next-line max-len
@@ -36,7 +37,6 @@ export default function RegisterPage() {
 
     const password = useRef( {} );
     password.current = watch( 'password', '' );
-
     const [ signupState, setSignupState ] = useState();
     const [ load, setLoad ] = useState( false );
     const [ errMsg, setErrMsg ] = useState( '' );
@@ -97,13 +97,12 @@ export default function RegisterPage() {
         }
     }
 
-
     // console.log( watch() )
     return (
         <>
             <section className='h-fit'>
                 <div className='mt-12 mb-20'>
-                    { signupState === 'Signing up' ? <p className='text-center text-clamp5'>Signing you up, please wait...</p> :
+                    { signupState === 'Signing up' ? <Loading /> :
                         isSubmitSuccessful && signupState === 'Signed up' ? <p className='text-center text-clamp5'> Registered ! You can now sign in.</p> :
                             <div>
                                 <p className='text-clamp7 text-center'>Already have an account ?

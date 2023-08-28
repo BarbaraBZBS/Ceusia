@@ -14,10 +14,10 @@ const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9])/
 
 
 export default function LoggedUser( { user } ) {
+    const router = useRouter()
     const { data: session, update } = useSession()
     if ( !user || user == null || session == null ) {
-        router.push( '/' )
-        signOut()
+        signOut( { callbackUrl: '/auth/signIn' } )
     }
     const {
         register,
@@ -39,18 +39,10 @@ export default function LoggedUser( { user } ) {
         },
         mode: "onBlur"
     } );
-
-    const router = useRouter()
     const password = useRef( {} );
     password.current = watch( 'password', '' );
-    const [ load, setLoad ] = useState( false );
-    const [ updateState, setUpdateState ] = useState();
     const [ errMsg, setErrMsg ] = useState( '' );
     const [ passwordUpdMsg, setPasswordUpdMsg ] = useState( '' )
-
-    useEffect( () => {
-        load && setUpdateState( 'Updating' )
-    }, [ load ] )
 
     useEffect( () => {
         if ( errors?.username ) {
@@ -62,7 +54,6 @@ export default function LoggedUser( { user } ) {
     } )
 
     const submitUpdate = async ( data ) => {
-        setLoad( true )
         setPasswordUpdMsg()
         data = {
             username: getValues( 'username' ),
@@ -86,23 +77,22 @@ export default function LoggedUser( { user } ) {
                     // console.log( response )
                     const resData = JSON.parse( response.config.data )
                     console.log( resData.username )
-
-                    setUpdateState()
-                    setLoad( false )
                     if ( getValues( 'password' ) != '' ) {
                         setPasswordUpdMsg( 'Password successfully modified!' )
                     };
-                    reset();
-                    const updSession = {
-                        ...session,
-                        user: {
-                            ...session?.user,
-                            username: resData.username
-                        },
+                    if ( getValues( 'username' ) != '' ) {
+                        const updSession = {
+                            ...session,
+                            user: {
+                                ...session?.user,
+                                username: resData.username
+                            },
+                        };
+                        await update( updSession )
                     };
-                    await update( updSession )
                     // console.log( session.user.username )
                     // console.log( session )
+                    reset();
                     router.refresh();
                 } )
                 .catch( ( err ) => {
@@ -111,8 +101,6 @@ export default function LoggedUser( { user } ) {
                 } )
         }
         catch ( err ) {
-            setLoad( false )
-            setUpdateState()
             if ( !err?.response ) {
                 setErrMsg( 'Server unresponsive, please try again or come back later.' )
             }
@@ -141,7 +129,6 @@ export default function LoggedUser( { user } ) {
             "Content-Type": "multipart/form-data",
             'Authorization': `Bearer ${ session.user.token }`
         }
-        setLoad( true )
         setPasswordUpdMsg()
         try {
             await axios( {
@@ -153,8 +140,6 @@ export default function LoggedUser( { user } ) {
                 .then( ( response ) => {
                     console.log( 'response data: ', response?.data )
                     console.log( 'updated' )
-                    setUpdateState()
-                    setLoad( false )
                     reset();
                     router.refresh();
                 } )
@@ -164,8 +149,6 @@ export default function LoggedUser( { user } ) {
                 } )
         }
         catch ( err ) {
-            setLoad( false )
-            setUpdateState()
             if ( !err?.response ) {
                 setErrMsg( 'Server unresponsive, please try again or come back later.' )
             }
@@ -184,7 +167,6 @@ export default function LoggedUser( { user } ) {
     }
 
     const handleDelete = async () => {
-        setLoad( true )
         setPasswordUpdMsg()
         const headers = {
             'Content-Type': 'application/json',
@@ -207,8 +189,6 @@ export default function LoggedUser( { user } ) {
                 } )
         }
         catch ( err ) {
-            setLoad( false )
-            setUpdateState()
             if ( !err?.response ) {
                 setErrMsg( 'Server unresponsive, please try again or come back later.' )
             }
@@ -226,7 +206,7 @@ export default function LoggedUser( { user } ) {
                 <p>{ user.username }</p>
                 <p>{ user.email }</p>
                 { user.motto == '' || user.motto == null ? <p>no motto</p> : <p className='mx-2'>{ `"${ user.motto }"` }</p> }
-                {/* followers total / following total */ }
+                <p>followers total / following total</p>
                 <Image width={ 0 } height={ 0 } unoptimized={ true } src={ user.picture } alt={ `${ user.username } picture` } placeholder='data:image/...' className='rounded-full w-24 h-24 border-2 m-3' />
             </div>
 
@@ -288,7 +268,6 @@ export default function LoggedUser( { user } ) {
                         validate: value => value === password.current || "Passwords do not match",
                     } ) } className='user_upd_input' />
                     { errors.confirm_password && <span className='fieldErrMsg'>{ errors.confirm_password.message }</span> }
-                    { updateState === 'updating' ? <p>Updating...</p> : '' }
                     <p className={ passwordUpdMsg ? 'text-clamp6 text-green-500 uppercase mt-2' : 'offscreen' }>{ passwordUpdMsg }</p>
                     <button type="submit" onClick={ () => setErrMsg( '' ) } className='usr_upd_btn_submit'>Modify password</button>
                 </form>
@@ -296,17 +275,15 @@ export default function LoggedUser( { user } ) {
 
             <div className='flex flex-col items-center'>
                 <form className='mb-1 py-1 flex flex-col items-center text-clamp6 w-[80%]' onSubmit={ handleSubmit( submitUpdate ) }>
-                    <textarea type="text" placeholder={ user.motto == '' || user.motto == null ? "  Type a nice motto here..." : `  ${ user.motto }` } { ...register( "motto", {
-                    } ) } className='user_upd_input w-full h-24 resize max-w-[350px]' />
+                    <textarea type="text" placeholder={ user.motto == '' || user.motto == null ? "  Type a nice motto here..." : `  ${ user.motto }` }
+                        { ...register( "motto" ) } className='user_upd_input w-full h-24 resize max-w-[350px]' />
                     <button type="submit" onClick={ () => setErrMsg( '' ) } className='usr_upd_btn_submit'>Modify motto</button>
                 </form>
             </div>
 
             <div className='flex flex-col items-center'>
                 <form className='mb-1 py-1 flex flex-col items-center text-clamp6' onSubmit={ handleSubmit( submitPicUpdate ) }>
-                    <input type="file" name='picture' placeholder="  Update Profile Picture" { ...register( "picture", {
-                    } ) } className='user_upd_input' />
-                    { updateState === 'updating' ? <p>Updating...</p> : '' }
+                    <input type="file" name='picture' placeholder="  Update Profile Picture" { ...register( "picture" ) } className='user_upd_input' />
                     <button type="submit" onClick={ () => setErrMsg( '' ) } className='usr_upd_btn_submit'>Modify picture</button>
                 </form>
             </div>

@@ -1,24 +1,19 @@
 'use client';
-import React, { useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
-import { signIn, signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { signOut, useSession } from "next-auth/react";
 
 export default function AppNav() {
-    const { data: session, update } = useSession();
+    const { data: session } = useSession();
     const currentRoute = usePathname();
-    const router = useRouter()
     console.log( 'nav session: ', { session } );
 
-    // if ( session == null ) {
-    //     signOut()
-    // }
-
     const signout = () => {
-        router.push( '/' )
-        signOut()
+        signOut( {
+            callbackUrl: '/auth/signIn'
+        } );
     }
 
     return (
@@ -26,12 +21,14 @@ export default function AppNav() {
             <header className="flex flex-row justify-between">
                 <div>
                     <Link href="/">
-                        <Image className="w-44 h-full object-cover rounded-br-2xl"
+                        <Image className="inline object-cover rounded-br-2xl"
                             src="/images/logo.png"
                             alt="ceusia main logo"
-                            width={ 0 }
-                            height={ 0 }
+                            width={ 176 }
+                            height={ 66 }
                             unoptimized={ true }
+                            priority
+                            placeholder="empty"
                         />
                     </Link>
                 </div>
@@ -49,10 +46,10 @@ export default function AppNav() {
                         </div>
                     ) : (
                         <>
-                            <div>
-                                <button onClick={ () => signIn() } className={ currentRoute === '/auth/signIn' ? 'signLink activeLink linkAnim' : 'signLink linkAnim' }>
+                            <div className="linkAnim signLink">
+                                <Link href='/auth/signIn' className={ currentRoute === '/auth/signIn' ? 'signLink activeLink' : 'signLink' }>
                                     Sign In
-                                </button>
+                                </Link>
                             </div>
                             <div className="linkAnim signLink">
                                 <Link href="/auth/register" className={ currentRoute === '/auth/register' ? 'activeLink signLink' : 'signLink' }>

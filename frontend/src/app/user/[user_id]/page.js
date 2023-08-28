@@ -1,24 +1,17 @@
 import React from 'react';
 import apiCall from '../../../utils/axiosConfig'
 import UserProfilePic from '@/components/userProfilePic';
+import { getOUser } from '@/app/lib/users';
 
-
-async function getUser( user_id ) {
-    console.log( 'user found? : ', user_id )
-    const res = await apiCall.get( `/auth/user/${ user_id }` )
-    const data = res.data
-    console.log( 'response get user data: ', data )
-    return data
-}
 
 export default async function UserIdProfile( { params: { user_id } } ) {
     // console.log( 'params: ', params.user_id )
     console.log( 'user id?: ', user_id );
-    const user = await getUser( user_id );
+    const user = await getOUser( user_id );
     console.log( 'user??: ', user );
 
     return (
-        <div className='flex flex-col justify-center items-center py-6 min-h-[400px]'>
+        <div className='userCard'>
             <div>
                 <h1 className='text-clamp3 text-center uppercase pb-6'>
                     Viewing { user.username } profile

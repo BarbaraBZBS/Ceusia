@@ -1,22 +1,24 @@
 import './globals.css';
-// import { Inter } from 'next/font/google'
+import { Ysabeau_Office } from 'next/font/google'
 import AppNav from '../components/appNav';
 import Footer from '../components/footer';
 import Provider from './Provider';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../../pages/api/auth/[...nextauth]';
 
-
-// const inter = Inter( { subsets: [ 'latin' ], weight: [ '300' ] } )
+const ysabeauO = Ysabeau_Office( { subsets: [ 'latin' ], display: 'block' } )
 
 export const metadata = {
     title: 'Ceusia',
     description: 'A place to share',
 }
 
-export default function RootLayout( { children } ) {
+export default async function RootLayout( { children } ) {
+    const session = await getServerSession( authOptions )
     return (
-        <html lang="en" className='font-txt'>
+        <html lang="en" className={ ysabeauO.className }>
             <body >
-                <Provider>
+                <Provider session={ session }>
                     <AppNav />
                     { children }
                     <Footer />
@@ -25,4 +27,3 @@ export default function RootLayout( { children } ) {
         </html>
     )
 }
-//body className={ inter.className }

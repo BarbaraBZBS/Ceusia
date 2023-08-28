@@ -4,7 +4,7 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import axios from "axios";
 
 export const authOptions = {
-    session: { maxAge: 1 * 60 * 60, strategy: 'jwt' },
+    session: { maxAge: 3 * 60 * 60, strategy: 'jwt' },
     jwt: {
         secret: process.env.NEXTAUTH_SECRET,
         maxAge: 3000
