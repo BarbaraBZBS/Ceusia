@@ -7,6 +7,7 @@ const nextConfig = {
         removeConsole: false,
     },
     images: {
+        unoptimized: true,
         remotePatterns: [
             {
                 protocol: 'http',

@@ -76,7 +76,7 @@ export default function LoggedUser( { user } ) {
                 .then( async ( response ) => {
                     // console.log( response )
                     const resData = JSON.parse( response.config.data )
-                    console.log( resData.username )
+                    // console.log( resData.username )
                     if ( getValues( 'password' ) != '' ) {
                         setPasswordUpdMsg( 'Password successfully modified!' )
                     };
@@ -180,8 +180,8 @@ export default function LoggedUser( { user } ) {
             } )
                 .then( () => {
                     console.log( 'account removed !' )
-                    signOut()
-                    router.push( '/' )
+                    signOut( { callbackUrl: '/' } )
+                    // router.push( '/' )
                 } )
                 .catch( ( err ) => {
                     console.log( 'delete err: ', err )

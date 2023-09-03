@@ -3,10 +3,9 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 
-
 export default function Cards( { posts, session, params, searchParams } ) {
-    console.log( 'posts props: ', posts );
-    console.log( 'session props: ', session );
+    // console.log( 'posts props: ', posts );
+    // console.log( 'session props: ', session );
 
     const [ isImgZoomed, setIsImgZoomed ] = useState( {} );
     const [ isPicZoomed, setIsPicZoomed ] = useState( {} );
@@ -39,21 +38,36 @@ export default function Cards( { posts, session, params, searchParams } ) {
         return date.toString();
     }
 
-    // update posts function
-
     return (
         <div>
-            { posts?.map( ( post, index ) => (
-
+            { posts?.map( ( post, index, params ) => (
                 <div key={ post.id } className='border-2 rounded-lg shadow-md my-5 relative'>
+
                     <div className=''>
-                        { post.title ? <h2 className='text-clamp7 text-center font-semibold border-b-2'>{ post.title }</h2> : '' }
+                        { post.title ?
+                            <h2 className='text-clamp7 text-center font-semibold border-b-2'>{ post.title }</h2> : '' }
                     </div>
-                    <div className={ post.fileUrl ? 'flex w-[260px] h-[150px] max-w[280px] mx-auto my-2' : '' } onClick={ handleImgZoom( index ) }>
-                        { post.fileUrl && post.fileUrl?.includes( 'image' ) ? <Image width={ 0 } height={ 0 } placeholder='data:image/...' className={ isImgZoomed[ index ] ? 'imgZoom' : 'imgNorm' } src={ post.fileUrl } alt="post image" /> :
-                            post.fileUrl?.includes( 'video' ) ? <video id={ post.id } width="320" height="176" controls > <source src={ post.fileUrl } type='video/mp4' /> Your browser does not support HTML5 video. </video> :
-                                post.fileUrl?.includes( 'audio' ) ? <audio controls > <source src={ post.fileUrl } type='audio/mp3' /> Your browser does not support the audio tag.</audio> : '' }
+
+                    <div className={ post.fileUrl && post.fileUrl?.includes( 'image' ) ? 'flex w-[260px] h-[150px] max-w[280px] mx-auto my-2' : '' } onClick={ handleImgZoom( index ) }>
+                        { post.fileUrl && post.fileUrl?.includes( 'image' ) ? <Image width={ 0 } height={ 0 } placeholder='data:image/...' className={ isImgZoomed[ index ] ? 'imgZoom' : 'imgNorm' } src={ post.fileUrl } alt="post image" /> : '' }
                     </div>
+                    <div className={ post.fileUrl && post.fileUrl?.includes( 'audio' ) ? 'flex justify-center mx-auto my-6' : '' }>
+                        { post.fileUrl && post.fileUrl?.includes( 'audio' ) && <audio controls className='rounded-lg'>
+                            <source src={ post.fileUrl } type='audio/mp3' />
+                            {/* <source src={ post.fileUrl } type='audio/mp3' />
+                            <source src={ post.fileUrl } type='audio/mp3' /> */}
+                            Your browser does not support the audio tag.</audio> }
+                    </div>
+                    <div className={ post.fileUrl && post.fileUrl?.includes( 'video' ) ? 'flex justify-center mx-auto my-6' : '' }>
+                        { post.fileUrl && post.fileUrl?.includes( 'video' ) && <video id={ post.id } width="320" height="176" controls >
+                            <source src={ post.fileUrl } type={ 'video/mp4' } />
+                            <source src={ post.fileUrl } type="video/ogg" />
+                            <source src={ post.fileUrl } type="video/webm" />
+                            {/* <source src={ post.fileUrl } type={ 'video/mov' } /> not supported html5 */ }
+                            Your browser does not support HTML5 video. </video> }
+                    </div>
+
+
                     <div>
                         <p className='line-clamp-3 text-clamp1 mx-3 my-1'>{ post.content }</p>
                     </div>
@@ -75,11 +89,16 @@ export default function Cards( { posts, session, params, searchParams } ) {
                             <span className='mr-1 cursor-pointer hover:text-green-600 hover:shadow-md hover:rounded-xl hover:bg-green-600 hover:bg-opacity-10'  >{ post.likes }👍</span>
                             <span className='ml-1 cursor-pointer hover:text-red-500 hover:shadow-md hover:rounded-xl hover:bg-red-500 hover:bg-opacity-10' >{ post.dislikes }👎</span>
                         </div>
-
                     </div>
+
+                    {/* onclick link to post[id] params */ }
+                    { session?.user.username === post.user.username ? <div className='flex justify-center items-center mb-2'>
+                        <Link className='post_form_btn_submit' href={ `/post/${ [ post.id ] }` }>Modify post</Link>
+                    </div> : '' }
                     <div className='flex justify-center my-1'>
                         <p>{ dateParser( post.createdAt ) }</p>
                     </div>
+                    { dateParser( post.updatedAt ) > dateParser( post.createdAt ) ? <p className='flex justify-center my-1'>Edited on { post.updatedAt }</p> : '' }
                 </div>
             ) ) }
         </div>

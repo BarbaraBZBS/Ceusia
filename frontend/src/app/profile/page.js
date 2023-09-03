@@ -8,7 +8,7 @@ import Loading from '../loading';
 export default async function UserProfile() {
     const user = await getUser();
     // console.log( 'user: ', user );
-    const session = await getServerSession( authOptions );
+    const session = await getServerSession( authOptions() );
 
     return (
         <>

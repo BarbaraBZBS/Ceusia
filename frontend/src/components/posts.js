@@ -9,7 +9,7 @@ import Loading from '../app/loading';
 
 export default async function Posts() {
     const posts = await getPosts();
-    const session = await getServerSession( authOptions );
+    const session = await getServerSession( authOptions() );
 
     return (
         <>

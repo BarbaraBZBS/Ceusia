@@ -6,7 +6,6 @@ import stream from 'stream';
 const pipeline = promisify( stream.pipeline );
 import path from 'path';
 import * as url from 'url';
-import { abort } from 'process';
 const __dirname = url.fileURLToPath( new URL( '..', import.meta.url ) );
 
 
@@ -19,7 +18,7 @@ const createPost = async ( req, res, next ) => {
         if ( req.file ) {
             if ( !req.file.detectedMimeType.startsWith( 'image' ) && !req.file.detectedMimeType.startsWith( 'video' ) &&
                 !req.file.detectedMimeType.startsWith( 'audio' ) ) {
-                return res.status( 409 ).json( { message: "Bad file type" } )
+                return res.status( 403 ).json( { message: "Bad file type" } )
             }
             else if ( req.file.size > 8000000 ) {
                 return res.status( 409 ).json( { message: "Max size reached" } );

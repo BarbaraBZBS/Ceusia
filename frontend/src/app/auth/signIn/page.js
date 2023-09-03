@@ -2,22 +2,22 @@
 import React, { useEffect, useState } from 'react';
 import { signIn } from "next-auth/react";
 import { useForm } from "react-hook-form";
-// import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Loading from './loading';
+import { useSearchParams } from 'next/navigation';
 
 export default function LogInPage() {
     const [ logState, setLogState ] = useState();
     const [ load, setLoad ] = useState( false );
     const [ errMsg, setErrMsg ] = useState( '' );
+    const errParams = useSearchParams()
+    const error = errParams.get( 'error' );
 
     const {
         register,
         handleSubmit,
         getValues,
-        watch,
         setFocus,
-        reset,
         formState: { errors },
     } = useForm( {
         defaultValues: {
@@ -32,7 +32,7 @@ export default function LogInPage() {
     }, [ load ] );
 
     useEffect( () => {
-        if ( errMsg ) {
+        if ( errMsg || error ) {
             setFocus( "email" );
         }
     } );
@@ -45,25 +45,8 @@ export default function LogInPage() {
             redirect: true,
             callbackUrl: '/'
         } )
-            .then( ( result ) => {
-                if ( result.status === 401 ) {
-                    console.log( 'result: ', result )
-                    reset();
-                    setLoad( false );
-                    setLogState();
-                    setErrMsg( "Incorrect login details, try again or click 'Sign Up' at the top to register." );
-                }
-                else {
-                    setLoad( false );
-                    setLogState();
-                    setErrMsg( 'We were unable to log you in, please try again later.' );
-                    console.log( 'result error: ', result.error );
-                }
-            } )
     };
 
-
-    // console.log( watch() ) // watch input value by passing the name of it or whole form by passing nothing
     return (
         <section className='h-fit'>
             <div className='mt-16 mb-40'>
@@ -74,7 +57,7 @@ export default function LogInPage() {
                         </p>
                         <div className='form_container'>
                             <h1 className='text-clamp5 text-center mb-4 mt-2 uppercase'>Sign In</h1>
-                            <p className={ errMsg ? 'errMsg text-clamp6' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
+                            { error && <p className='errMsg text-clamp6' aria-live="assertive">{ error }</p> }
 
                             <form className='mb-3 py-2 flex flex-col items-center text-clamp6' onSubmit={ handleSubmit( submitForm ) }>
 

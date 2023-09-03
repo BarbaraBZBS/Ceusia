@@ -61,12 +61,12 @@ const login = async ( req, res, next ) => {
         console.log( req.body.email )
         console.log( user )
         if ( !user ) {
-            return res.status( 401 ).json( { message: 'incorrect login details' } );
+            return res.status( 401 ).json( { message: 'Incorrect login details' } );
         }
         await bcrypt.compare( req.body.password, user.password )
             .then( valid => {
                 if ( !valid ) {
-                    return res.status( 401 ).json( { message: 'incorrect login details' } );
+                    return res.status( 401 ).json( { message: 'Incorrect login details' } );
                 }
                 const token = jwt.sign(
                     {
@@ -92,7 +92,7 @@ const login = async ( req, res, next ) => {
                     .status( 200 )
                     .json( {
                         // sentCookie,
-                        // ...user, ?
+                        // user,
                         user_id: user.id,
                         username: user.username,
                         role: user.role,
@@ -158,7 +158,7 @@ const refreshUserToken = async ( req, res, next ) => {
         res
             .cookie( 'jwt', token, { httpOnly: true, secure: false, sameSite: 'None' } )
             .status( 200 )
-            .json( { token: 'jwt' + token } )
+            .json( { token } )
     }
     else {
         res.sendStatus( 401 )

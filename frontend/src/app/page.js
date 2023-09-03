@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../pages/api/auth/[...nextauth]';
 import Posts from '@/components/posts';
@@ -8,7 +7,8 @@ import { renderDelay } from './lib/posts';
 import NewPostForm from '@/components/newPostForm';
 
 export default async function Home() {
-    const session = await getServerSession( authOptions );
+    const session = await getServerSession( authOptions() );
+    console.log( 'session: home page-- ', session )
     await renderDelay( 2000 )
     return (
         <>
@@ -18,7 +18,7 @@ export default async function Home() {
                     <main className="flex min-h-screen flex-col items-center justify-between">
                         <div className="flex flex-col items-center justify-center mx-3">
 
-                            <div className='my-8 flex flex-col justify-center items-center rounded-lg'>
+                            <div className='my-8 flex flex-col items-center'>
                                 <h2 className='text-clamp7'>What&apos;s on your mind?</h2>
 
                                 <NewPostForm />

@@ -62,16 +62,16 @@ body {
     @apply bg-appstone text-white uppercase w-fit rounded-xl px-3 py-[3px] mt-8 mb-4 transition-all duration-300 ease-in-out hover:bg-indigo-700 hover:text-white hover:translate-y-[-7px] hover:shadow-btnindigo
   }
   .form_container {
-    @apply border-2 border-apppink rounded-xl bg-apppink shadow-md m-5 h-fit
+    @apply flex flex-col border-2 border-apppink rounded-xl bg-apppink shadow-md m-5 h-fit
   }
   .form_container_reg {
-    @apply  border-2 border-apppastgreen rounded-xl bg-apppastgreen shadow-md m-5 h-fit
+    @apply border-2 border-apppastgreen rounded-xl bg-apppastgreen shadow-md m-5 h-fit
   }
   .form_input {
     @apply border-2 border-appstone rounded-md h-10 my-3 drop-shadow-linkTxt
   }
   .errMsg {
-    @apply text-center text-red-600 bg-white font-semibold drop-shadow-light mx-6 rounded-md
+    @apply self-center text-red-600 bg-white font-semibold drop-shadow-light mx-6 rounded-md w-fit px-2
   }
   .offscreen {
     @apply hidden

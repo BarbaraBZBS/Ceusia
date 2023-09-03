@@ -3,10 +3,12 @@ import { Ysabeau_Office } from 'next/font/google'
 import AppNav from '../components/appNav';
 import Footer from '../components/footer';
 import Provider from './Provider';
-import { getServerSession } from 'next-auth';
-import { authOptions } from '../../pages/api/auth/[...nextauth]';
+// import { getServerSession } from 'next-auth';
+// import { authOptions } from '../../pages/api/auth/[...nextauth]';
+import AppLoad from '../components/appLoad';
 
 const ysabeauO = Ysabeau_Office( { subsets: [ 'latin' ], display: 'block' } )
+
 
 export const metadata = {
     title: 'Ceusia',
@@ -14,11 +16,12 @@ export const metadata = {
 }
 
 export default async function RootLayout( { children } ) {
-    const session = await getServerSession( authOptions )
+    // const session = await getServerSession( authOptions() )
     return (
         <html lang="en" className={ ysabeauO.className }>
             <body >
-                <Provider session={ session }>
+                <Provider>
+                    <AppLoad />
                     <AppNav />
                     { children }
                     <Footer />

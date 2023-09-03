@@ -1,5 +1,5 @@
 'use client';
-import React from "react";
+import React, { useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
@@ -9,7 +9,12 @@ export default function AppNav() {
     const { data: session } = useSession();
     const currentRoute = usePathname();
     console.log( 'nav session: ', { session } );
-
+    // console.log( 'expired? : ', session?.expires )
+    if ( Date.now() > Date.parse( session?.expires ) ) {
+        signOut( {
+            callbackUrl: '/auth/signIn'
+        } )
+    }
     const signout = () => {
         signOut( {
             callbackUrl: '/auth/signIn'

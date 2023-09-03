@@ -3,15 +3,15 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../pages/api/auth/[...nextauth]';
 
 
+//replace bottom one for expired session and eventually refresh token ??
 // const ApiCall = () => {
 //     const instance = axios.create( {
 //         baseURL: process.env.NEXT_PUBLIC_API + '/api',
 //     } );
 
-
 //     instance.interceptors.request.use(
 //         async ( request ) => {
-//             let lastSession = await getServerSession( authOptions )
+//             let lastSession = await getServerSession( authOptions() )
 //             if ( lastSession == null || Date.now() > Date.parse( lastSession.expires ) ) {
 //                 const session = await getServerSession( authOptions );
 //                 lastSession = session;
@@ -37,7 +37,6 @@ import { authOptions } from '../../pages/api/auth/[...nextauth]';
 //         },
 //     );
 
-
 //     return instance;
 // };
 
@@ -50,7 +49,8 @@ const ApiCall = () => {
 
     instance.interceptors.request.use(
         async ( request ) => {
-            const session = await getServerSession( authOptions );
+            const session = await getServerSession( authOptions() );
+            // console.log( 'session: axios config-- ', session )
             if ( session ) {
                 request.headers.Authorization = `Bearer ${ session.user.token }`;
             }
