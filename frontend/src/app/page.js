@@ -6,6 +6,8 @@ import Loading from './loading';
 import { renderDelay } from './lib/posts';
 import NewPostForm from '@/components/newPostForm';
 
+export const revalidate = 0;
+
 export default async function Home() {
     const session = await getServerSession( authOptions() );
     console.log( 'session: home page-- ', session )
@@ -13,7 +15,7 @@ export default async function Home() {
     return (
         <>
             {/* <pre>{ JSON.stringify( session, null, 2 ) }</pre> */ }
-            { session?.user ? (
+            { session && session?.user ? (
                 <>
                     <main className="flex min-h-screen flex-col items-center justify-between">
                         <div className="flex flex-col items-center justify-center mx-3">

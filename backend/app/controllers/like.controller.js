@@ -159,27 +159,19 @@ const postLikedDisliked = ( req, res, next ) => {
             }
             else {
                 console.log( 'not liked' )
-                next()
-            }
-        } );
-    Dislike.findOne( { where: { post_id: post_id, user_id: user_id } } )
-        .then( ( disliked ) => {
-            if ( disliked ) {
-                res.status( 200 ).json( { message: 'disliked: ', disliked } )
-            }
-            else {
-                console.log( 'not disliked' )
-                next()
+                Dislike.findOne( { where: { post_id: post_id, user_id: user_id } } )
+                    .then( ( disliked ) => {
+                        if ( disliked ) {
+                            res.status( 200 ).json( { message: 'disliked: ', disliked } )
+                        }
+                        else {
+                            console.log( 'not disliked' )
+                            res.status( 200 ).json( { message: 'none found' } )
+                        }
+                    } );
             }
         } )
-}
+};
 
-// const postDisliked = ( req, res ) => {
-//     const { user_id, post_id } = req.body
-//     Dislike.findOne( { where: { post_id: post_id, user_id: user_id } } )
-//         .then( ( disliked ) => {
-//             res.status( 200 ).json( disliked )
-//         } )
-// }
 
 export { likePost, dislikePost, postLikedDisliked };

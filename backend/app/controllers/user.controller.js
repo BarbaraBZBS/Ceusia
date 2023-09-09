@@ -74,7 +74,7 @@ const login = async ( req, res, next ) => {
                         role: user.role
                     },
                     process.env.SECRET_TOKEN,
-                    { expiresIn: 3000 }
+                    { expiresIn: '3m' }
                 );
                 const refreshToken = jwt.sign(
                     {
@@ -84,7 +84,7 @@ const login = async ( req, res, next ) => {
                     process.env.REFRESH_SECRET_TOKEN,
                     { expiresIn: maxAge }
                 );
-                console.log( user.role )
+                console.log( 'role :', user.role )
                 const sentCookie = req.cookies
                 //cookie secure is changed for production
                 return res
@@ -97,12 +97,13 @@ const login = async ( req, res, next ) => {
                         username: user.username,
                         role: user.role,
                         token,
-                        refreshToken
+                        refreshToken,
                     } )
                 // res.send( req.cookies )
             } )
             .catch( error => {
-                console.log( 'error where?', res.cookie )
+                // console.log( 'error where?', res.cookie )
+                console.log( 'error where?', error )
                 res.status( 500 ).json( { error } )
             } );
     }
@@ -145,23 +146,29 @@ const refreshUserToken = async ( req, res, next ) => {
     // const decodedToken = jwt.verify( token, process.env.SECRET_TOKEN );
     const user_id = decodedRefToken.user_id;
     // const user_id = decodedToken.user_id;
-    const user = await User.findOne( { where: { id: user_id } } )
-    if ( user_id === user.id ) {
-        const token = jwt.sign(
-            {
-                user_id: user.id,
-                role: user.role
-            },
-            process.env.SECRET_TOKEN,
-            { expiresIn: 3000 }
-        );
-        res
-            .cookie( 'jwt', token, { httpOnly: true, secure: false, sameSite: 'None' } )
-            .status( 200 )
-            .json( { token } )
+    try {
+        const user = await User.findOne( { where: { id: user_id } } )
+        if ( user_id === user.id ) {
+            const token = jwt.sign(
+                {
+                    user_id: user.id,
+                    role: user.role
+                },
+                process.env.SECRET_TOKEN,
+                { expiresIn: '3m' }
+            );
+            res
+                .cookie( 'jwt', token, { httpOnly: true, secure: false, sameSite: 'None' } )
+                .status( 200 )
+                .json( { token } )
+        }
+        else {
+            res.sendStatus( 401 )
+        }
     }
-    else {
-        res.sendStatus( 401 )
+    catch ( err ) {
+        console.log( 'error refresing', err )
+        res.status( 500 ).json( { message: 'Could not refresh token' } )
     }
 
 }

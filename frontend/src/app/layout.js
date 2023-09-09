@@ -7,7 +7,11 @@ import Provider from './Provider';
 // import { authOptions } from '../../pages/api/auth/[...nextauth]';
 import AppLoad from '../components/appLoad';
 
-const ysabeauO = Ysabeau_Office( { subsets: [ 'latin' ], display: 'block' } )
+const ysabeauO = Ysabeau_Office( {
+    subsets: [ 'latin' ],
+    display: 'block',
+    variable: "--custom-font-ysabeau0"
+} );
 
 
 export const metadata = {
@@ -18,7 +22,7 @@ export const metadata = {
 export default async function RootLayout( { children } ) {
     // const session = await getServerSession( authOptions() )
     return (
-        <html lang="en" className={ ysabeauO.className }>
+        <html lang="en" className={ `${ ysabeauO.variable }` }>
             <body >
                 <Provider>
                     <AppLoad />

@@ -5,7 +5,7 @@ import Image from 'next/image';
 //cannot import axiosconfig (server component) into client component
 // import apiCall from '../utils/axiosConfig'
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 
 const USER_REGEX = /(^[a-zA-Z]{2,})+([A-Za-z0-9-_])/
@@ -14,8 +14,9 @@ const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9])/
 
 
 export default function LoggedUser( { user } ) {
-    const router = useRouter()
-    const { data: session, update } = useSession()
+    const router = useRouter();
+    const pathname = usePathname();
+    const { data: session, update } = useSession();
     if ( !user || user == null || session == null ) {
         signOut( { callbackUrl: '/auth/signIn' } )
     }
@@ -27,7 +28,7 @@ export default function LoggedUser( { user } ) {
         setError,
         setFocus,
         reset,
-        formState: { errors, isSubmitted, isSubmitSuccessful },
+        formState: { errors },
     } = useForm( {
         defaultValues: {
             username: '',
@@ -93,7 +94,7 @@ export default function LoggedUser( { user } ) {
                     // console.log( session.user.username )
                     // console.log( session )
                     reset();
-                    router.refresh();
+                    router.replace( pathname, { scroll: false } );
                 } )
                 .catch( ( err ) => {
                     console.log( 'upd err :', err )
@@ -141,7 +142,7 @@ export default function LoggedUser( { user } ) {
                     console.log( 'response data: ', response?.data )
                     console.log( 'updated' )
                     reset();
-                    router.refresh();
+                    router.replace( pathname, { scroll: false } );
                 } )
                 .catch( ( err ) => {
                     console.log( 'upd err: ', err )
@@ -181,7 +182,6 @@ export default function LoggedUser( { user } ) {
                 .then( () => {
                     console.log( 'account removed !' )
                     signOut( { callbackUrl: '/' } )
-                    // router.push( '/' )
                 } )
                 .catch( ( err ) => {
                     console.log( 'delete err: ', err )

@@ -7,7 +7,7 @@ export const authOptions = ( req, res ) => {
         session: { maxAge: 1 * 60 * 60, strategy: 'jwt' }, //5 * 60 * 60
         jwt: {
             secret: process.env.NEXTAUTH_SECRET,
-            maxAge: 3000
+            maxAge: 180
         },
         providers: [
             CredentialsProvider( {
@@ -42,7 +42,8 @@ export const authOptions = ( req, res ) => {
                     }
                     catch ( error ) {
                         console.log( 'msg : ', error.response.data.message );
-                        throw new Error( error.response.data.message );
+                        // throw new Error( error.response.data.message );
+                        return null
                     }
                 },
             } ),
@@ -50,14 +51,28 @@ export const authOptions = ( req, res ) => {
 
         callbacks: {
             async jwt( { token, user, trigger, session } ) {
-                if ( token.tokenExpiration < Date.now() ) {
-                    const user = await axios( {
+                if ( user ) {
+                    user.tokenExp = Date.now() + 180000
+                }
+                if ( token.exp ) {
+                    console.log( 'token token expiredddd ? : ', new Date( ( token.tokenExp ) ).toISOString() );
+                    console.log( 'now is ? : ', new Date( Date.now() ).toISOString() );
+                }
+                if ( token.tokenExp <= Date.now() ) {
+                    //make it 5 minutes in api and both jwt far top and jwt tokenExp
+                    console.log( 'expired token date :', new Date( token.tokenExp ).toISOString() )
+                    console.log( 'now date :', new Date( Date.now() ).toISOString() )
+                    const data = { refreshToken: token.refreshToken }
+                    const tokenRes = await axios( {
                         method: 'post',
                         url: 'http://localhost:8000/api/auth/refresh',
-                        data: token.refreshToken
+                        data: data
                     } )
-                    console.log( 'refreshed : ', token )
-                    return { ...token, ...user }
+                    token.token = tokenRes.data.token
+                    token.tokenExp = Date.now() + 180000
+                    console.log( 'refreshed : ', token.token )
+                    console.log( 'refreshed exp: ', token.tokenExp )
+                    return { ...token, ...token?.tokenExp, ...user }
                 }
                 if ( trigger === "update" && session ) {
                     console.log( 'updated sess: ', { token, user, session } )
@@ -69,7 +84,7 @@ export const authOptions = ( req, res ) => {
 
             async session( { session, token, user } ) {
                 session.user = token;
-                // console.log( 'session callback: ', { session, token, user } )
+                console.log( 'session callback: ', { session, token, user } )
                 return session
             }
         },

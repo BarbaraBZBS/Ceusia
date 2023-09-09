@@ -1,11 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    experimental: {
-        appDir: true,
-    },
-    compiler: {
-        removeConsole: false,
-    },
+    // experimental: {
+    //     appDir: true,
+    // },
+    // compiler: {
+    //     removeConsole: false,
+    // },
     images: {
         unoptimized: true,
         remotePatterns: [

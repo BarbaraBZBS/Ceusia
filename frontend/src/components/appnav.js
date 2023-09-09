@@ -1,25 +1,41 @@
 'use client';
 import React, { useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
 
 export default function AppNav() {
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
+    const router = useRouter();
     const currentRoute = usePathname();
     console.log( 'nav session: ', { session } );
     // console.log( 'expired? : ', session?.expires )
-    if ( Date.now() > Date.parse( session?.expires ) ) {
-        signOut( {
-            callbackUrl: '/auth/signIn'
-        } )
-    }
-    const signout = () => {
-        signOut( {
-            callbackUrl: '/auth/signIn'
-        } );
-    }
+    useEffect( () => {
+        if ( Date.now() >= Date.parse( session?.expires ) ) {
+            signOut( {
+                callbackUrl: '/auth/signIn'
+            } )
+        }
+    } );
+    useEffect( () => {
+        if ( currentRoute !== '/auth/signIn' && currentRoute !== '/' && status !== 'loading' && !session ) {
+            signOut( {
+                callbackUrl: '/auth/signIn'
+            }, [] );
+        }
+    } );
+    useEffect( () => {
+        setTimeout( () => {
+            router.replace( currentRoute, { scroll: false } )
+        }, 5 * 60 * 1000 )
+    } );
+    // const signout = () => {
+    //     signOut( {
+    //         callbackUrl: '/auth/signIn'
+    //     } );
+    // }
 
     return (
         <div className="mb-5 text-clamp5 bg-gray-200 bg-opacity-60">
@@ -44,7 +60,7 @@ export default function AppNav() {
                                 <Link href="/profile" className="text-appmauvelight drop-shadow-lighter">{ session.user.username }</Link>
                             </div>
                             <div>
-                                <button onClick={ signout } className="signLink linkAnim">
+                                <button onClick={ () => signOut( { callbackUrl: '/auth/signIn' } ) } className="signLink linkAnim">
                                     Sign Out
                                 </button>
                             </div>

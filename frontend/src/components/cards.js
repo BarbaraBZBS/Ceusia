@@ -1,12 +1,16 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import PostLiking from './postLiking';
 
 export default function Cards( { posts, session, params, searchParams } ) {
     // console.log( 'posts props: ', posts );
     // console.log( 'session props: ', session );
-
+    const [ loadPost, setLoadPost ] = useState( true );
+    const [ count, setCount ] = useState( 5 );
+    const [ display, setDisplay ] = useState( posts.slice( 0, count ) );
+    console.log( 'display : ', display )
     const [ isImgZoomed, setIsImgZoomed ] = useState( {} );
     const [ isPicZoomed, setIsPicZoomed ] = useState( {} );
 
@@ -15,13 +19,13 @@ export default function Cards( { posts, session, params, searchParams } ) {
             ...state,
             [ index ]: !state[ index ]
         } ) );
-    }
+    };
     const handlePicZoom = ( index ) => () => {
         setIsPicZoomed( state => ( {
             ...state,
             [ index ]: !state[ index ]
         } ) );
-    }
+    };
 
     const dateParser = ( num ) => {
         let options = {
@@ -36,11 +40,28 @@ export default function Cards( { posts, session, params, searchParams } ) {
         let timestamp = Date.parse( num );
         let date = new Date( timestamp ).toLocaleDateString( 'en-US', options );
         return date.toString();
-    }
+    };
+
+    const loadMore = () => {
+        if ( window.innerHeight + document.documentElement.scrollTop + 1 >
+            document.scrollingElement.scrollHeight - 200 ) {
+            setLoadPost( true )
+        }
+    };
+
+    useEffect( () => {
+        if ( loadPost ) {
+            setDisplay( posts.slice( 0, count ) )
+            setLoadPost( false )
+            setCount( count + 5 )
+        }
+        window.addEventListener( 'scroll', loadMore )
+        return () => window.removeEventListener( 'scroll', loadMore )
+    }, [ loadPost, display, count ] )
 
     return (
         <div>
-            { posts?.map( ( post, index, params ) => (
+            { display?.map( ( post, index, params ) => (
                 <div key={ post.id } className='border-2 rounded-lg shadow-md my-5 relative'>
 
                     <div className=''>
@@ -84,11 +105,9 @@ export default function Cards( { posts, session, params, searchParams } ) {
                                 { session?.user.username === post.user.username ? <p>You</p> : <Link href={ `/user/${ [ post.user_id ] }` }>{ post.user.username }</Link> }
                             </div>
                         </div>
-                        <div className='flex justify-end mx-2'>
-                            {/* if not working in client component, add in likepost component for fetching api with onclick */ }
-                            <span className='mr-1 cursor-pointer hover:text-green-600 hover:shadow-md hover:rounded-xl hover:bg-green-600 hover:bg-opacity-10'  >{ post.likes }👍</span>
-                            <span className='ml-1 cursor-pointer hover:text-red-500 hover:shadow-md hover:rounded-xl hover:bg-red-500 hover:bg-opacity-10' >{ post.dislikes }👎</span>
-                        </div>
+                        {/* <div className='flex justify-end mx-2'> */ }
+                        <PostLiking post={ post } session={ session } />
+                        {/* </div> */ }
                     </div>
 
                     {/* onclick link to post[id] params */ }

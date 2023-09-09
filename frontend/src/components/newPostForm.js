@@ -3,11 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function NewPostForm() {
     const { data: session } = useSession();
     const router = useRouter();
+    const pathname = usePathname();
     const {
         register,
         handleSubmit,
@@ -71,7 +72,7 @@ export default function NewPostForm() {
                 .then( ( response ) => {
                     console.log( response );
                     reset();
-                    router.refresh();
+                    router.replace( pathname, { scroll: false } );
                 } )
                 .catch( ( err ) => {
                     console.log( 'post err :', err )

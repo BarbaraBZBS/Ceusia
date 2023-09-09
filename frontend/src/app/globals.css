@@ -29,17 +29,15 @@ body {
     rgb(var(--background-start-rgb)); */
 }
 
+body {
+    font-family: var(--custom-font-ysabeau0)
+}
 
 @layer base {
   /* ??? {
     @apply text-[3vh];
   } */
   /* ... */
-  /* @screen lg { // applying font size for lg breakpoint
-    body {
-      @apply text-body-lg;
-    }
-  } */
 }
 
 @layer components {
@@ -117,6 +115,18 @@ body {
     }
     .resetbtn {
         @apply bg-[#FF7900] text-appblck w-fit rounded-xl px-2 py-[2px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px] hover:shadow-btnorange
+    }
+    .likeSpan {
+        @apply pl-2 cursor-pointer text-green-600 hover:text-green-600 hover:shadow-md hover:rounded-xl hover:bg-green-600 hover:bg-opacity-20
+    }
+    .likedSpan {
+        @apply pl-2 cursor-pointer text-green-600 hover:text-green-600 hover:shadow-md hover:rounded-xl hover:bg-red-600 hover:bg-opacity-30 opacity-50
+    }
+    .dislikeSpan {
+        @apply pl-2 cursor-pointer text-red-500 hover:text-red-500 hover:shadow-md hover:rounded-xl hover:bg-red-500 hover:bg-opacity-20
+    }
+    .dislikedSpan {
+        @apply pl-2 cursor-pointer text-red-500 hover:text-red-500 hover:shadow-md hover:rounded-xl hover:bg-green-600 hover:bg-opacity-30 opacity-50
     }
   /* ... */
   /* @screen lg { // applying font size for lg breakpoint

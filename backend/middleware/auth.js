@@ -6,6 +6,8 @@ const auth = ( req, res, next ) => {
         const decodedToken = jwt.verify( token, process.env.SECRET_TOKEN );
         const user_id = decodedToken.user_id;
         const role = decodedToken.role;
+        // const expir = decodedToken.exp;
+        // if ( expir * 1000 < Date.now() ) { console.log( 'smaller' ) } else { console.log( 'bigger' ) }
         req.auth = {
             user_id: user_id,
             role: role

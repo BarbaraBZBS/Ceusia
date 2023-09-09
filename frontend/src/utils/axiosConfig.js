@@ -1,6 +1,8 @@
 import axios from "axios";
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../pages/api/auth/[...nextauth]';
+import { apiLogout } from "@/app/lib/apiLogout";
+import { redirect } from "next/navigation";
 
 
 //replace bottom one for expired session and eventually refresh token ??
@@ -43,6 +45,7 @@ import { authOptions } from '../../pages/api/auth/[...nextauth]';
 const ApiCall = () => {
     const defaultOptions = {
         baseURL: process.env.NEXT_PUBLIC_API + '/api',
+        headers: { "Content-Type": "application/json" },
     };
 
     const instance = axios.create( defaultOptions );
@@ -58,12 +61,28 @@ const ApiCall = () => {
         } );
 
     instance.interceptors.response.use(
-        ( response ) => {
+        async ( response ) => {
             return response;
         },
-        ( error ) => {
-            console.log( 'error: ', error );
-            throw new Error( error.message );
+        async ( error ) => {
+            if ( error.response ) {
+                console.log( 'error axios config : ', error.response );
+                console.log( 'error data name axios config : ', error.response.data.error.name )
+                console.log( 'error status axios config : ', error.response.status )
+            }
+            else {
+                console.log( 'error axios config : ', error )
+            }
+
+            // if ( error.response.status === 401 ) {
+            //     await axios( {
+            //         method: 'post',
+            //         url: '/api/auth/signout',
+            //     } )
+            //     apiLogout()
+            //     // redirect( '/' )
+            // }
+            // throw new Error( error.message );
         },
     );
 

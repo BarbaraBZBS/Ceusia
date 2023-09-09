@@ -2,12 +2,16 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 
 export default function ModifyPost( { post } ) {
     const { data: session } = useSession();
     const router = useRouter();
+    const pathname = usePathname();
+    // if ( !session || session === null ) {
+    //     router.push( '/' )
+    // }
     const {
         register,
         handleSubmit,
@@ -66,7 +70,7 @@ export default function ModifyPost( { post } ) {
             } )
                 .then( ( response ) => {
                     console.log( response );
-                    router.refresh()
+                    router.replace( pathname, { scroll: false } )
                     router.push( '/' );
                 } )
                 .catch( ( err ) => {
