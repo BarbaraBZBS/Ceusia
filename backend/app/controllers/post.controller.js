@@ -9,14 +9,24 @@ import * as url from 'url';
 const __dirname = url.fileURLToPath( new URL( '..', import.meta.url ) );
 
 
+
 // Create and Save a new Post
 const createPost = async ( req, res, next ) => {
     console.log( req.body );
     console.log( req.file );
+    const date = JSON.stringify( Date.now() )
+    const newD = date.split( date[ 6 ] ).pop()
     try {
         let filePath = '';
         if ( req.file ) {
-            if ( !req.file.detectedMimeType.startsWith( 'image' ) && !req.file.detectedMimeType.startsWith( 'video' ) &&
+            const nameToFormat = req.file.originalName.split( ' ' );
+            const splittedName = nameToFormat.join( "_" );
+            const fileOriginName = splittedName.split( '.' )[ 0 ];
+
+            if ( req.file.detectedMimeType == null ) {
+                return res.status( 403 ).json( { message: "Bad file type" } );
+            }
+            else if ( !req.file.detectedMimeType.startsWith( 'image' ) && !req.file.detectedMimeType.startsWith( 'video' ) &&
                 !req.file.detectedMimeType.startsWith( 'audio' ) ) {
                 return res.status( 403 ).json( { message: "Bad file type" } )
             }
@@ -24,7 +34,7 @@ const createPost = async ( req, res, next ) => {
                 return res.status( 409 ).json( { message: "Max size reached" } );
             }
             else {
-                const fileName = `${ req.auth.user_id }` + `${ Date.now() }` + req.file.detectedFileExtension;
+                const fileName = `${ fileOriginName }` + `${ req.auth.user_id }` + `${ newD }` + req.file.detectedFileExtension;
                 console.log( 'filen: ', fileName );
                 if ( req.file.detectedMimeType.startsWith( 'image' ) ) {
                     filePath = `${ req.protocol }://${ req.get( "host" ) }/image/${ fileName }`;
@@ -115,6 +125,9 @@ const findOnePost = ( req, res ) => {
 
 // Update a Post identified by the id in the request
 const updatePost = ( req, res, next ) => {
+    const date = JSON.stringify( Date.now() )
+    const newD = date.split( date[ 6 ] ).pop()
+
     try {
         let filePath = '';
         Post.findByPk( req.params.id )
@@ -129,15 +142,22 @@ const updatePost = ( req, res, next ) => {
                     return res.status( 401 ).json( { message: 'Unauthorized' } )
                 }
                 if ( req.file ) {
-                    if ( !req.file.detectedMimeType.startsWith( 'image' ) && !req.file.detectedMimeType.startsWith( 'video' ) &&
+                    const nameToFormat = req.file.originalName.split( ' ' );
+                    const splittedName = nameToFormat.join( "_" );
+                    const fileOriginName = splittedName.split( '.' )[ 0 ];
+
+                    if ( req.file.detectedMimeType === null || !req.file.detectedMimeType || req.file.detectedFileExtension == '' ) {
+                        return res.status( 403 ).json( { message: "Bad file type" } );
+                    }
+                    else if ( !req.file.detectedMimeType.startsWith( 'image' ) && !req.file.detectedMimeType.startsWith( 'video' ) &&
                         !req.file.detectedMimeType.startsWith( 'audio' ) ) {
-                        return res.status( 409 ).json( { message: "Bad file type" } )
+                        return res.status( 403 ).json( { message: "Bad file type" } )
                     }
                     else if ( req.file.size > 8000000 ) {
                         return res.status( 409 ).json( { message: "Max size reached" } );
                     }
                     else {
-                        const fileName = `${ req.auth.user_id }` + `${ Date.now() }` + req.file.detectedFileExtension;
+                        const fileName = `${ fileOriginName }` + `${ req.auth.user_id }` + `${ newD }` + req.file.detectedFileExtension;
                         if ( post.fileUrl ) {
                             const oldFile = post.fileUrl.split( '/image/' )[ 1 ] || post.fileUrl.split( '/video/' )[ 1 ] || post.fileUrl.split( '/audio/' )[ 1 ];
                             console.log( 'old image file: ', oldFile );

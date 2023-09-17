@@ -7,7 +7,7 @@ export const authOptions = ( req, res ) => {
         session: { maxAge: 1 * 60 * 60, strategy: 'jwt' }, //5 * 60 * 60
         jwt: {
             secret: process.env.NEXTAUTH_SECRET,
-            maxAge: 180
+            maxAge: 600
         },
         providers: [
             CredentialsProvider( {
@@ -32,12 +32,9 @@ export const authOptions = ( req, res ) => {
                             },
                             withCredentials: true
                         } )
-
                         const cookies = response.headers[ 'set-cookie' ]
-
                         res.setHeader( 'Set-Cookie', cookies )
-
-                        console.log( 'res data: ', response.data )
+                        // console.log( 'res data: ', response.data )
                         return response.data
                     }
                     catch ( error ) {
@@ -52,14 +49,13 @@ export const authOptions = ( req, res ) => {
         callbacks: {
             async jwt( { token, user, trigger, session } ) {
                 if ( user ) {
-                    user.tokenExp = Date.now() + 180000
+                    user.tokenExp = Date.now() + 600000
                 }
-                if ( token.exp ) {
-                    console.log( 'token token expiredddd ? : ', new Date( ( token.tokenExp ) ).toISOString() );
-                    console.log( 'now is ? : ', new Date( Date.now() ).toISOString() );
+                if ( trigger === "update" && session ) {
+                    console.log( 'updated sess: ', { token, user, session } )
+                    return { ...token, ...user, ...session?.user }
                 }
                 if ( token.tokenExp <= Date.now() ) {
-                    //make it 5 minutes in api and both jwt far top and jwt tokenExp
                     console.log( 'expired token date :', new Date( token.tokenExp ).toISOString() )
                     console.log( 'now date :', new Date( Date.now() ).toISOString() )
                     const data = { refreshToken: token.refreshToken }
@@ -69,19 +65,13 @@ export const authOptions = ( req, res ) => {
                         data: data
                     } )
                     token.token = tokenRes.data.token
-                    token.tokenExp = Date.now() + 180000
-                    console.log( 'refreshed : ', token.token )
+                    token.tokenExp = Date.now() + 600000
                     console.log( 'refreshed exp: ', token.tokenExp )
                     return { ...token, ...token?.tokenExp, ...user }
-                }
-                if ( trigger === "update" && session ) {
-                    console.log( 'updated sess: ', { token, user, session } )
-                    return { ...token, ...user, ...session?.user }
                 }
                 console.log( 'jwt callback', { token, user, session } )
                 return { ...token, ...user }
             },
-
             async session( { session, token, user } ) {
                 session.user = token;
                 console.log( 'session callback: ', { session, token, user } )

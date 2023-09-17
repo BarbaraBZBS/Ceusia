@@ -9,18 +9,16 @@ const EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"
 const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,35})$/;
 
 const signup = async ( req, res, next ) => {
+
     if ( req.body.email == null || req.body.password == null ) {
         return res.status( 400 ).json( { message: 'empty field(s)' } )
     }
-
     if ( !USER_REGEX.test( req.body.username ) ) {
         return res.status( 400 ).json( { message: 'username must be 4 to 15 characters, starting with letters.' } )
     }
-
     if ( !EMAIL_REGEX.test( req.body.email ) ) {
         return res.status( 400 ).json( { message: 'invalid email' } )
     }
-
     if ( !PASSWORD_REGEX.test( req.body.password ) ) {
         return res.status( 400 ).json( { message: 'password must be 6 to 35 characters and contain at least 1 number and 1 letter.' } )
     }
@@ -40,10 +38,7 @@ const signup = async ( req, res, next ) => {
                             role: req.body.role
                         } )
                     }
-                    res.status( 200 ).json( user ); //remove with user roles
-                    // add this with user roles -- res.send( { message: 'User registered successfully' } );
-                    //         } )
-                    //     }
+                    res.status( 200 ).json( user );
                 } )
                 .catch( error => {
                     res.status( 400 ).send( { message: error.message } )
@@ -74,7 +69,7 @@ const login = async ( req, res, next ) => {
                         role: user.role
                     },
                     process.env.SECRET_TOKEN,
-                    { expiresIn: '3m' }
+                    { expiresIn: '10m' }
                 );
                 const refreshToken = jwt.sign(
                     {
@@ -140,13 +135,13 @@ const logout = async ( req, res, next ) => {
 };
 
 const refreshUserToken = async ( req, res, next ) => {
-    const refresh = req.body.refreshToken
-    // const token = req.headers.authorization.split( ' ' )[ 1 ];
-    const decodedRefToken = jwt.verify( refresh, process.env.REFRESH_SECRET_TOKEN );
-    // const decodedToken = jwt.verify( token, process.env.SECRET_TOKEN );
-    const user_id = decodedRefToken.user_id;
-    // const user_id = decodedToken.user_id;
     try {
+        const refresh = req.body.refreshToken
+        // const token = req.headers.authorization.split( ' ' )[ 1 ];
+        const decodedRefToken = jwt.verify( refresh, process.env.REFRESH_SECRET_TOKEN );
+        // const decodedToken = jwt.verify( token, process.env.SECRET_TOKEN );
+        const user_id = decodedRefToken.user_id;
+        // const user_id = decodedToken.user_id;
         const user = await User.findOne( { where: { id: user_id } } )
         if ( user_id === user.id ) {
             const token = jwt.sign(
@@ -155,7 +150,7 @@ const refreshUserToken = async ( req, res, next ) => {
                     role: user.role
                 },
                 process.env.SECRET_TOKEN,
-                { expiresIn: '3m' }
+                { expiresIn: '10m' }
             );
             res
                 .cookie( 'jwt', token, { httpOnly: true, secure: false, sameSite: 'None' } )
@@ -167,7 +162,7 @@ const refreshUserToken = async ( req, res, next ) => {
         }
     }
     catch ( err ) {
-        console.log( 'error refresing', err )
+        console.log( 'error refreshing', err )
         res.status( 500 ).json( { message: 'Could not refresh token' } )
     }
 

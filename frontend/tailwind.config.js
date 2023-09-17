@@ -43,6 +43,7 @@ module.exports = {
                 'btnblue': '0px 15px 20px rgba(1, 209, 253, 0.4)',
                 'btnorange': '0px 15px 20px rgba(252, 211, 77, 0.4)',
                 'btnstone': '0px 15px 20px rgba(78, 81, 102, 0.4)',
+                'btndred': '0px 15px 20px rgba(190, 18, 60, 0.4)',
                 'neatcard': 'rgba(0, 0, 0, 0.35) 0px 5px 15px;',
                 'elevated': 'rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;',
                 'sidepinkaccordeon': 'rgba(240, 46, 170, 0.4) 5px 5px, rgba(240, 46, 170, 0.3) 10px 10px, rgba(240, 46, 170, 0.2) 15px 15px, rgba(240, 46, 170, 0.1) 20px 20px, rgba(240, 46, 170, 0.05) 25px 25px;',
@@ -53,10 +54,85 @@ module.exports = {
                 'center-up': '50% 35%',
                 'center-down': '50% 75%',
             },
+            keyframes: {
+                spin: {
+                    from: { transform: 'rotate( 0deg )' },
+                    to: { transform: 'rotate( 360deg )' }
+                },
+                scale: {
+                    from: { transform: 'scaleY( 0 )' },
+                    to: { transform: 'scaleY( 1 )' }
+                },
+                fill: {
+                    '0%': { opacity: 0 },
+                    '20%': {
+                        opacity: 0.2,
+                        transform: 'scale(0.3)'
+                    },
+                    '40%': {
+                        opacity: 0.55,
+                        transform: 'scale(0.5)'
+                    },
+                    '60%': {
+                        opacity: 0.85,
+                        transform: 'scale(0.75)'
+                    },
+                    '80%': {
+                        transform: 'scale(1.2)'
+                    },
+                    '100%': {
+                        transform: 'scale(1)'
+                    }
+                },
+                zoom: {
+                    from: { transform: 'scale( 1 )' },
+                    to: { transform: 'scale( 2.5 )' }
+                },
+                rotatezoom: {
+                    '0%': {
+                        animationTimingFunction: 'ease-in',
+                        transform: 'rotate(0deg) scale(0.3)',
+                    },
+                    '25%': {
+                        animationTimingFunction: 'ease-out',
+                        transform: 'rotate(-180deg) scale(0.6)',
+                    },
+                    '50%, 100%': {
+                        transform: 'rotate(-360deg) scale( 1 )'
+                    }
+                },
+                moveup: {
+                    '0%': {
+                        transform: 'scale(.90)',
+                    },
+                    '40%': {
+                        transform: 'scale(1.02)',
+                    },
+                    '100%': {
+                        transform: 'scale(1)'
+                    }
+                },
+                wiggle: {
+                    "0%, 100%": { transform: "rotate(-3deg)" },
+                    "50%": { transform: "rotate(3deg)" }
+                },
+                btnflat: {
+                    from: { transform: 'scaleY(1)' },
+                    to: { transform: 'scaleY(0)' }
+                }
+            },
+            animation: {
+                spin: 'spin infinite 1.3s linear',
+                scale: 'scale .4s ease-out forwards',
+                fill: 'fill ease-in-out .4s forwards',
+                zoom: 'zoom ease-out .2s forwards',
+                rotateZoom: 'rotatezoom 2s linear',
+                moveUp: 'moveup .6s ease-out backwards',
+                wiggle: 'wiggle 200ms ease-in-out',
+                btnFill: 'btnfill .5s ease-out linear',
+                btnFlat: 'btnflat .3s ease-in-out backwards'
+            }
         },
-        // fontFamily: {
-        //     txt: [ 'Ysabeau Office', 'sans-serif' ]
-        // },
         colors: {
             transparent: 'transparent',
             current: 'currentColor',
@@ -72,17 +148,18 @@ module.exports = {
             green: colors.lime,
             appblck: '#00070A',
             appred: '#FD2D01',
-            apppink: '#FFC5D9',
+            apppink: '#FFC4D8',
             apppinklight: '#F0D7DB',
             apppastgreen: '#C9FFDD',
             appturq: '#2ECEC2',
             appmauvelight: '#E0D7F0',
+            appmauvedark: '#7953be',
             appstone: '#4E5166',
             appsand: '#fdfdf9',
             appmagenta: '#B001A2',
-            appopred: '#01D1FD',
-            appoppink: '#D7FFFF',
-            appopstone: '#66634E',
+            appopred: '#02d2fe',
+            appoppink: '#003b27',
+            appopstone: '#b1ae99',
         }
     },
     plugins: [],

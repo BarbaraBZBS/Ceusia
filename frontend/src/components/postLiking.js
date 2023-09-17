@@ -2,6 +2,11 @@
 import React, { useEffect, useState } from 'react';
 import axios from '@/utils/axios';
 import useAxiosAuth from '@/utils/hooks/useAxiosAuth';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faThumbsUp as thumbupempty } from '@fortawesome/free-regular-svg-icons';
+import { faThumbsUp as thumbupfull } from '@fortawesome/free-solid-svg-icons';
+import { faThumbsDown as thumbdownempty } from '@fortawesome/free-regular-svg-icons';
+import { faThumbsDown as thumbdownfull } from '@fortawesome/free-solid-svg-icons';
 
 export const revalidate = 0;
 
@@ -77,7 +82,7 @@ export default function PostLiking( { post, session } ) {
                 }, 4000 )
             }
         }
-    }
+    };
 
     useEffect( () => {
         async function checkLiked() {
@@ -99,14 +104,26 @@ export default function PostLiking( { post, session } ) {
     }, [ post, like, dislike ] )
 
     return (
-        <div>
+        <>
             <div className='flex flex-col'>
                 <div className='flex justify-end mx-2'>
-                    <span onClick={ like } className={ liked ? 'likedSpan' : 'likeSpan' }  >{ likes }👍</span>
-                    <span onClick={ dislike } className={ disliked ? 'dislikedSpan' : 'dislikeSpan' } >{ dislikes }👎</span>
+                    { liked ? <><span className='ml-2'>{ likes }</span><button onClick={ like } className='likedSpan focus:animate-fill active:animate-fill' >
+                        <FontAwesomeIcon icon={ thumbupfull } style={ { color: "#65A30D" } }
+                            className='' /></button></>
+                        : <><span className='ml-2'>{ likes }</span><button onClick={ like } className='likeSpan focus:animate-scale active:animate-scale'  >
+                            <FontAwesomeIcon icon={ thumbupempty } style={ { color: "#65A30D" } }
+                                className='' /></button></>
+                    }
+                    { disliked ? <><span className='ml-[5px]'>{ dislikes }</span><button onClick={ dislike } className='dislikedSpan focus:animate-scale active:animate-scale' >
+                        <FontAwesomeIcon icon={ thumbdownfull } style={ { color: "#F43F5E" } }
+                            className='' /></button></>
+                        : <><span className='ml-[5px]'>{ dislikes }</span><button onClick={ dislike } className='dislikeSpan focus:animate-fill active:animate-fill' >
+                            <FontAwesomeIcon icon={ thumbdownempty } style={ { color: "#F43F5E" } }
+                                className='' /></button></>
+                    }
                 </div>
                 <p className={ errMsg ? 'errMsg text-clamp6 mx-0 my-2' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
             </div>
-        </div>
+        </>
     )
 }

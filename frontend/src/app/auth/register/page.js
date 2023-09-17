@@ -25,20 +25,22 @@ export default function RegisterPage() {
         setError,
         setFocus,
         reset,
-        formState: { errors, isSubmitted, isSubmitSuccessful },
+        formState: { errors, isSubmitSuccessful },
     } = useForm( {
         defaultValues: {
             username: '',
             email: '',
             password: ''
         },
-        mode: "onBlur"
+        mode: "onSubmit"
+        // mode: "onBlur"
     } );
 
     const password = useRef( {} );
     password.current = watch( 'password', '' );
     const [ signupState, setSignupState ] = useState();
     const [ load, setLoad ] = useState( false );
+    const [ submitBtnEffect, setSubmitBtnEffect ] = useState( false );
     const [ errMsg, setErrMsg ] = useState( '' );
 
     useEffect( () => {
@@ -103,10 +105,10 @@ export default function RegisterPage() {
             <section className='h-fit'>
                 <div className='mt-12 mb-20'>
                     { signupState === 'Signing up' ? <Loading /> :
-                        isSubmitSuccessful && signupState === 'Signed up' ? <p className='text-center text-clamp5'> Registered ! You can now sign in.</p> :
+                        isSubmitSuccessful && signupState === 'Signed up' ? <p className='text-center text-clamp5 h-80'> Registered ! You can now sign in.</p> :
                             <div>
                                 <p className='text-clamp7 text-center'>Already have an account ?
-                                    <Link className='text-[#DD1600] signLink uppercase' href='/auth/signIn'> Sign in</Link>
+                                    <Link className='text-appmauvedark signLink uppercase' href='/auth/signIn'> Sign in</Link>
                                 </p>
 
                                 <div className='form_container_reg'>
@@ -130,7 +132,7 @@ export default function RegisterPage() {
                                                 value: USER_REGEX,
                                                 message: 'Username must start with letters (digits, -, _ allowed)'
                                             }
-                                        } ) } className='form_input' />
+                                        } ) } className={ `form_input ${ errors.username ? 'border-appred focus:border-appred' : '' }` } />
                                         { errors.username && <span className='fieldErrMsg'>{ errors.username.message }</span> }
 
                                         <input type="email" placeholder="   Email" { ...register( "email", {
@@ -139,7 +141,7 @@ export default function RegisterPage() {
                                                 value: EMAIL_REGEX,
                                                 message: 'Email must have a valid format'
                                             }
-                                        } ) } className='form_input' />
+                                        } ) } className={ `form_input ${ errors.email ? 'border-appred focus:border-appred' : '' }` } />
                                         { errors.email && <span className='fieldErrMsg'>{ errors.email.message }</span> }
 
                                         <input type="password" placeholder="   Password" { ...register( "password", {
@@ -156,15 +158,16 @@ export default function RegisterPage() {
                                                 value: PASSWORD_REGEX,
                                                 message: 'Password must have at least 1 digit and 1 letter'
                                             }
-                                        } ) } className='form_input' />
+                                        } ) } className={ `form_input ${ errors.password ? 'border-appred focus:border-appred' : '' }` } />
                                         { errors.password && <span className='fieldErrMsg'>{ errors.password.message }</span> }
 
                                         <input type="password" placeholder="   Confirm password" { ...register( "confirm_password", {
                                             required: 'This field is required', validate: value => value === password.current || "Passwords do not match",
-                                        } ) } className='form_input' />
+                                        } ) } className={ `form_input ${ errors.confirm_password ? 'border-appred focus:border-appred' : '' }` } />
                                         { errors.confirm_password && <span className='fieldErrMsg'>{ errors.confirm_password.message }</span> }
 
-                                        <button type="submit" onClick={ () => setErrMsg( '' ) } className='form_btn_submit_up'>Submit</button>
+                                        <button type="submit" onClick={ () => setSubmitBtnEffect( true ) } onAnimationEnd={ () => setSubmitBtnEffect( false ) }
+                                            className={ `form_btn_submit_up ${ submitBtnEffect && 'animate-btnFlat' }` }>Submit</button>
                                     </form>
                                 </div>
                             </div>

@@ -6,6 +6,7 @@ import Provider from './Provider';
 // import { getServerSession } from 'next-auth';
 // import { authOptions } from '../../pages/api/auth/[...nextauth]';
 import AppLoad from '../components/appLoad';
+import "@fortawesome/fontawesome-svg-core/styles.css"
 
 const ysabeauO = Ysabeau_Office( {
     subsets: [ 'latin' ],

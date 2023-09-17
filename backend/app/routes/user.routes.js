@@ -4,7 +4,12 @@ import * as userCtrl from "../controllers/user.controller.js";
 import * as uploadCtrl from "../controllers/upload.controller.js";
 import auth from '../../middleware/auth.js';
 import multer from 'multer';
-const upload = multer();
+const upload = multer( {
+    limits: {
+        fileSize: 4000 * 1024 * 1024,
+        fieldSize: 4000 * 1024 * 1024.
+    }
+} );
 
 // new User signup
 userRoutes.post( "/signup", userCtrl.signup );

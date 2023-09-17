@@ -1,4 +1,3 @@
-import axios from "axios";
 import apiCall from "../../utils/axiosConfig";
 
 export const apiLogout = async () => {

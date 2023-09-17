@@ -5,11 +5,12 @@ import Loading from './loading';
 
 export default function UserProfileCard( { user } ) {
     const [ isLoading, setIsLoading ] = useState( true );
+
     useEffect( () => {
         if ( user ) {
             setIsLoading( false )
         }
-    } )
+    } );
 
     return (
         <>

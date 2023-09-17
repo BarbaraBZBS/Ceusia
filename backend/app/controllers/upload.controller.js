@@ -12,7 +12,10 @@ const userPicture = async ( req, res, next ) => {
     console.log( 'req file: ', req.file )
     try {
         let imagePath = '';
-        if ( !req.file.detectedMimeType.startsWith( 'image' ) ) {
+        if ( req.file.detectedMimeType === null ) {
+            return res.status( 403 ).json( { message: "Bad image type" } );
+        }
+        else if ( !req.file.detectedMimeType.startsWith( 'image' ) ) {
             return res.status( 403 ).json( { message: "Bad image type" } );
         }
         else if ( req.file.size > 8000000 ) {

@@ -41,56 +41,56 @@ body {
 }
 
 @layer components {
-  .about_page {
-    @apply text-clamp4 mb-3;
-  }
-  .signLink {
-    @apply hover:text-appturq hover:translate-y-1 active:text-appturq active:underline transition-all duration-200 ease-in-out
-  }
-  .activeLink {
-    @apply text-apppink drop-shadow-linkTxt underline 
-  }
-  .form_btn_submit_in {
-    @apply bg-appstone text-white uppercase w-fit rounded-xl px-3 py-[3px] mt-8 mb-4 transition-all duration-300 ease-in-out hover:bg-[#D9FFC5] hover:text-appblck hover:translate-y-[-7px] hover:shadow-btngreen
-  }
-  .form_btn_submit_up {
-    @apply bg-appstone text-white uppercase w-fit rounded-xl px-3 py-[3px] mt-8 mb-4 transition-all duration-300 ease-in-out hover:bg-[#ffcec9] hover:text-appblck hover:translate-y-[-7px] hover:shadow-btnpink
-  }
-  .errBtn {
-    @apply bg-appstone text-white uppercase w-fit rounded-xl px-3 py-[3px] mt-8 mb-4 transition-all duration-300 ease-in-out hover:bg-indigo-700 hover:text-white hover:translate-y-[-7px] hover:shadow-btnindigo
-  }
-  .form_container {
-    @apply flex flex-col border-2 border-apppink rounded-xl bg-apppink shadow-md m-5 h-fit
-  }
-  .form_container_reg {
-    @apply border-2 border-apppastgreen rounded-xl bg-apppastgreen shadow-md m-5 h-fit
-  }
-  .form_input {
-    @apply border-2 border-appstone rounded-md h-10 my-3 drop-shadow-linkTxt
-  }
-  .errMsg {
-    @apply self-center text-red-600 bg-white font-semibold drop-shadow-light mx-6 rounded-md w-fit px-2
-  }
-  .offscreen {
-    @apply hidden
-  }
-  .fieldErrMsg {
-    @apply text-red-600  bg-white font-semibold drop-shadow-light px-2 rounded-md
-  }
-  .imgNorm {
-    @apply rounded-2xl object-cover object-center-up hover:object-center-down hover:shadow-neatcard w-full h-auto max-w-[280px] max-h-[150px] cursor-pointer
-  }
-  .imgZoom {
-    @apply rounded-2xl object-cover w-screen h-auto absolute left-0 z-50 cursor-pointer
-  }
-  .postUserPicZoom {
-    @apply rounded-3xl object-cover w-screen h-auto absolute left-0 top-[45px] z-50 cursor-pointer
-  }
-  .postUserPic {
-      @apply rounded-full object-cover w-7 h-7 cursor-pointer
+    .about_page {
+        @apply text-clamp4 mb-3;
+    }
+    .signLink {
+        @apply hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out
+    }
+    .activeLink {
+        @apply text-apppink focus:text-apppink drop-shadow-linkTxt underline uppercase 
+    }
+    .form_btn_submit_in {
+        @apply bg-appstone text-white uppercase w-fit rounded-xl px-3 py-[3px] mt-8 mb-4 transition-all duration-300 ease-in-out hover:bg-[#D9FFC5] hover:text-appblck hover:translate-y-[-7px] hover:shadow-btngreen
+    }
+    .form_btn_submit_up {
+        @apply bg-appstone text-white uppercase w-fit rounded-xl px-3 py-[3px] mt-8 mb-4 transition-all duration-300 ease-in-out hover:bg-[#ffcec9] hover:text-appblck hover:translate-y-[-7px] hover:shadow-btnpink
+    }
+    .errBtn {
+        @apply bg-appstone text-white uppercase w-fit rounded-xl px-3 py-[3px] mt-8 mb-4 transition-all duration-300 ease-in-out hover:bg-indigo-700 hover:text-white hover:translate-y-[-7px] hover:shadow-btnindigo
+    }
+    .form_container {
+        @apply flex flex-col border-2 border-apppink rounded-xl bg-apppink shadow-md m-5 h-fit
+    }
+    .form_container_reg {
+        @apply border-2 border-apppastgreen rounded-xl bg-apppastgreen shadow-md m-5 h-fit
+    }
+    .form_input {
+        @apply border-2 border-appstone rounded-md h-10 my-3 drop-shadow-linkTxt focus:border-appturq focus:outline-none focus:invalid:border-appred
+    }
+    .errMsg {
+        @apply self-center text-red-600 bg-white font-semibold drop-shadow-light mx-6 rounded-md w-fit px-2
+    }
+    .offscreen {
+        @apply hidden
+    }
+    .fieldErrMsg {
+        @apply text-red-600  bg-white font-semibold drop-shadow-light px-2 rounded-md
+    }
+    .imgNorm {
+        @apply rounded-2xl object-cover object-center-up hover:object-center-down hover:shadow-neatcard w-full h-auto max-w-[280px] max-h-[150px] cursor-pointer
+    }
+    .imgZoom {
+        @apply rounded-2xl object-cover w-screen h-auto absolute left-0 z-50 cursor-pointer top-[10px]
+    }
+    .postUserPicZoom {
+        @apply rounded-3xl object-cover w-screen h-auto absolute left-0 top-[45px] z-50 cursor-pointer
+    }
+    .postUserPic {
+        @apply rounded-full object-cover w-10 h-10 cursor-pointer
     }
     .user_upd_input {
-        @apply border-2 border-appstone rounded-md h-8 drop-shadow-linkTxt my-1
+        @apply border-2 border-appstone rounded-md h-8 drop-shadow-linkTxt my-1 focus:border-apppink focus:outline-none focus:invalid:border-appred
     }
     .usr_upd_btn_submit {
         @apply bg-appstone text-white w-fit rounded-xl px-2 py-[2px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:bg-apppastgreen hover:border-apppastgreen border-2 border-appstone hover:text-appblck hover:translate-y-[5px] hover:shadow-btnpastgreen
@@ -105,10 +105,16 @@ body {
       @apply rounded-full object-fill w-full h-full absolute left-0 top-0 z-50 cursor-pointer
     }
     .userCard {
-        @apply flex flex-col justify-center items-center py-6 my-8 min-h-[400px] border-gray-900 bg-apppastgreen bg-opacity-30 rounded-lg shadow-lg w-[90%] mx-auto
+        @apply flex flex-col justify-center items-center py-6 mt-10 mb-20 min-h-[400px] border-gray-900 bg-apppastgreen bg-opacity-30 rounded-lg shadow-lg w-[90%] mx-auto
+    }
+    .post_modify_btn {
+        @apply bg-appstone text-white w-fit rounded-tl-[15px] rounded-br-[15px] px-2 py-[2px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%]
+    }
+    .post_delete_btn {
+        @apply bg-appred text-white w-fit rounded-tl-[15px] rounded-br-[15px] px-2 py-[2px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:bg-red-700 hover:translate-y-[7px] hover:shadow-btndred bg-[linear-gradient(#a10f33,#a10f33)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%]
     }
     .post_form_input {
-        @apply border-2 border-appstone rounded-md h-6 my-1 drop-shadow-linkTxt w-[70vw] text-center
+        @apply border-2 border-appstone rounded-md h-6 my-1 drop-shadow-linkTxt w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred
     }
     .post_form_btn_submit {
         @apply bg-appstone text-white w-fit rounded-xl px-2 py-[2px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue
@@ -117,16 +123,16 @@ body {
         @apply bg-[#FF7900] text-appblck w-fit rounded-xl px-2 py-[2px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px] hover:shadow-btnorange
     }
     .likeSpan {
-        @apply pl-2 cursor-pointer text-green-600 hover:text-green-600 hover:shadow-md hover:rounded-xl hover:bg-green-600 hover:bg-opacity-20
+        @apply px-[3px] cursor-pointer hover:rounded-xl hover:bg-green-600 hover:bg-opacity-20
     }
     .likedSpan {
-        @apply pl-2 cursor-pointer text-green-600 hover:text-green-600 hover:shadow-md hover:rounded-xl hover:bg-red-600 hover:bg-opacity-30 opacity-50
+        @apply px-[3px] cursor-pointer opacity-50 hover:rounded-xl hover:bg-red-600 hover:bg-opacity-30
     }
     .dislikeSpan {
-        @apply pl-2 cursor-pointer text-red-500 hover:text-red-500 hover:shadow-md hover:rounded-xl hover:bg-red-500 hover:bg-opacity-20
+        @apply px-[3px] cursor-pointer hover:rounded-xl hover:bg-red-500 hover:bg-opacity-20
     }
     .dislikedSpan {
-        @apply pl-2 cursor-pointer text-red-500 hover:text-red-500 hover:shadow-md hover:rounded-xl hover:bg-green-600 hover:bg-opacity-30 opacity-50
+        @apply px-[3px] cursor-pointer opacity-50 hover:rounded-xl hover:bg-green-600 hover:bg-opacity-30
     }
   /* ... */
   /* @screen lg { // applying font size for lg breakpoint

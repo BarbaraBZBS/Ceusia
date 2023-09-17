@@ -7,15 +7,13 @@ import Cards from './cards';
 import Loading from '../app/loading';
 import axios from 'axios';
 import { redirect } from 'next/navigation';
-import { useRouter } from 'next/navigation';
 
-export const revalidate = 0;
+// export const revalidate = 0;
 
 export default async function Posts() {
     const posts = await getPosts();
     const session = await getServerSession( authOptions() );
     if ( !posts || !session?.user ) {
-        // redirect('/auth/signIn')
         await axios( {
             method: 'post',
             url: '/api/auth/signout',
