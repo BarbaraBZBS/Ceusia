@@ -59,6 +59,7 @@ export default function RegisterPage() {
     const submitForm = async ( data, e ) => {
         e.preventDefault();
         setLoad( true );
+        setErrMsg( '' );
         data = {
             username: getValues( 'username' ),
             email: getValues( 'email' ),

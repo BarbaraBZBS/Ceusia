@@ -93,7 +93,11 @@ body {
         @apply border-2 border-appstone rounded-md h-8 drop-shadow-linkTxt my-1 focus:border-apppink focus:outline-none focus:invalid:border-appred
     }
     .usr_upd_btn_submit {
-        @apply bg-appstone text-white w-fit rounded-xl px-2 py-[2px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:bg-apppastgreen hover:border-apppastgreen border-2 border-appstone hover:text-appblck hover:translate-y-[5px] hover:shadow-btnpastgreen
+        @apply bg-appstone text-white w-fit rounded-2xl px-3 py-[2px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40
+        /* ,#7953be,#F0D7DB */
+    }
+    .usr_dlt_btn_submit {
+        @apply bg-appred text-white hover:bg-red-700 hover:shadow-btndred uppercase my-6 w-fit rounded-2xl px-3 py-[2px] transition-all duration-300 ease-in-out hover:translate-y-[5px] bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] 
     }
     .follow_btn {
         @apply bg-appstone text-clamp6 text-white w-fit rounded-xl px-2 py-[2px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:bg-appopred hover:border-appopred border-2 border-appstone hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue

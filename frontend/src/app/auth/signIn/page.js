@@ -10,8 +10,7 @@ export default function LogInPage() {
     const [ logState, setLogState ] = useState();
     const [ load, setLoad ] = useState( false );
     const [ submitBtnEffect, setSubmitBtnEffect ] = useState( false );
-    // const [ errMsg, setErrMsg ] = useState( '' );
-    const errParams = useSearchParams()
+    const errParams = useSearchParams();
     const error = errParams.get( 'error' );
 
     const {

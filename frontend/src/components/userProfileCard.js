@@ -5,12 +5,19 @@ import Loading from './loading';
 
 export default function UserProfileCard( { user } ) {
     const [ isLoading, setIsLoading ] = useState( true );
+    const [ followEffect, setFollowEffect ] = useState( false );
 
     useEffect( () => {
         if ( user ) {
             setIsLoading( false )
         }
     } );
+
+    const handleFollow = () => {
+        setFollowEffect( true );
+
+
+    };
 
     return (
         <>
@@ -32,7 +39,7 @@ export default function UserProfileCard( { user } ) {
                         <p className='mx-2'>Following: ??</p>
                     </div>
                     <div>
-                        <button className='follow_btn uppercase'>Follow</button>
+                        <button onClick={ () => handleFollow() } onAnimationEnd={ () => setFollowEffect( false ) } className={ `follow_btn uppercase ${ followEffect && 'animate-btnFlat' }` }>Follow</button>
                     </div>
                 </div>
             }

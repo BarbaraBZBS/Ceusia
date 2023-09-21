@@ -5,10 +5,9 @@ import Image from 'next/image';
 export default function UserProfilePic( { user } ) {
     const [ isPicZoomed, setIsPicZoomed ] = useState( false );
 
-
     const handlePicZoom = () => {
         setIsPicZoomed( !isPicZoomed );
-    }
+    };
 
     return (
         <>

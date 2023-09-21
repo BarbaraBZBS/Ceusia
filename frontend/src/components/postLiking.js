@@ -17,6 +17,8 @@ export default function PostLiking( { post, session } ) {
     const [ dislikes, setDislikes ] = useState( post.dislikes );
     const [ liked, setLiked ] = useState( false );
     const [ disliked, setDisliked ] = useState( false );
+    const [ likeEffect, setLikeEffect ] = useState( false );
+    const [ dislikeEffect, setDislikeEffect ] = useState( false );
     const [ errMsg, setErrMsg ] = useState( '' );
 
     const like = async () => {
@@ -25,10 +27,12 @@ export default function PostLiking( { post, session } ) {
             const resp = await axiosAuth.post( `/posts/${ post.id }/like` )
             const likeStat = resp.data.message
             if ( likeStat === 'post liked !' ) {
-                setLiked( true )
+                setLiked( true );
+                setDisliked( false );
             }
             if ( likeStat === 'post unliked !' ) {
-                setLiked( false )
+                setLiked( false );
+                setDisliked( false );
             }
             const res = await axiosAuth.get( `/posts/${ post.id }` )
             setLikes( res.data.likes )
@@ -57,10 +61,12 @@ export default function PostLiking( { post, session } ) {
             const resp = await axiosAuth.post( `/posts/${ post.id }/dislike` )
             const dislikeStat = resp.data.message
             if ( dislikeStat === 'post disliked !' ) {
-                setDisliked( true )
+                setDisliked( true );
+                setLiked( false );
             }
             if ( dislikeStat === 'post dislike removed !' ) {
-                setDisliked( false )
+                setDisliked( false );
+                setLiked( false );
             }
             const res = await axiosAuth.get( `/posts/${ post.id }` )
             setDislikes( res.data.dislikes )
@@ -84,40 +90,49 @@ export default function PostLiking( { post, session } ) {
         }
     };
 
+    const likeBtn = () => {
+        like();
+        setLikeEffect( true );
+    };
+    const dislikeBtn = () => {
+        dislike();
+        setDislikeEffect( true );
+    };
+
     useEffect( () => {
         async function checkLiked() {
             const likeRes = await axios.post( '/posts/likestatus', {
                 post_id: post.id,
-                user_id: post.user_id
+                user_id: session.user.user_id
             } )
             const likeResData = likeRes.data.message
             if ( likeResData === 'liked: ' ) {
-                setLiked( true )
-                setDisliked( false )
+                setLiked( true );
+                setDisliked( false );
             }
             if ( likeResData === 'disliked: ' ) {
-                setDisliked( true )
-                setLiked( false )
+                setDisliked( true );
+                setLiked( false );
             }
         }
         checkLiked()
-    }, [ post, like, dislike ] )
+    }, [ post, liked, disliked ] )
 
     return (
         <>
             <div className='flex flex-col'>
                 <div className='flex justify-end mx-2'>
-                    { liked ? <><span className='ml-2'>{ likes }</span><button onClick={ like } className='likedSpan focus:animate-fill active:animate-fill' >
+                    { liked ? <><span className='ml-2'>{ likes }</span><button onClick={ () => likeBtn() } onAnimationEnd={ () => setLikeEffect( false ) } className={ `likedSpan ${ likeEffect && 'animate-fill' }` } >
                         <FontAwesomeIcon icon={ thumbupfull } style={ { color: "#65A30D" } }
                             className='' /></button></>
-                        : <><span className='ml-2'>{ likes }</span><button onClick={ like } className='likeSpan focus:animate-scale active:animate-scale'  >
+                        : <><span className='ml-2'>{ likes }</span><button onClick={ () => likeBtn() } onAnimationEnd={ () => setLikeEffect( false ) } className={ `likeSpan ${ likeEffect && 'animate-scale' }` }  >
                             <FontAwesomeIcon icon={ thumbupempty } style={ { color: "#65A30D" } }
                                 className='' /></button></>
                     }
-                    { disliked ? <><span className='ml-[5px]'>{ dislikes }</span><button onClick={ dislike } className='dislikedSpan focus:animate-scale active:animate-scale' >
+                    { disliked ? <><span className='ml-[5px]'>{ dislikes }</span><button onClick={ () => dislikeBtn() } onAnimationEnd={ () => setDislikeEffect( false ) } className={ `dislikedSpan ${ dislikeEffect && 'animate-scale' }` } >
                         <FontAwesomeIcon icon={ thumbdownfull } style={ { color: "#F43F5E" } }
                             className='' /></button></>
-                        : <><span className='ml-[5px]'>{ dislikes }</span><button onClick={ dislike } className='dislikeSpan focus:animate-fill active:animate-fill' >
+                        : <><span className='ml-[5px]'>{ dislikes }</span><button onClick={ () => dislikeBtn() } onAnimationEnd={ () => setDislikeEffect( false ) } className={ `dislikeSpan ${ dislikeEffect && 'animate-fill' }` } >
                             <FontAwesomeIcon icon={ thumbdownempty } style={ { color: "#F43F5E" } }
                                 className='' /></button></>
                     }

@@ -1,11 +1,12 @@
 'use client';
 import { useEffect } from 'react';
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { signOut } from 'next-auth/react';
 
 
 export default function Error( { error, reset } ) {
-    const router = useRouter()
+    const router = useRouter();
+    const path = usePathname();
 
     useEffect( () => {
         console.error( error );
@@ -28,7 +29,7 @@ export default function Error( { error, reset } ) {
                     // Attempt to recover by trying to re-render the segment
                     // () => reset()
 
-                    () => router.refresh( { shallow: false } )
+                    () => router.push( path )
                 }
             >
                 Reload

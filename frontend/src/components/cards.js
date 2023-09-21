@@ -11,6 +11,11 @@ import { faPhotoFilm } from '@fortawesome/free-solid-svg-icons';
 import { faMusic } from '@fortawesome/free-solid-svg-icons';
 import { useRouter } from 'next/navigation';
 
+// eslint-disable-next-line max-len
+const LINK_REGEX = /^https?:\/\//gm
+//or this one to match domains extensions and base urls
+// const LINK_REGEX = /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?/
+
 export default function Cards( { posts, session, params, searchParams } ) {
     const axiosAuth = useAxiosAuth();
     const router = useRouter();
@@ -23,7 +28,9 @@ export default function Cards( { posts, session, params, searchParams } ) {
     const [ isPicZoomed, setIsPicZoomed ] = useState( {} );
     const [ resetBtnEffect, setResetBtnEffect ] = useState( false );
     const [ sendBtnEffect, setSendBtnEffect ] = useState( false );
-    // const [ modifyBtnEffect, setModifyBtnEffect ] = useState( {} );
+    const [ clickedModifBtn, setClickedModifBtn ] = useState( 0 );
+    const [ modifyBtnEffect, setModifyBtnEffect ] = useState( false );
+    const [ deleteBtnEffect, setDeleteBtnEffect ] = useState( false );
     const [ fileWiggle, setFileWiggle ] = useState( false );
     const [ errMsg, setErrMsg ] = useState( '' );
     const isBrowser = () => typeof window !== 'undefined';
@@ -57,7 +64,7 @@ export default function Cards( { posts, session, params, searchParams } ) {
 
     const submitForm = async ( data, e ) => {
         e.preventDefault();
-        // setErrMsg( '' );
+        setErrMsg( '' );
         let headers;
         if ( data.fileUrl <= 0 ) {
             data = {
@@ -147,19 +154,38 @@ export default function Cards( { posts, session, params, searchParams } ) {
         return date.toString();
     };
 
+    const modifBtn = ( link ) => {
+        setModifyBtnEffect( true );
+        setTimeout( () => {
+            router.push( link )
+        }, 1000 );
+    };
+
     const handleDelete = async ( postid ) => {
-        const res = await axiosAuth.delete( `/posts/${ postid }` )
-        console.log( 'deleted ? : ', res )
-        if ( !res ) {
-            setErrMsg( 'Something went wrong, post is not removed' );
+        setDeleteBtnEffect( true );
+        setErrMsg( '' );
+        try {
+            const res = await axiosAuth.delete( `/posts/${ postid }` )
+            console.log( 'deleted ? : ', res )
+            if ( !res ) {
+                setErrMsg( 'Something went wrong, post was not removed' );
+                if ( !isBrowser() ) return;
+                window.scrollTo( { top: 0, behavior: 'smooth' } );
+            }
+            else {
+                setTimeout( async () => {
+                    const resp = await axiosAuth.get( '/posts' )
+                    const newdisplay = resp.data
+                    posts = newdisplay
+                    setDisplay( posts.slice( 0, count ) )
+                }, 1000 );
+            };
+        }
+        catch ( err ) {
+            console.log( 'delete post err : ', err )
+            setErrMsg( 'Something went wrong, post was not removed' );
             if ( !isBrowser() ) return;
             window.scrollTo( { top: 0, behavior: 'smooth' } );
-        }
-        else {
-            const resp = await axiosAuth.get( '/posts' )
-            const newdisplay = resp.data
-            posts = newdisplay
-            setDisplay( posts.slice( 0, count ) )
         }
     };
 
@@ -186,12 +212,12 @@ export default function Cards( { posts, session, params, searchParams } ) {
         if ( !isBrowser() ) return;
         window.addEventListener( 'scroll', loadMore )
         return () => window.removeEventListener( 'scroll', loadMore )
-    }, [ loadPost, display, count ] )
+    }, [ loadPost, display, count ] );
 
     const btnReset = () => {
         reset();
         setResetBtnEffect( true );
-    }
+    };
 
     return (
         <div className='flex flex-col items-center'>
@@ -199,7 +225,7 @@ export default function Cards( { posts, session, params, searchParams } ) {
                 {/* post form */ }
                 <h2 className='text-clamp7'>What&apos;s on your mind?</h2>
                 <>
-                    <p className={ errMsg ? 'errMsg text-clamp6 mb-2' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
+                    <p className={ errMsg ? 'errMsg text-clamp6 my-3' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
                     {/* <div>preview?</div> */ }
                     <div className='flex flex-col items-center w-full'>
                         <form className='mb-1 py-1 flex flex-col items-center text-clamp6 w-full' onSubmit={ handleSubmit( submitForm ) }>
@@ -227,7 +253,12 @@ export default function Cards( { posts, session, params, searchParams } ) {
                                     { filewatch[ 0 ].name }</p> : <p className='mx-3'>No file selected</p> }
                             { errors.fileUrl && <span className='fieldErrMsg mt-1 mb-2'>{ errors.fileUrl.message }</span> }
 
-                            <input type="text" placeholder='A link...' { ...register( "link" ) } className={ `post_form_input ${ errors.link ? 'border-appred focus:border-appred' : '' }` } />
+                            <input type="text" placeholder='A link...' { ...register( "link", {
+                                pattern: {
+                                    value: LINK_REGEX,
+                                    message: 'Enter a valid link url'
+                                }
+                            } ) } className={ `post_form_input ${ errors.link ? 'border-appred focus:border-appred' : '' }` } />
                             { errors.link && <span className='fieldErrMsg'>{ errors.link.message }</span> }
 
                             <div className='flex w-full justify-around'>
@@ -291,12 +322,11 @@ export default function Cards( { posts, session, params, searchParams } ) {
                     <div className='flex justify-evenly mb-1'>
                         {/* onclick link to post[id] params */ }
                         { session?.user.username === post.user.username ? <div className='flex relative items-center mb-2 group'>
-                            <Link className='post_modify_btn transition-[background-size_.5s, color_.5s] active:bg-[size:100%_100%] active:text-white focus:bg-[size:100%_100%] focus:text-white' href={ `/post/${ [ post.id ] }` }>Modify post</Link>
+                            <button onClick={ () => { setClickedModifBtn( index ); modifBtn( `/post/${ [ post.id ] }` ) } } onAnimationEnd={ () => setModifyBtnEffect( false ) } className={ `post_modify_btn ${ clickedModifBtn === index && modifyBtnEffect && 'animate-bgSize' }` }>Modify post</button>
                         </div> : '' }
-                        {/* animate-bounce */ }
 
                         { session?.user.username === post.user.username ? <div className='flex items-center mb-2'>
-                            <button onClick={ () => handleDelete( post.id ) } className='post_delete_btn  transition-[background-size_.5s, color_.5s] active:bg-[size:100%_100%] active:text-white focus:bg-[size:100%_100%] focus:text-white' >Delete post</button>
+                            <button onClick={ () => { setClickedModifBtn( index ); handleDelete( post.id ) } } onAnimationEnd={ () => setDeleteBtnEffect( false ) } className={ `post_delete_btn ${ clickedModifBtn === index && deleteBtnEffect && 'animate-bgSize' }` } >Delete post</button>
                         </div> : '' }
                     </div>
 

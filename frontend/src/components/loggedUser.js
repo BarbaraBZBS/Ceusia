@@ -1,6 +1,6 @@
 'use client';
-import React, { useState, useEffect, useRef } from 'react';
-import { set, useForm } from 'react-hook-form';
+import React, { useState, useEffect, useRef, isValidElement } from 'react';
+import { useForm } from 'react-hook-form';
 import Image from 'next/image';
 import useAxiosAuth from '@/utils/hooks/useAxiosAuth';
 import { useSession, signOut } from 'next-auth/react';
@@ -44,6 +44,12 @@ export default function LoggedUser( { user } ) {
     } );
     const password = useRef( {} );
     password.current = watch( 'password', '' );
+    const usrN = watch( 'username' );
+    const eml = watch( 'email' );
+    const psw = watch( 'password' );
+    const confpasw = watch( 'confirm_password' );
+    const mt = watch( 'motto' );
+    const pct = watch( 'picture' );
     const [ errMsg, setErrMsg ] = useState( '' );
     const [ passwordUpdated, setPasswordUpdated ] = useState( false );
     const [ pictureUpdated, setPictureUpdated ] = useState( false );
@@ -51,6 +57,7 @@ export default function LoggedUser( { user } ) {
     const [ emailEffect, setEmailEffect ] = useState( false );
     const [ pwdEffect, setPwdEffect ] = useState( false );
     const [ mottoEffect, setMottoEffect ] = useState( false );
+    const [ fileWiggle, setFileWiggle ] = useState( false );
     const [ picEffect, setPicEffect ] = useState( false );
     const [ deleteEffect, setDeleteEffect ] = useState( false );
     const filewatch = watch( 'picture' );
@@ -71,7 +78,7 @@ export default function LoggedUser( { user } ) {
     const submitUpdate = async ( data ) => {
         setPasswordUpdated( false );
         setPictureUpdated( false );
-        // setErrMsg();
+        setErrMsg();
         data = {
             username: getValues( 'username' ),
             email: getValues( 'email' ),
@@ -142,7 +149,7 @@ export default function LoggedUser( { user } ) {
         };
         setPasswordUpdated( false );
         setPictureUpdated( false );
-        // setErrMsg();
+        setErrMsg();
         try {
             await axiosAuth( {
                 method: 'post',
@@ -185,7 +192,7 @@ export default function LoggedUser( { user } ) {
         setPasswordUpdated( false );
         setPictureUpdated( false );
         setDeleteEffect( true );
-        // setErrMsg();
+        setErrMsg();
         const headers = {
             'Content-Type': 'application/json',
         };
@@ -223,6 +230,7 @@ export default function LoggedUser( { user } ) {
 
     return (
         <div className='flex flex-col'>
+            {/* profile info */ }
             <h1 className='text-clamp3 text-center pt-8 mb-5 uppercase'>My Profile</h1>
             <p className={ errMsg ? 'errMsg text-clamp6 mb-2 text-center justify-center items-center' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
             <div className='flex flex-col text-clamp8 items-center mb-8'>
@@ -235,6 +243,7 @@ export default function LoggedUser( { user } ) {
                 { bgZoomed && <div className='w-[100vw] h[100vh] z-[998] bg-black fixed inset-0 opacity-1' onClick={ () => setBgZoomed( !bgZoomed ) } onTouchStart={ () => setBgZoomed( !bgZoomed ) }></div> }
             </div>
 
+            {/* update forms */ }
             <div className='flex flex-col items-center'>
                 <hr className='w-[80vw] text-center mb-8 border-t-solid border-t-[4px] rounded-md border-t-gray-300'></hr>
                 <h2 className='text-clamp3 text-center mb-5 uppercase'>Update Profile Details</h2>
@@ -256,7 +265,7 @@ export default function LoggedUser( { user } ) {
                         }
                     } ) } className={ `user_upd_input ${ errors.username ? 'border-appred focus:border-appred' : '' }` } />
                     { errors.username && <span className='fieldErrMsg'>{ errors.username.message }</span> }
-                    <button type="submit" onClick={ () => setUsrnEffect( true ) } className='usr_upd_btn_submit'>Modify Username</button>
+                    <button type="submit" disabled={ !usrN } onClick={ () => setUsrnEffect( true ) } onAnimationEnd={ () => setUsrnEffect( false ) } className={ `usr_upd_btn_submit ${ usrnEffect && 'animate-bgSize' }` }>Modify Username</button>
                 </form>
             </div>
 
@@ -269,7 +278,7 @@ export default function LoggedUser( { user } ) {
                         }
                     } ) } className={ `user_upd_input ${ errors.email ? 'border-appred focus:border-appred' : '' }` } />
                     { errors.email && <span className='fieldErrMsg'>{ errors.email.message }</span> }
-                    <button type="submit" onClick={ () => setEmailEffect( true ) } className='usr_upd_btn_submit'>Modify Email</button>
+                    <button type="submit" disabled={ !eml } onClick={ () => setEmailEffect( true ) } onAnimationEnd={ () => setEmailEffect( false ) } className={ `usr_upd_btn_submit ${ emailEffect && 'animate-bgSize' }` }>Modify Email</button>
                 </form>
             </div>
 
@@ -295,7 +304,7 @@ export default function LoggedUser( { user } ) {
                     } ) } className={ `user_upd_input ${ errors.confirm_password ? 'border-appred focus:border-appred' : '' }` } />
                     { errors.confirm_password && <span className='fieldErrMsg'>{ errors.confirm_password.message }</span> }
                     <div className='flex w-[45vw] justify-around items-center'>
-                        <button type="submit" onClick={ () => setPwdEffect( true ) } className='usr_upd_btn_submit'>Modify Password</button>
+                        <button type="submit" disabled={ !psw || !confpasw } onClick={ () => setPwdEffect( true ) } onAnimationEnd={ () => setPwdEffect( false ) } className={ `usr_upd_btn_submit ${ pwdEffect && 'animate-bgSize' }` }>Modify Password</button>
                         { passwordUpdated && <FontAwesomeIcon icon={ faCheckDouble } size={ 'xl' } style={ { color: '#84CC16' } } /> }
                     </div>
                 </form>
@@ -305,15 +314,15 @@ export default function LoggedUser( { user } ) {
                 <form className='mb-1 py-1 flex flex-col items-center text-clamp6 w-[80%]' onSubmit={ handleSubmit( submitUpdate ) }>
                     <textarea type="text" placeholder={ userDetail.motto == '' || userDetail.motto == null ? "  Type a nice motto here..." : `  ${ userDetail.motto }` }
                         { ...register( "motto" ) } className='user_upd_input w-full h-24 resize max-w-[350px]' />
-                    <button type="submit" onClick={ () => setMottoEffect( true ) } className='usr_upd_btn_submit'>Modify Motto</button>
+                    <button type="submit" disabled={ !mt } onClick={ () => setMottoEffect( true ) } onAnimationEnd={ () => setMottoEffect( false ) } className={ `usr_upd_btn_submit ${ mottoEffect && 'animate-bgSize' }` }>Modify Motto</button>
                 </form>
             </div>
 
             <div className='flex flex-col items-center'>
                 <form className='mb-1 py-1 flex flex-col items-center text-clamp6' onSubmit={ handleSubmit( submitPicUpdate ) }>
 
-                    <div className='relative'>
-                        <input type="file" name='picture' placeholder="  Update Profile Picture" { ...register( "picture" ) }
+                    <div className={ `relative ${ fileWiggle && 'animate-wiggle' }` } onAnimationEnd={ () => setFileWiggle( false ) }>
+                        <input type="file" onClick={ () => setFileWiggle( true ) } name='picture' placeholder="  Update Profile Picture" { ...register( "picture" ) }
                             className='user_upd_input w-[51px] h-[29px] opacity-0 cursor-pointer' />
                         <FontAwesomeIcon icon={ faPhotoFilm } size='2x' style={ { color: "#4E5166" } }
                             className='absolute left-[0px] top-[3px] -z-20' />
@@ -326,19 +335,20 @@ export default function LoggedUser( { user } ) {
                             { filewatch[ 0 ].name }</p> : <p className='mx-3'>No file selected</p> }
                     { errors.picture && <span className='fieldErrMsg mt-1 mb-2'>{ errors.picture.message }</span> }
                     <div className='flex w-[45vw] justify-around items-center'>
-                        <button type="submit" onClick={ () => setPicEffect( true ) } className='usr_upd_btn_submit'>Modify Picture</button>
+                        <button type="submit" disabled={ !pct } onClick={ () => setPicEffect( true ) } onAnimationEnd={ () => setPicEffect( false ) } className={ `usr_upd_btn_submit ${ picEffect && 'animate-bgSize' }` }>Modify Picture</button>
                         { pictureUpdated && <FontAwesomeIcon icon={ faCheckDouble } size={ 'xl' } style={ { color: '#84CC16' } } /> }
                     </div>
                 </form>
             </div>
 
+            {/* account suppression */ }
             <div className='flex flex-col text-clamp5  items-center justify-center mt-8 mb-8'>
                 <hr className='w-[80vw] text-center mb-8 border-t-solid border-t-[4px] rounded-md border-t-gray-300'></hr>
                 <h3 className='text-clamp3 text-center mb-5'>DELETE USER ACCOUNT</h3>
                 <p>Want to delete your account?</p>
                 <p className='uppercase'> This cannot be undone!</p>
-                <button onClick={ handleDelete }
-                    className='usr_upd_btn_submit bg-appred border-appred hover:bg-red-700 hover:text-white hover:border-red-700 hover:shadow-btndred uppercase my-5'>
+                <button onClick={ () => handleDelete() } onAnimationEnd={ () => setDeleteEffect( false ) }
+                    className={ `usr_dlt_btn_submit ${ deleteEffect && 'animate-bgSize' }` }>
                     Delete account</button>
             </div>
         </div>

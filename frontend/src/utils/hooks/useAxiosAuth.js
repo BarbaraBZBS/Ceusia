@@ -22,11 +22,14 @@ const useAxiosAuth = () => {
             ( response ) => response,
             async ( error ) => {
                 const prevRequest = error.config;
-                if ( error.response.status === 401 && !prevRequest.sent ) {
+                if ( error?.response?.status === 401 && !prevRequest.sent ) {
                     prevRequest.sent = true;
                     await refreshedToken();
                     prevRequest.headers[ "Authorization" ] = `Bearer ${ session?.user.token }`;
                     return axiosAuth( prevRequest );
+                }
+                else {
+                    console.log( 'error axios auth config : ', error?.config )
                 }
                 return Promise.reject( error );
             }

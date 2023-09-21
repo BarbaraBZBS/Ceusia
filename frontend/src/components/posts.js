@@ -19,7 +19,7 @@ export default async function Posts() {
             url: '/api/auth/signout',
         } )
         redirect( '/auth/signIn' )
-    }
+    };
 
     return (
         <>

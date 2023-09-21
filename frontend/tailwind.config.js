@@ -116,6 +116,14 @@ module.exports = {
                     "0%, 100%": { transform: "rotate(-3deg)" },
                     "50%": { transform: "rotate(3deg)" }
                 },
+                bgsize: {
+                    "0%": { "background-size": "0% 0%" },
+                    "50%": {
+                        "background-size": "200% 200%",
+                        "color": "white"
+                    },
+                    "100%": { "background-size": "0% 0%" },
+                },
                 btnflat: {
                     from: { transform: 'scaleY(1)' },
                     to: { transform: 'scaleY(0)' }
@@ -130,7 +138,8 @@ module.exports = {
                 moveUp: 'moveup .6s ease-out backwards',
                 wiggle: 'wiggle 200ms ease-in-out',
                 btnFill: 'btnfill .5s ease-out linear',
-                btnFlat: 'btnflat .3s ease-in-out backwards'
+                btnFlat: 'btnflat .3s ease-in-out backwards',
+                bgSize: 'bgsize .6s ease-in-out both'
             }
         },
         colors: {

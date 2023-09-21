@@ -30,14 +30,16 @@ export default function ModifyPost( { post } ) {
     } );
     const [ postUpdEffect, setPostUpdEffect ] = useState( false );
     const [ resetUpdEffect, setResetUpdEffect ] = useState( false );
+    const [ fileWiggle, setFileWiggle ] = useState( false );
     const [ errMsg, setErrMsg ] = useState( '' );
     const filewatch = watch( 'fileUrl' );
-    // console.log( filewatch );
+    console.log( filewatch );
     const [ postFile, setPostFile ] = useState();
     const isBrowser = () => typeof window !== 'undefined';
 
     const submitUpdateForm = async ( data, e ) => {
         e.preventDefault();
+        setErrMsg( '' );
         let headers;
         if ( data.fileUrl <= 0 || data.fileUrl == null ) {
             data = {
@@ -134,21 +136,21 @@ export default function ModifyPost( { post } ) {
                     } ) } className={ `post_form_input w-full h-14 resize max-w-[310px] mb-6 ${ errors.content ? 'border-appred focus:border-appred' : '' }` } />
                     { errors.content && <span className='fieldErrMsg mb-5'>{ errors.content.message }</span> }
 
-                    <div className='relative'>
-                        <input type="file" name='fileUrl' placeholder='A video, image, or audio file...' { ...register( "fileUrl" ) }
+                    <div className={ `relative ${ fileWiggle && 'animate-wiggle' }` } onAnimationEnd={ () => setFileWiggle( false ) }>
+                        <input onClick={ () => setFileWiggle( true ) } type="file" name='fileUrl' placeholder='A video, image, or audio file...' { ...register( "fileUrl" ) }
                             className='post_form_input w-[51px] h-[29px] mb-1 opacity-0 cursor-pointer' />
                         <FontAwesomeIcon icon={ faPhotoFilm } size='2x' style={ { color: "#4E5166" } }
                             className='absolute left-[0px] top-[3px] -z-20' />
                         <FontAwesomeIcon icon={ faMusic } size='2x' style={ errors.fileUrl ? { color: "#FD2D01" } : { color: "#b1ae99" } }
                             className='absolute left-[18px] top-[3px] -z-10' />
                     </div>
-                    { filewatch !== null && filewatch[ 0 ] && filewatch[ 0 ].name &&
+                    { filewatch !== null && filewatch[ 0 ] && filewatch[ 0 ]?.name &&
                         <p className={ `max-w-[300px] mx-2 line-clamp-1 hover:line-clamp-none hover:text-ellipsis hover:overflow-hidden active:line-clamp-none active:text-ellipsis active:overflow-hidden 
                         ${ errors.fileUrl ? 'text-red-600 mt-1 mb-2 bg-white underline underline-offset-2 font-semibold' : 'mb-3' }` }>
                             { filewatch[ 0 ].name }</p> }
-                    { filewatch !== null && !filewatch[ 0 ].name && post.fileUrl && <><p className='mx-3 mb-1'>No file selected</p>
+                    { filewatch !== null && !filewatch[ 0 ]?.name && post.fileUrl && <><p className='mx-3 mb-1'>No file selected</p>
                         <p className='max-w-[325px] mx-3 mb-3 text-ellipsis overflow-hidden'>Post file: { postFile }</p> </> }
-                    { filewatch == null && !post?.file && <p className='mx-3 mb-3'>No file selected</p> }
+                    { filewatch == null && !post?.file ? <p className='mx-3 mb-3'>No file selected</p> : filewatch && !filewatch[ 0 ]?.name && !post.file && <p className='mx-3 mb-3'>No file selected</p> }
 
                     { errors.fileUrl && <span className='fieldErrMsg mb-4'>{ errors.fileUrl.message }</span> }
 
@@ -156,8 +158,8 @@ export default function ModifyPost( { post } ) {
                     { errors.link && <span className='fieldErrMsg'>{ errors.link.message }</span> }
 
                     <div className='flex w-full justify-around'>
-                        <button type='button' onClick={ () => resetBtn() } className='resetbtn'>Reset Form</button>
-                        <button type="submit" onClick={ () => setPostUpdEffect( true ) } className='post_form_btn_submit'>Update Post</button>
+                        <button type='button' onClick={ () => resetBtn() } onAnimationEnd={ () => setResetUpdEffect( false ) } className={ `resetbtn ${ resetUpdEffect && 'animate-moveUp' }` }>Reset Form</button>
+                        <button type="submit" onClick={ () => setPostUpdEffect( true ) } onAnimationEnd={ () => setPostUpdEffect( false ) } className={ `post_form_btn_submit ${ postUpdEffect && 'animate-moveUp' }` }>Update Post</button>
                     </div>
 
                 </form>
