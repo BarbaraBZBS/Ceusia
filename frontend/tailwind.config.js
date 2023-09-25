@@ -1,5 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 const colors = require( 'tailwindcss/colors' )
+const plugin = require( 'tailwindcss/plugin' )
 
 module.exports = {
     content: [
@@ -88,6 +89,7 @@ module.exports = {
                     from: { transform: 'scale( 1 )' },
                     to: { transform: 'scale( 2.5 )' }
                 },
+
                 rotatezoom: {
                     '0%': {
                         animationTimingFunction: 'ease-in',
@@ -127,6 +129,29 @@ module.exports = {
                 btnflat: {
                     from: { transform: 'scaleY(1)' },
                     to: { transform: 'scaleY(0)' }
+                },
+                reposition: {
+                    '0%': {
+                        transform: 'translateY(40px)',
+                        opacity: 0
+                    },
+                    '50%': {
+                        opacity: 0.2
+                    },
+                    '100%': {
+                        transform: 'translateY(0px)',
+                        opacity: 1
+                    }
+                },
+                ping2: {
+                    '75%, 100%': {
+                        transform: 'scale(1.5)',
+                        opacity: 0,
+                    }
+                },
+                resizezoom: {
+                    from: { transform: 'scale(0.6)', opacity: 0.2 },
+                    to: { transform: 'scale(1)', opacity: 1 }
                 }
             },
             animation: {
@@ -139,7 +164,10 @@ module.exports = {
                 wiggle: 'wiggle 200ms ease-in-out',
                 btnFill: 'btnfill .5s ease-out linear',
                 btnFlat: 'btnflat .3s ease-in-out backwards',
-                bgSize: 'bgsize .6s ease-in-out both'
+                bgSize: 'bgsize .6s ease-in-out both',
+                reposition: 'reposition .6s forwards .2s',
+                ping2: 'ping2 1s cubic-bezier(0, 0, 0.2, 1) backwards',
+                resizeZoom: 'resizezoom .3s ease-in both'
             }
         },
         colors: {
@@ -171,5 +199,20 @@ module.exports = {
             appopstone: '#b1ae99',
         }
     },
-    plugins: [],
+    plugins: [
+        plugin( ( { matchUtilities, theme } ) => {
+            matchUtilities(
+                {
+                    "animation-delay": ( value ) => {
+                        return {
+                            "animation-delay": value,
+                        };
+                    },
+                },
+                {
+                    values: theme( "transitionDelay" ),
+                }
+            );
+        } ),
+    ],
 }

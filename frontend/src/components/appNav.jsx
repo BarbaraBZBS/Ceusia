@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { signOut, useSession } from "next-auth/react";
+import { logout } from "@/app/actions";
 
 export default function AppNav() {
     const { data: session, status } = useSession();
@@ -12,16 +13,19 @@ export default function AppNav() {
     // console.log( 'expired? : ', session?.expires )
     useEffect( () => {
         if ( Date.now() >= Date.parse( session?.expires ) ) {
+            logout();
             signOut( {
                 callbackUrl: '/auth/signIn'
-            } )
+            } );
         };
         if ( currentRoute !== '/auth/signIn' && currentRoute !== '/' && status !== 'loading' && !session ) {
+            logout();
             signOut( {
                 callbackUrl: '/auth/signIn'
             } );
         };
         if ( currentRoute !== '/auth/signIn' && status !== 'loading' && session == undefined ) {
+            logout();
             signOut( {
                 callbackUrl: '/auth/signIn'
             } );

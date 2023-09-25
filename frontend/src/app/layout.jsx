@@ -10,7 +10,8 @@ import "@fortawesome/fontawesome-svg-core/styles.css"
 
 const ysabeauO = Ysabeau_Office( {
     subsets: [ 'latin' ],
-    display: 'block',
+    display: 'swap',
+    adjustFontFallback: false,
     variable: "--custom-font-ysabeau0"
 } );
 
@@ -23,8 +24,8 @@ export const metadata = {
 export default async function RootLayout( { children } ) {
     // const session = await getServerSession( authOptions() )
     return (
-        <html lang="en" className={ `${ ysabeauO.variable }` }>
-            <body >
+        <html lang="en">
+            <body className={ `${ ysabeauO.variable }` } >
                 <Provider>
                     <AppLoad />
                     <AppNav />

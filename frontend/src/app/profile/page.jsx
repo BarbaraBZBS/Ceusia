@@ -4,6 +4,7 @@ import LoggedUser from '@/components/loggedUser';
 import { getUser } from '../lib/users';
 import { Suspense } from 'react';
 import Loading from '../loading';
+import { PageWrap } from '../fm-wrap';
 
 export default async function UserProfile() {
     const user = await getUser();
@@ -14,7 +15,9 @@ export default async function UserProfile() {
             { session?.user && user ? (
                 <div>
                     <Suspense fallback={ <Loading /> }>
-                        <LoggedUser user={ user } />
+                        <PageWrap>
+                            <LoggedUser user={ user } />
+                        </PageWrap>
                     </Suspense>
                 </div>
             ) : (

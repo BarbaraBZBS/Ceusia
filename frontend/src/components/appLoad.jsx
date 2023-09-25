@@ -1,6 +1,6 @@
 'use client';
 import React, { useEffect, useRef } from "react";
-import Loading from "../app/loading";
+import Loading from "./loading";
 
 export default function AppLoad() {
     const loadRef = useRef()
@@ -12,7 +12,7 @@ export default function AppLoad() {
     }, [] )
 
     return (
-        <div ref={ loadRef } className="w-[100vw] h-[100vh] z-[1000] fixed bg-white pt-20" >
+        <div ref={ loadRef } className="w-full min-w-screen h-full z-[1000] fixed bg-white pt-20" >
             <Loading />
         </div>
     )

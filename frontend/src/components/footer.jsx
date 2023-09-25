@@ -1,18 +1,12 @@
-'use client';
-import React from "react";
 import Image from "next/image";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-
+import FooterLink from "./footerLink";
 
 export default function Footer() {
-    const currentRoute = usePathname();
-
     return (
         <footer className="mt-5 bg-gray-200 bg-opacity-60 flex flex-col text-appmagenta">
             <div className="flex justify-end p-3 m-3">
                 <nav className="linkAnim signLink">
-                    <Link className={ currentRoute === '/about' ? "text-clamp1 signLink activeLink uppercase" : "signLink text-clamp1" } href="/about">About</Link>
+                    <FooterLink />
                 </nav>
             </div>
             <div className="text-clamp2 mx-7 text-center">

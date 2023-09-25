@@ -31,16 +31,16 @@ export const authOptions = ( req, res ) => {
                                 password: credentials.password,
                             },
                             withCredentials: true
-                        } )
-                        const cookies = response.headers[ 'set-cookie' ]
-                        res.setHeader( 'Set-Cookie', cookies )
-                        // console.log( 'res data: ', response.data )
-                        return response.data
+                        } );
+                        const cookies = response.headers[ 'set-cookie' ];
+                        res.setHeader( 'Set-Cookie', cookies );
+                        // console.log( 'res data: ', response.data );
+                        return response.data;
                     }
                     catch ( error ) {
                         console.log( 'msg : ', error.response.data.message );
                         // throw new Error( error.response.data.message );
-                        return null
+                        return null;
                     }
                 },
             } ),
@@ -49,42 +49,42 @@ export const authOptions = ( req, res ) => {
         callbacks: {
             async jwt( { token, user, trigger, session } ) {
                 if ( user ) {
-                    user.tokenExp = Date.now() + 600000
-                }
+                    user.tokenExp = Date.now() + 600000;
+                };
                 if ( trigger === "update" && session ) {
-                    console.log( 'updated sess: ', { token, user, session } )
-                    return { ...token, ...user, ...session?.user }
-                }
+                    console.log( 'updated sess: ', { token, user, session } );
+                    return { ...token, ...user, ...session?.user };
+                };
                 if ( token.tokenExp <= Date.now() ) {
-                    console.log( 'expired token date :', new Date( token.tokenExp ).toISOString() )
-                    console.log( 'now date :', new Date( Date.now() ).toISOString() )
-                    const data = { refreshToken: token.refreshToken }
+                    console.log( 'expired token date :', new Date( token.tokenExp ).toISOString() );
+                    console.log( 'now date :', new Date( Date.now() ).toISOString() );
+                    const data = { refreshToken: token.refreshToken };
                     const tokenRes = await axios( {
                         method: 'post',
                         url: 'http://localhost:8000/api/auth/refresh',
                         data: data
-                    } )
-                    token.token = tokenRes.data.token
-                    token.tokenExp = Date.now() + 600000
-                    console.log( 'refreshed exp: ', token.tokenExp )
-                    return { ...token, ...token?.tokenExp, ...user }
-                }
-                console.log( 'jwt callback', { token, user, session } )
-                return { ...token, ...user }
+                    } );
+                    token.token = tokenRes.data.token;
+                    token.tokenExp = Date.now() + 600000;
+                    console.log( 'refreshed exp: ', token.tokenExp );
+                    return { ...token, ...token?.tokenExp, ...user };
+                };
+                console.log( 'jwt callback', { token, user, session } );
+                return { ...token, ...user };
             },
             async session( { session, token, user } ) {
                 session.user = token;
-                console.log( 'session callback: ', { session, token, user } )
-                return session
+                console.log( 'session callback: ', { session, token, user } );
+                return session;
             }
         },
         pages: {
             signIn: "/auth/signIn",
             error: '/auth/signIn'
         }
-    }
+    };
 };
 
 export default ( req, res ) => {
-    return NextAuth( req, res, authOptions( req, res ) )
-}
+    return NextAuth( req, res, authOptions( req, res ) );
+};

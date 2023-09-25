@@ -4,20 +4,20 @@ import { authOptions } from '../../../pages/api/auth/[...nextauth]';
 
 export async function getUser() {
     const session = await getServerSession( authOptions() );
-    const res = await apiCall.get( `/auth/user/${ session.user.user_id }` )
-    if ( !res.status ) {
-        console.log( 'error axios: ', error );
+    const res = await apiCall.get( `/auth/user/${ session.user.user_id }` );
+    if ( !res?.status ) {
+        console.log( 'error axios' );
         // throw new Error( 'Failed to fetch data' );
-    }
+    };
     const data = res.data;
     // console.log( 'res data: ', data );
     return data;
-}
+};
 
 export async function getOUser( person ) {
-    console.log( 'user found? : ', person )
-    const res = await apiCall.get( `/auth/user/${ person }` )
-    const data = res.data
-    console.log( 'response get user data: ', data )
-    return data
-}
+    console.log( 'user found? : ', person );
+    const res = await apiCall.get( `/auth/user/${ person }` );
+    const data = res.data;
+    console.log( 'response get user data: ', data );
+    return data;
+};

@@ -164,7 +164,6 @@ export default function ModifyPost( { post } ) {
 
                 </form>
             </div>
-
         </div>
     )
 }

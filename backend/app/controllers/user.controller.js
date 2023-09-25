@@ -130,8 +130,9 @@ const logout = async ( req, res, next ) => {
     }
     // user.update( { token: '' } )
     // console.log( token );
-    res.clearCookie( 'jwt', { httpOnly: true, sameSite: 'None', secure: true } );
-    res.sendStatus( 204 );
+    res
+        .clearCookie( 'jwt', { httpOnly: true, sameSite: 'None', secure: true } )
+        .sendStatus( 204 )
 };
 
 const refreshUserToken = async ( req, res, next ) => {

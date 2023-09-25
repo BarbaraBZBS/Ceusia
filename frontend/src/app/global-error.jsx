@@ -1,23 +1,24 @@
 'use client';
 import { useEffect } from 'react';
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { signOut } from 'next-auth/react';
+import { logout } from './actions';
 
 
 export default function Error( { error, reset } ) {
     const router = useRouter();
-    const path = usePathname();
 
     useEffect( () => {
         console.error( error );
-    }, [ error ] )
+    }, [ error ] );
 
-    const logOut = () => {
-        router.push( '/' )
+    const logOut = async () => {
+        router.push( '/' );
+        logout();
         signOut( {
             callbackUrl: '/auth/signIn'
-        } )
-    }
+        } );
+    };
 
     return (
         <div className='h-fit pt-10 pb-28 my-16 flex flex-col items-center'>
@@ -28,8 +29,7 @@ export default function Error( { error, reset } ) {
                 onClick={
                     // Attempt to recover by trying to re-render the segment
                     // () => reset()
-
-                    () => router.push( path )
+                    () => window.location.reload()
                 }
             >
                 Reload
