@@ -122,7 +122,7 @@ export default function ModifyPost( { post } ) {
 
     return (
         <div className='my-6 flex flex-col items-center border-apppastgreen bg-apppastgreen bg-opacity-70 border-2 w-[92%] mx-auto rounded-lg shadow-neatcard'>
-            <p className={ errMsg ? 'errMsg text-clamp6 mb-2' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
+            <p className={ errMsg ? 'errMsg text-clamp6 mb-2' : 'hidden' } aria-live="assertive">{ errMsg }</p>
 
             <div className='flex flex-col items-center w-full'>
                 <form className='mb-1 py-8 flex flex-col items-center text-clamp6 w-full z-0' onSubmit={ handleSubmit( submitUpdateForm ) }>

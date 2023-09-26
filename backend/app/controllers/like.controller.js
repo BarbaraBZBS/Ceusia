@@ -171,6 +171,7 @@ const postLikedDisliked = ( req, res, next ) => {
                     } );
             }
         } )
+        .catch( err => res.status( 500 ).json( { err } ) )
 };
 
 export { likePost, dislikePost, postLikedDisliked };

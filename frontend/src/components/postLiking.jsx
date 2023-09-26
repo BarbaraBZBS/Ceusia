@@ -137,7 +137,7 @@ export default function PostLiking( { post, session } ) {
                                 className='' /></button></>
                     }
                 </div>
-                <p className={ errMsg ? 'errMsg text-clamp6 mx-0 my-2' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
+                <p className={ errMsg ? 'errMsg text-clamp6 mx-0 my-2' : 'hidden' } aria-live="assertive">{ errMsg }</p>
             </div>
         </>
     )

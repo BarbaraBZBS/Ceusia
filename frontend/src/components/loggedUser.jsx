@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPhotoFilm } from '@fortawesome/free-solid-svg-icons';
 import { faMusic } from '@fortawesome/free-solid-svg-icons';
 import { faCheckDouble } from '@fortawesome/free-solid-svg-icons';
+import FollowersFollowing from './followersFollowing';
 import { logout } from '@/app/actions';
 import { motion } from 'framer-motion';
 
@@ -261,12 +262,12 @@ export default function LoggedUser( { user } ) {
         <div className='flex flex-col'>
             {/* profile info */ }
             <h1 className='text-clamp3 text-center pt-8 mb-5 uppercase'>My Profile</h1>
-            <p className={ errMsg ? 'errMsg text-clamp6 mb-2 text-center justify-center items-center' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
+            <p className={ errMsg ? 'errMsg text-clamp6 mb-2 text-center justify-center items-center' : 'hidden' } aria-live="assertive">{ errMsg }</p>
             <div className='flex flex-col text-clamp8 items-center mb-8'>
                 <p>{ userDetail.username }</p>
                 <p>{ userDetail.email }</p>
                 { userDetail.motto == '' || userDetail.motto == null ? <p>no motto</p> : <p className='mx-2'>{ `"${ userDetail.motto }"` }</p> }
-                <p className='mb-3'>followers total / following total</p>
+                <FollowersFollowing user={ user } />
                 <button onClick={ () => showUsrPicZoomOverlay() } className='loggedUsrPicBtn'>
                     <Image width={ 0 } height={ 0 } unoptimized={ true } src={ userDetail.picture } alt={ `${ userDetail.username } picture` } placeholder='data:image/...' className='loggedUsrPic' /></button>
                 <div className={ bgZoomed ? 'usrZoomedPicOverlay' : 'hidden' } onClick={ () => hideUsrPicZoomOverlay() } >

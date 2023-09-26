@@ -1,4 +1,5 @@
 import User_Follower from "../models/follower.model.js";
+import User from "../models/user.model.js";
 
 const followUser = async ( req, res, next ) => {
     try {
@@ -107,6 +108,7 @@ const userFollowedStatus = async ( req, res, next ) => {
                 res.status( 200 ).json( { message: 'not followed' } )
             }
         } )
+        .catch( err => res.status( 500 ).json( { err } ) )
 };
 
 export { followUser, unfollowUser, getFollowersNbr, getFollowingNbr, userFollowedStatus };

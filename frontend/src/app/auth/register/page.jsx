@@ -115,7 +115,7 @@ export default function RegisterPage() {
                                 <div className='form_container_reg'>
                                     <h1 className='text-clamp5 text-center mb-4 mt-2 uppercase'>Sign up</h1>
 
-                                    <p className={ errMsg ? 'errMsg text-clamp6' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
+                                    <p className={ errMsg ? 'errMsg text-clamp6' : 'hidden' } aria-live="assertive">{ errMsg }</p>
 
                                     <form className='mb-3 py-2 flex flex-col items-center text-clamp6' onSubmit={ handleSubmit( submitForm ) }>
 

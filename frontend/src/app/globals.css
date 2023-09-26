@@ -73,9 +73,6 @@ body {
     .errMsg {
         @apply self-center text-red-600 bg-white font-semibold drop-shadow-light mx-6 rounded-md w-fit px-2
     }
-    .offscreen {
-        @apply hidden
-    }
     .fieldErrMsg {
         @apply text-red-600  bg-white font-semibold drop-shadow-light px-2 rounded-md
     }
@@ -114,13 +111,13 @@ body {
         @apply rounded-full w-full h-full border-2
     }
     .loggedUsrZoomedPic {
-        @apply block m-auto w-[96%] h-auto max-h-[387.8px] object-cover rounded-full border-2
+        @apply block m-auto w-[96%] aspect-square object-cover rounded-full border-2
     }
     .usrZoomedPicOverlay{
         @apply fixed overflow-y-scroll left-0 right-0 top-0 bottom-0 w-full h-full bg-appblck z-[998] flex
     }
     .follow_btn {
-        @apply bg-appstone text-clamp6 text-white w-fit rounded-xl px-2 py-[2px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:bg-appopred hover:border-appopred border-2 border-appstone hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue
+        @apply bg-appstone text-clamp6 text-white w-fit rounded-xl px-2 py-[2px] mt-2 mb-4 transition-all duration-300 ease-in-out hover:bg-appopred hover:border-appopred border-2 border-appstone hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue
     }
     .profileUserPicContainer {
         @apply flex justify-center items-center w-[140px] h-[140px] rounded-full relative mb-5 transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light
@@ -129,10 +126,10 @@ body {
         @apply rounded-full object-cover w-full h-full cursor-pointer
     }
     .profileUserPicZoom {
-      @apply  block m-auto w-[96%] h-auto max-h-[387.8px] object-cover rounded-full
+      @apply  block m-auto w-[96%] aspect-square object-cover rounded-full
     }
     .userCard {
-        @apply flex flex-col justify-center items-center py-6 mt-10 mb-20 min-h-[400px] border-gray-900 bg-apppastgreen bg-opacity-30 rounded-lg shadow-lg w-[90%] mx-auto
+        @apply flex flex-col justify-center items-center pt-8 pb-10 mt-10 mb-20 min-h-[400px] border-gray-900 bg-apppastgreen bg-opacity-30 rounded-lg shadow-lg w-[90%] mx-auto
     }
     .post_modify_btn {
         @apply bg-appstone text-white w-fit rounded-tl-[15px] rounded-br-[15px] px-2 py-[2px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%]

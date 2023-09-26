@@ -289,7 +289,7 @@ export default function Cards( { posts, session, params, searchParams } ) {
                     {/* post form */ }
                     <h2 className='text-clamp7'>What&apos;s on your mind?</h2>
                     <>
-                        <p className={ errMsg ? 'errMsg text-clamp6 my-3' : 'offscreen' } aria-live="assertive">{ errMsg }</p>
+                        <p className={ errMsg ? 'errMsg text-clamp6 my-3' : 'hidden' } aria-live="assertive">{ errMsg }</p>
                         {/* <div>preview?</div> */ }
                         <div className='flex flex-col items-center w-full'>
                             <form className='mb-1 py-1 flex flex-col items-center text-clamp6 w-full' onSubmit={ handleSubmit( submitForm ) }>
