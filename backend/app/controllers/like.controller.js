@@ -173,5 +173,4 @@ const postLikedDisliked = ( req, res, next ) => {
         } )
 };
 
-
 export { likePost, dislikePost, postLikedDisliked };
