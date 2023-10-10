@@ -1,8 +1,6 @@
 import { db } from './db.js';
 import { DataTypes } from 'sequelize';
 import User from './user.model.js';
-// import Post from '../models/post.model.js';
-
 
 const User_Follower = db.define( 'user_Follower', {
     user_id: {
@@ -21,8 +19,6 @@ const User_Follower = db.define( 'user_Follower', {
     }
 }, {
     timestamps: false,
-    // freezeTableName: true,
-    // tableName: 'dislike'
 } );
 
 export default User_Follower;

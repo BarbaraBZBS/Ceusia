@@ -71,7 +71,6 @@ const getFollowersNbr = ( req, res, next ) => {
                 res.status( 200 ).json( followers )
             } )
             .catch( err => res.status( 400 ).json( { err } ) )
-        // get all where user_id = (session)user.id 
     }
     catch ( err ) {
         console.log( "user followers not retrieved", err, res.statusCode )
@@ -87,7 +86,6 @@ const getFollowingNbr = async ( req, res, next ) => {
                 res.status( 200 ).json( following )
             } )
             .catch( err => res.status( 400 ).json( { err } ) )
-        // get all where follower_id = (session)user.id
     }
     catch ( err ) {
         console.log( 'user following not retrieved', err, res.statusCode )

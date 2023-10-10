@@ -1,7 +1,5 @@
 import { db } from './db.js';
 import { DataTypes } from 'sequelize';
-// const post = require( '../models/post' );
-
 
 const User = db.define( "user", {
     username: {
@@ -48,7 +46,5 @@ const User = db.define( "user", {
 }, {
     timestamps: false,
 } );
-
-// User.sync()
 
 export default User;

@@ -1,15 +1,13 @@
 import Post from '../models/post.model.js';
 import User from '../models/user.model.js';
-import Like from '../models/like.model.js';
-import Dislike from '../models/dislike.model.js';
+import Likepost from '../models/likePost.model.js';
+import Dislikepost from '../models/dislikePost.model.js';
 import { db } from '../models/db.js';
-
-
 
 //like post
 const likePost = async ( req, res ) => {
     const userId = req.auth.user_id;
-    const postId = parseInt( req.params.id );
+    const postId = req.params.id;
 
     if ( postId <= 0 ) {
         return res.status( 400 ).json( { message: 'invalid parameters' } )
@@ -24,10 +22,10 @@ const likePost = async ( req, res ) => {
             console.log( 'user found: ', user.username )
         } )
 
-    Like.findOne( { where: { post_id: postId, user_id: userId } } )
+    Likepost.findOne( { where: { post_id: postId, user_id: userId } } )
         .then( async alreadyLiked => {
             if ( alreadyLiked ) {
-                await Like.destroy( { where: { post_id: postId, user_id: userId } } )
+                await Likepost.destroy( { where: { post_id: postId, user_id: userId } } )
                     .then( () => {
                         Post.findOne( { where: { id: postId } } )
                             .then( ( post ) => {
@@ -42,10 +40,10 @@ const likePost = async ( req, res ) => {
                     } )
             }
             else {
-                Dislike.findOne( { where: { post_id: postId, user_id: userId } } )
+                Dislikepost.findOne( { where: { post_id: postId, user_id: userId } } )
                     .then( async ( disliked ) => {
                         if ( disliked ) {
-                            await Dislike.destroy( { where: { post_id: postId, user_id: userId } } )
+                            await Dislikepost.destroy( { where: { post_id: postId, user_id: userId } } )
                                 .then( () => {
                                     Post.findOne( { where: { id: postId } } )
                                         .then( ( post ) => {
@@ -55,7 +53,7 @@ const likePost = async ( req, res ) => {
                                         .catch( err => { res.status( 400 ).json( { err } ) } )
                                 } )
                         }
-                        await Like.create( {
+                        await Likepost.create( {
                             post_id: postId,
                             user_id: userId
                         } )
@@ -80,7 +78,7 @@ const likePost = async ( req, res ) => {
 //dislike post
 const dislikePost = async ( req, res ) => {
     const userId = req.auth.user_id;
-    const postId = parseInt( req.params.id );
+    const postId = req.params.id;
 
     if ( postId <= 0 ) {
         return res.status( 400 ).json( { message: 'invalid parameters' } )
@@ -95,10 +93,10 @@ const dislikePost = async ( req, res ) => {
             console.log( 'user found: ', user.username )
         } )
 
-    Dislike.findOne( { where: { post_id: postId, user_id: userId } } )
+    Dislikepost.findOne( { where: { post_id: postId, user_id: userId } } )
         .then( async alreadyDisliked => {
             if ( alreadyDisliked ) {
-                await Dislike.destroy( { where: { post_id: postId, user_id: userId } } )
+                await Dislikepost.destroy( { where: { post_id: postId, user_id: userId } } )
                     .then( () => {
                         Post.findOne( { where: { id: postId } } )
                             .then( ( post ) => {
@@ -114,10 +112,10 @@ const dislikePost = async ( req, res ) => {
 
             }
             else {
-                Like.findOne( { where: { post_id: postId, user_id: userId } } )
+                Likepost.findOne( { where: { post_id: postId, user_id: userId } } )
                     .then( async ( liked ) => {
                         if ( liked ) {
-                            await Like.destroy( { where: { post_id: postId, user_id: userId } } )
+                            await Likepost.destroy( { where: { post_id: postId, user_id: userId } } )
                                 .then( () => {
                                     Post.findOne( { where: { id: postId } } )
                                         .then( ( post ) => {
@@ -127,7 +125,7 @@ const dislikePost = async ( req, res ) => {
                                         .catch( err => { res.status( 400 ).json( { err } ) } )
                                 } )
                         }
-                        await Dislike.create( {
+                        await Dislikepost.create( {
                             post_id: postId,
                             user_id: userId
                         } )
@@ -151,15 +149,16 @@ const dislikePost = async ( req, res ) => {
 
 //like dislike display
 const postLikedDisliked = ( req, res, next ) => {
-    const { user_id, post_id } = req.body
-    Like.findOne( { where: { post_id: post_id, user_id: user_id } } )
+    const post_id = req.body.post_id;
+    const user_id = req.auth.user_id;
+    Likepost.findOne( { where: { post_id: post_id, user_id: user_id } } )
         .then( ( liked ) => {
             if ( liked ) {
                 res.status( 200 ).json( { message: 'liked: ', liked } )
             }
             else {
                 console.log( 'not liked' )
-                Dislike.findOne( { where: { post_id: post_id, user_id: user_id } } )
+                Dislikepost.findOne( { where: { post_id: post_id, user_id: user_id } } )
                     .then( ( disliked ) => {
                         if ( disliked ) {
                             res.status( 200 ).json( { message: 'disliked: ', disliked } )

@@ -5,7 +5,7 @@ export default function Footer() {
     return (
         <footer className="mt-5 bg-gray-200 bg-opacity-60 flex flex-col text-appmagenta">
             <div className="flex justify-end p-3 m-3">
-                <nav className="linkAnim signLink">
+                <nav className="linkAnim hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out">
                     <FooterLink />
                 </nav>
             </div>
@@ -24,12 +24,14 @@ export default function Footer() {
             <div className="flex justify-center text-clamp2 items-center text-center">
                 <p>Copyright 1999-2023 by Ceusia. All Rights Reserved.</p>
             </div>
-            <div className="flex justify-center my-2">
+            <div className="flex justify-center my-3">
                 <Image className="h-auto object-cover"
                     src="/images/logoSmRound.png"
                     alt="ceusia footer logo"
                     width={ 35 }
                     height={ 35 }
+                    priority
+                    style={ { width: '35px', height: '35px' } }
                 />
             </div>
         </footer>

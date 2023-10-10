@@ -2,88 +2,85 @@
 import React, { useEffect, useState } from 'react';
 import useAxiosAuth from '@/utils/hooks/useAxiosAuth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faThumbsUp as thumbupempty, faThumbsDown as thumbdownempty } from '@fortawesome/free-regular-svg-icons';
-import { faThumbsUp as thumbupfull, faThumbsDown as thumbdownfull } from '@fortawesome/free-solid-svg-icons';
+import { faHeart as heartempty, faThumbsUp as thumbupempty, faHeartCrack as heartcrackempty, faThumbsDown as thumbdownempty } from '@fortawesome/free-regular-svg-icons';
+import { faHeart as heartfull, faHeartCrack as heartcrackfull, faThumbsUp as thumbupfull, faThumbsDown as thumbdownfull } from '@fortawesome/free-solid-svg-icons';
 import { usePathname, useRouter } from 'next/navigation';
 
-export const revalidate = 0;
-
-export default function PostLiking( { post } ) {
+export default function CommentLiking( { post, comment, errorMsg } ) {
     const axiosAuth = useAxiosAuth();
     const router = useRouter();
     const pathname = usePathname();
-    const [ likes, setLikes ] = useState( post.likes );
-    const [ dislikes, setDislikes ] = useState( post.dislikes );
+    const [ likes, setLikes ] = useState( comment.likes );
+    const [ dislikes, setDislikes ] = useState( comment.dislikes );
     const [ liked, setLiked ] = useState( false );
     const [ disliked, setDisliked ] = useState( false );
     const [ likeEffect, setLikeEffect ] = useState( false );
     const [ dislikeEffect, setDislikeEffect ] = useState( false );
-    const [ errMsg, setErrMsg ] = useState( '' );
 
     const like = async () => {
-        setErrMsg( '' );
+        errorMsg( '' );
         try {
-            const resp = await axiosAuth.post( `/posts/${ post.id }/like` )
+            const resp = await axiosAuth.post( `/posts/comment/${ comment.id }/like` )
             const likeStat = resp.data.message
-            if ( likeStat === 'post liked !' ) {
+            if ( likeStat === 'comment liked !' ) {
                 setLiked( true );
                 setDisliked( false );
             }
-            if ( likeStat === 'post unliked !' ) {
+            if ( likeStat === 'comment unliked !' ) {
                 setLiked( false );
                 setDisliked( false );
             }
-            const res = await axiosAuth.get( `/posts/${ post.id }` )
+            const res = await axiosAuth.get( `/posts/${ post.id }/comment/${ comment.id }` )
             setLikes( res.data.likes )
             setDislikes( res.data.dislikes )
         }
         catch ( err ) {
             if ( !err?.response ) {
                 console.log( err )
-                setErrMsg( 'No response.' )
+                errorMsg( 'No response.' )
                 setTimeout( () => {
-                    setErrMsg( '' )
+                    errorMsg( '' )
                 }, 4000 );
             }
             else {
                 console.log( err )
-                setErrMsg( 'Like failed.' )
+                errorMsg( 'Like failed.' )
                 setTimeout( () => {
-                    setErrMsg( '' )
+                    errorMsg( '' )
                 }, 4000 )
             }
         }
     }
     const dislike = async () => {
-        setErrMsg( '' );
+        errorMsg( '' );
         try {
-            const resp = await axiosAuth.post( `/posts/${ post.id }/dislike` )
+            const resp = await axiosAuth.post( `/posts/comment/${ comment.id }/dislike` )
             const dislikeStat = resp.data.message
-            if ( dislikeStat === 'post disliked !' ) {
+            if ( dislikeStat === 'comment disliked !' ) {
                 setDisliked( true );
                 setLiked( false );
             }
-            if ( dislikeStat === 'post dislike removed !' ) {
+            if ( dislikeStat === 'comment dislike removed !' ) {
                 setDisliked( false );
                 setLiked( false );
             }
-            const res = await axiosAuth.get( `/posts/${ post.id }` )
+            const res = await axiosAuth.get( `/posts/${ post.id }/comment/${ comment.id }` )
             setDislikes( res.data.dislikes )
             setLikes( res.data.likes )
         }
         catch ( err ) {
             if ( !err?.response ) {
                 console.log( err )
-                setErrMsg( 'No response.' )
+                errorMsg( 'No response.' )
                 setTimeout( () => {
-                    setErrMsg( '' )
+                    errorMsg( '' )
                 }, 4000 )
             }
             else {
                 console.log( err )
-                setErrMsg( 'Dislike failed.' )
+                errorMsg( 'Dislike failed.' )
                 setTimeout( () => {
-                    setErrMsg( '' )
+                    errorMsg( '' )
                 }, 4000 )
             }
         }
@@ -100,10 +97,10 @@ export default function PostLiking( { post } ) {
 
     useEffect( () => {
         async function checkLiked() {
-            const data = { post_id: post.id }
+            const data = { comment_id: comment.id }
             const likeRes = await axiosAuth( {
                 method: 'post',
-                url: 'posts/likestatus',
+                url: 'posts/commentlikestatus',
                 data: data
             } )
             const likeResData = likeRes.data.message
@@ -117,28 +114,31 @@ export default function PostLiking( { post } ) {
             }
         }
         checkLiked()
-    }, [ axiosAuth, post, liked, disliked, router, pathname ] )
+    }, [ axiosAuth, comment, liked, disliked, router, pathname ] )
 
     return (
         <>
-            <div className='flex flex-col'>
-                <div className='flex justify-end mx-2'>
-                    { liked ? <><span className='ml-2'>{ likes }</span><button title='unlike' onClick={ () => likeBtn() } onAnimationEnd={ () => setLikeEffect( false ) } className={ `px-[3px] cursor-pointer opacity-50 hover:rounded-xl hover:bg-red-600 hover:bg-opacity-30 ${ likeEffect && 'animate-fill' }` } >
-                        <FontAwesomeIcon icon={ thumbupfull } style={ { color: "#65A30D" } }
-                            className='' /></button></>
-                        : <><span className='ml-2'>{ likes }</span><button title='like' onClick={ () => likeBtn() } onAnimationEnd={ () => setLikeEffect( false ) } className={ `px-[3px] cursor-pointer hover:rounded-xl hover:bg-green-600 hover:bg-opacity-20 ${ likeEffect && 'animate-scale' }` }  >
-                            <FontAwesomeIcon icon={ thumbupempty } style={ { color: "#65A30D" } }
-                                className='' /></button></>
+            <div className=''>
+                <div className=''>
+                    { liked ? <><span className='ml-2'>{ likes }</span><button title='unlike' onClick={ () => likeBtn() } onAnimationEnd={ () => setLikeEffect( false ) } className={ `px-[3px] cursor-pointer opacity-50 hover:rounded-xl hover:bg-red-600 hover:bg-opacity-30 mr-1 ${ likeEffect && 'animate-fill' }` } >
+                        <FontAwesomeIcon icon={ heartfull } style={ { color: "#65A30D" } }
+                            className='' />
+                    </button></>
+                        : <><span className='ml-2'>{ likes }</span>
+                            <button title='like' onClick={ () => likeBtn() } onAnimationEnd={ () => setLikeEffect( false ) } className={ `px-[3px] cursor-pointer hover:rounded-xl hover:bg-green-600 hover:bg-opacity-20 mr-1 ${ likeEffect && 'animate-scale' }` }  >
+                                <FontAwesomeIcon icon={ heartempty } style={ { color: "#65A30D" } }
+                                    className='' />
+                            </button>
+                        </>
                     }
                     { disliked ? <><span className='ml-[5px]'>{ dislikes }</span><button title='remove dislike' onClick={ () => dislikeBtn() } onAnimationEnd={ () => setDislikeEffect( false ) } className={ `px-[3px] cursor-pointer opacity-50 hover:rounded-xl hover:bg-green-600 hover:bg-opacity-30 ${ dislikeEffect && 'animate-scale' }` } >
-                        <FontAwesomeIcon icon={ thumbdownfull } style={ { color: "#F43F5E" } }
+                        <FontAwesomeIcon icon={ heartcrackfull } style={ { color: "#F43F5E" } }
                             className='' /></button></>
                         : <><span className='ml-[5px]'>{ dislikes }</span><button title='dislike' onClick={ () => dislikeBtn() } onAnimationEnd={ () => setDislikeEffect( false ) } className={ `px-[3px] cursor-pointer hover:rounded-xl hover:bg-red-500 hover:bg-opacity-20 ${ dislikeEffect && 'animate-fill' }` } >
                             <FontAwesomeIcon icon={ thumbdownempty } style={ { color: "#F43F5E" } }
                                 className='' /></button></>
                     }
                 </div>
-                <p className={ errMsg ? 'self-center text-red-600 bg-white font-semibold drop-shadow-light rounded-md w-fit px-2 text-clamp6 mx-0 my-2' : 'hidden' } aria-live="assertive">{ errMsg }</p>
             </div>
         </>
     )

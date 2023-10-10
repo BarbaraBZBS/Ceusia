@@ -9,8 +9,9 @@ const upload = multer( {
     }
 } );
 import * as postCtrl from '../controllers/post.controller.js';
-import * as likeCtrl from '../controllers/like.controller.js';
-
+import * as likepostCtrl from '../controllers/likePost.controller.js';
+import * as commentCtrl from '../controllers/comment.controller.js';
+import * as likecommentCtrl from '../controllers/likeComment.controller.js';
 
 // Create a new Post
 postRoutes.post( "/", auth, upload.single( 'fileUrl' ), postCtrl.createPost );
@@ -28,12 +29,29 @@ postRoutes.put( "/:id", auth, upload.single( 'fileUrl' ), postCtrl.updatePost );
 postRoutes.delete( "/:id", auth, postCtrl.deletePost );
 
 // Like - dislike Post
-postRoutes.post( "/:id/like", auth, likeCtrl.likePost );
+postRoutes.post( "/:id/like", auth, likepostCtrl.likePost );
 
-postRoutes.post( "/:id/dislike", auth, likeCtrl.dislikePost );
+postRoutes.post( "/:id/dislike", auth, likepostCtrl.dislikePost );
 
-postRoutes.post( "/likestatus", likeCtrl.postLikedDisliked );
+postRoutes.post( "/likestatus", auth, likepostCtrl.postLikedDisliked );
 // router.post/patch( "/disliked", auth??, postCtrl.postDisliked );
 
+// Post comments
+postRoutes.post( '/:id/comment', auth, upload.single( 'image' ), commentCtrl.createComment );
+
+postRoutes.get( '/:id/comments', auth, commentCtrl.getAllPostComments );
+
+postRoutes.get( '/:id/comment/:cid', auth, commentCtrl.findOnePostComment );
+
+postRoutes.put( '/:id/comment/:cid', auth, upload.single( 'image' ), commentCtrl.updateComment );
+
+postRoutes.delete( '/:id/comment/:cid', auth, commentCtrl.deleteComment );
+
+// Like - dislike Post comment
+postRoutes.post( "/comment/:cid/like", auth, likecommentCtrl.likeComment );
+
+postRoutes.post( "/comment/:cid/dislike", auth, likecommentCtrl.dislikeComment );
+
+postRoutes.post( "/commentlikestatus", auth, likecommentCtrl.commentLikedDisliked );
 
 export default postRoutes;

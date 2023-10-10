@@ -34,7 +34,7 @@ export default async function Posts() {
                 : <p>You seem unsigned !</p>
             }
             { !posts && <div>
-                <p>Sorry, there's no posts to display</p>
+                <p>Sorry, there`&apos;`s no posts to display</p>
             </div> }
         </>
     )

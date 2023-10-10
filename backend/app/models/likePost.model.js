@@ -1,10 +1,9 @@
 import { db } from './db.js';
 import { DataTypes } from 'sequelize';
-import User from '../models/user.model.js';
-import Post from '../models/post.model.js';
+import User from './user.model.js';
+import Post from './post.model.js';
 
-
-const Like = db.define( 'like', {
+const Likepost = db.define( 'likepost', {
     post_id: {
         type: DataTypes.INTEGER, allowNull: false,
         references: {
@@ -22,26 +21,18 @@ const Like = db.define( 'like', {
 }, {
     timestamps: false,
     freezeTableName: true,
-    tableName: 'like'
+    tableName: 'likepost'
 } );
 
-export default Like;
+export default Likepost;
 
 User.belongsToMany( Post, {
-    through: Like,
+    through: Likepost,
     foreignKey: 'user_id',
     otherKey: 'post_id'
 } );
 Post.belongsToMany( User, {
-    through: Like,
+    through: Likepost,
     foreignKey: 'post_id',
     otherKey: 'user_id'
 } );
-// Like.hasMany( user, {
-//     foreignKey: 'user_id',
-//     as: 'user'
-// } );
-// Like.hasOne( post, {
-//     foreignKey: 'post_id',
-//     as: 'post'
-// } );

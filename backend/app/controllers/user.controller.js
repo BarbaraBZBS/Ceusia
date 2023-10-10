@@ -214,7 +214,7 @@ const updateUser = async ( req, res ) => {
     //     return res.status( 400 ).json( { message: 'empty field(s)' } )
     // }
     await User.findByPk( req.params.id )
-        .then( ( user ) => {
+        .then( async ( user ) => {
             // console.log( user )
             if ( !user ) {
                 return res.status( 404 ).json( { message: 'User not found' } )
@@ -229,13 +229,20 @@ const updateUser = async ( req, res ) => {
                     if ( !PASSWORD_REGEX.test( req.body.password ) ) {
                         return res.status( 409 ).json( { message: 'password must be 6 to 35 characters and contain at least 1 number and 1 letter.' } )
                     }
-                    bcrypt.hash( req.body.password, 15 )
-                        .then( hash => {
-                            user.update( { password: hash } )
-                                .then( () => {
-                                    res.status( 200 ).json( { message: 'success: user password modified.' } )
+                    await bcrypt.compare( req.body.currpsw, user.password )
+                        .then( valid => {
+                            if ( !valid ) {
+                                return res.status( 401 ).json( { message: 'Incorrect details' } );
+                            }
+                            bcrypt.hash( req.body.password, 15 )
+                                .then( hash => {
+                                    user.update( { password: hash } )
+                                        .then( () => {
+                                            res.status( 200 ).json( { message: 'success: user password modified.' } )
+                                        } )
+                                        .catch( err => res.status( 500 ).send( { message: err.message } ) );
                                 } )
-                                .catch( err => res.status( 500 ).send( { message: err.message } ) );
+                                .catch( err => res.status( 400 ).json( { err } ) )
                         } )
                         .catch( err => res.status( 400 ).json( { err } ) )
                 }

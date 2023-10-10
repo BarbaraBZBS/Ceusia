@@ -8,8 +8,6 @@ import path from 'path';
 import * as url from 'url';
 const __dirname = url.fileURLToPath( new URL( '..', import.meta.url ) );
 
-
-
 // Create and Save a new Post
 const createPost = async ( req, res, next ) => {
     console.log( req.body );
@@ -96,12 +94,10 @@ const getAllPosts = async ( req, res ) => {
                 res.status( 200 ).json( posts )
             }
             else {
-                res.status( 401 ).json( { message: 'No posts found' } )
+                res.status( 404 ).json( { message: 'No posts found' } )
             }
         } )
-        .catch( ( err ) => {
-            res.status( 400 ).json( { err } )
-        } );
+        .catch( ( err ) => res.status( 500 ).json( { err } ) );
 };
 
 // Find a single Post with an id
@@ -109,7 +105,7 @@ const findOnePost = ( req, res ) => {
     Post.findByPk( req.params.id, {
         include: {
             model: User,
-            attributes: [ 'username', 'email' ]
+            attributes: [ 'id', 'username', 'email', 'picture' ]
         }
     } )
         .then( ( post ) => {
@@ -120,7 +116,7 @@ const findOnePost = ( req, res ) => {
                 res.status( 404 ).send();
             }
         } )
-        .catch( err => res.status( 400 ).json( { err } ) )
+        .catch( err => res.status( 500 ).json( { err } ) )
 };
 
 // Update a Post identified by the id in the request
@@ -132,9 +128,6 @@ const updatePost = ( req, res, next ) => {
         let filePath = '';
         Post.findByPk( req.params.id )
             .then( async ( post ) => {
-                // console.log( 'file mimetype: ', req.file.detectedMimeType )
-                // console.log( post );
-                // console.log( req.auth.role );
                 if ( !post ) {
                     return res.status( 404 ).json( { message: 'post not found' } )
                 }
@@ -146,7 +139,7 @@ const updatePost = ( req, res, next ) => {
                     const splittedName = nameToFormat.join( "_" );
                     const fileOriginName = splittedName.split( '.' )[ 0 ];
 
-                    if ( req.file.detectedMimeType === null || !req.file.detectedMimeType || req.file.detectedFileExtension == '' ) {
+                    if ( req.file.detectedMimeType === null ) {
                         return res.status( 403 ).json( { message: "Bad file type" } );
                     }
                     else if ( !req.file.detectedMimeType.startsWith( 'image' ) && !req.file.detectedMimeType.startsWith( 'video' ) &&
@@ -180,6 +173,7 @@ const updatePost = ( req, res, next ) => {
                             content: req.body.content,
                             fileUrl: filePath,
                             link: req.body.link,
+                            editedAt: new Date()
                             // user_id: req.auth.user_id // or post.user_id
                         } )
                             .then( () => {
@@ -203,6 +197,7 @@ const updatePost = ( req, res, next ) => {
                         title: req.body.title,
                         content: req.body.content,
                         link: req.body.link,
+                        editedAt: new Date()
                         // user_id: req.auth.user_id // or post.user_id
                     } )
                     console.log( 'success, post updated: ', post )

@@ -4,7 +4,7 @@ import axios from "axios";
 
 export const authOptions = ( req, res ) => {
     return {
-        session: { maxAge: 1 * 60 * 60, strategy: 'jwt' }, //5 * 60 * 60
+        session: { maxAge: 2 * 24 * 60 * 60, strategy: 'jwt' }, //2d or 5h: 5 * 60 * 60
         jwt: {
             secret: process.env.NEXTAUTH_SECRET,
             maxAge: 600
@@ -85,6 +85,9 @@ export const authOptions = ( req, res ) => {
     };
 };
 
-export default ( req, res ) => {
+export default function nextAuthConfig( req, res ) {
     return NextAuth( req, res, authOptions( req, res ) );
 };
+// export default ( req, res ) => {
+//     return NextAuth( req, res, authOptions( req, res ) );
+// };

@@ -6,7 +6,7 @@ export const PageWrap = ( { children } ) => {
     const path = usePathname();
     return (
         <AnimatePresence mode="wait">
-            <motion.div className="w-full"
+            <motion.div className="w-full min-h-[345px]"
                 key={ path }
                 initial={ { opacity: 0, y: 15 } }
                 animate={ { opacity: 1, y: 0 } }

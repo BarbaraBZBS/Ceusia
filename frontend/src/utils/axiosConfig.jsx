@@ -28,7 +28,7 @@ const ApiCall = () => {
         async ( error ) => {
             if ( error.response ) {
                 console.log( 'error axios config : ', error.response );
-                console.log( 'error data name axios config : ', error.response.data.error.name )
+                console.log( 'error data name axios config : ', error.response.data?.error?.name )
                 console.log( 'error status axios config : ', error.response.status )
             }
             if ( error.response?.status === 401 ) {

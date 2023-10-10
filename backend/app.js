@@ -51,6 +51,7 @@ app.use( '/profile', express.static( path.join( `${ __dirname }`, '/app', '/publ
 app.use( '/image', express.static( path.join( `${ __dirname }`, '/app', '/public', '/files', '/post' ) ) );
 app.use( '/video', express.static( path.join( `${ __dirname }`, '/app', '/public', '/files', '/post' ) ) );
 app.use( '/audio', express.static( path.join( `${ __dirname }`, '/app', '/public', '/files', '/post' ) ) );
+app.use( '/image', express.static( path.join( `${ __dirname }`, '/app', '/public', '/files', '/comment' ) ) );
 app.use( '/api/auth', userRoutes );
 app.use( '/api/posts', postRoutes );
 

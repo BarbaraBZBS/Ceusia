@@ -2,7 +2,6 @@ import { db } from './db.js';
 import { DataTypes } from 'sequelize';
 import User from '../models/user.model.js';
 
-
 const Post = db.define( "post", {
     title: {
         type: DataTypes.STRING, allowNull: true
@@ -13,12 +12,6 @@ const Post = db.define( "post", {
     fileUrl: {
         type: DataTypes.STRING, allowNull: true
     },
-    // videoUrl: {
-    //     type: DataTypes.STRING, allowNull: true
-    // },
-    // musicUrl: {
-    //     type: DataTypes.STRING, allowNull: true
-    // },
     link: {
         type: DataTypes.STRING, allowNull: true
     },
@@ -30,6 +23,12 @@ const Post = db.define( "post", {
     },
     user_id: {
         type: DataTypes.INTEGER, allowNull: false
+    },
+    discussions: {
+        type: DataTypes.INTEGER, defaultValue: 0
+    },
+    editedAt: {
+        type: DataTypes.TIME
     }
 } );
 

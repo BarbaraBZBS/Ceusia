@@ -1,144 +1,42 @@
 'use client';
 import React, { useEffect, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
 import PostLiking from './postLiking';
-import { useForm } from 'react-hook-form';
 import useAxiosAuth from '@/utils/hooks/useAxiosAuth';
 import LinkVideo from './linkVideo';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPhotoFilm } from '@fortawesome/free-solid-svg-icons';
-import { faMusic } from '@fortawesome/free-solid-svg-icons';
-import { faShareFromSquare } from '@fortawesome/free-solid-svg-icons';
-import { faComments } from '@fortawesome/free-solid-svg-icons';
+import { faShareFromSquare, faComments, faPenToSquare } from '@fortawesome/free-solid-svg-icons';
+import { faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { useRouter } from 'next/navigation';
 import { PageWrap } from '@/app/fm-wrap';
 import { motion, AnimatePresence } from 'framer-motion';
-
-// eslint-disable-next-line max-len
-const LINK_REGEX = /^https?:\/\//gm
-//or this one to match domains extensions and base urls
-// const LINK_REGEX = /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?/
+import moment from 'moment/moment';
+import PostAdd from './postAdd';
 
 export default function Cards( { posts, session, params, searchParams } ) {
     const axiosAuth = useAxiosAuth();
     const router = useRouter();
     const [ loadPost, setLoadPost ] = useState( true );
-    const [ count, setCount ] = useState( 5 );
-    const [ display, setDisplay ] = useState( posts.slice( 0, count ) );
-    // const [ display, setDisplay ] = useState();
-    // console.log( 'display : ', display )
-    const [ isImgZoomed, setIsImgZoomed ] = useState( {} );
+    const displayedCount = JSON.parse( sessionStorage?.getItem( 'postCount' ) ) || 5;
+    const [ count, setCount ] = useState( displayedCount );
+    const [ display, setDisplay ] = useState();
     const [ postImgZoom, setPostImgZoom ] = useState( false );
     const [ userPicZoom, setUserPicZoom ] = useState( false );
-    const [ resetBtnEffect, setResetBtnEffect ] = useState( false );
-    const [ sendBtnEffect, setSendBtnEffect ] = useState( false );
+    const [ usrLinkEffect, setUsrLinkEffect ] = useState( false );
     const [ clickedBtn, setClickedBtn ] = useState( 0 );
     const [ modifyBtnEffect, setModifyBtnEffect ] = useState( false );
     const [ deleteBtnEffect, setDeleteBtnEffect ] = useState( false );
-    const [ fileWiggle, setFileWiggle ] = useState( false );
     const [ commentEffect, setCommentEffect ] = useState( false );
     const [ shareEffect, setShareEffect ] = useState( false );
     const [ errMsg, setErrMsg ] = useState( '' );
     const isBrowser = () => typeof window !== 'undefined';
-    const {
-        register,
-        handleSubmit,
-        getValues,
-        watch,
-        setError,
-        setFocus,
-        reset,
-        formState: { errors, isSubmitSuccessful },
-    } = useForm( {
-        defaultValues: {
-            title: '',
-            content: '',
-            fileUrl: '',
-            link: '',
-        },
-        // mode: "onBlur"
-        mode: "onSubmit",
-        // reValidateMode: "onBlur"
-    } );
-    const filewatch = watch( 'fileUrl' );
+    const foundHash = window.location.hash;
 
     useEffect( () => {
-        if ( errors?.content ) {
-            setFocus( "content" );
-        }
-    } );
-
-    const submitForm = async ( data, e ) => {
-        e.preventDefault();
-        setErrMsg( '' );
-        let headers;
-        if ( data.fileUrl <= 0 ) {
-            data = {
-                title: getValues( "title" ),
-                content: getValues( "content" ),
-                link: getValues( "link" ),
-            };
-            headers = { 'Content-Type': 'application/json' };
-        }
-        else {
-            const form = new FormData();
-            form.append( "fileUrl", data.fileUrl[ 0 ] );
-            form.append( "title", getValues( "title" ) );
-            form.append( "content", getValues( "content" ) );
-            form.append( "link", getValues( "link" ) );
-            console.log( 'file upload? : ', form );
-            data = form;
-            headers = { 'Content-Type': "multipart/form-data" };
-        };
-        try {
-            await axiosAuth( {
-                method: "post",
-                url: `/posts`,
-                data: data,
-                headers: headers,
-                withCredentials: true
-            } )
-                .then( async ( response ) => {
-                    console.log( response );
-                    const resp = await axiosAuth.get( '/posts' )
-                    const newdisplay = resp.data
-                    posts = newdisplay
-                    setDisplay( posts.slice( 0, count ) )
-                } )
-        }
-        catch ( err ) {
-            if ( !err?.response ) {
-                setErrMsg( 'Server unresponsive, please try again or come back later.' );
-                if ( !isBrowser() ) return;
-                window.scrollTo( { top: 0, behavior: 'smooth' } );
-            }
-            else if ( err.response?.status === 409 ) {
-                setError( 'fileUrl', { type: 'custom', message: 'Max size reached. (8Mb max)' } );
-            }
-            else if ( err.response?.status === 403 ) {
-                setError( 'fileUrl', { type: 'custom', message: 'Bad file type. (video, picture or audio only)' } );
-            }
-            else {
-                setErrMsg( 'Post creation failed, please try again.' );
-                if ( !isBrowser() ) return;
-                window.scrollTo( { top: 0, behavior: 'smooth' } );
-            }
-        }
-    };
-
-    useEffect( () => {
-        if ( isSubmitSuccessful ) {
-            reset();
-        }
-    }, [ isSubmitSuccessful, reset ] );
-
-    const handleImgZoom = ( index ) => () => {
-        setIsImgZoomed( state => ( {
-            ...state,
-            [ index ]: !state[ index ]
-        } ) );
-    };
+        const body = document.body;
+        body.style.position = "";
+        body.style.top = "";
+    }, [] );
 
     const dateParser = ( num ) => {
         let options = {
@@ -154,76 +52,101 @@ export default function Cards( { posts, session, params, searchParams } ) {
         let date = new Date( timestamp ).toLocaleDateString( 'en-US', options );
         return date.toString();
     };
+    const dateParser2 = ( num ) => {
+        const timeAgo = moment( num ).fromNow()
+        return timeAgo
+    };
 
     const modifBtn = ( link ) => {
         setModifyBtnEffect( true );
         setTimeout( () => {
-            router.push( link )
-        }, 1000 );
+            router.push( link, { scroll: true } )
+        }, 500 );
     };
-
     const handleDelete = async ( postid ) => {
         setDeleteBtnEffect( true );
         setErrMsg( '' );
-        try {
-            const res = await axiosAuth.delete( `/posts/${ postid }` )
-            console.log( 'deleted ? : ', res )
-            if ( !res ) {
+        setTimeout( async () => {
+            try {
+                let answer = window.confirm( 'Are you sure you want to delete this post?' );
+                if ( answer ) {
+                    const res = await axiosAuth.delete( `/posts/${ postid }` )
+                    console.log( 'deleted ? : ', res )
+                    if ( !res ) {
+                        setErrMsg( 'Something went wrong, post was not removed' );
+                        if ( !isBrowser() ) return;
+                        window.scrollTo( { top: 0, behavior: 'smooth' } );
+                    }
+                    else {
+                        const resp = await axiosAuth.get( '/posts' )
+                        setDisplay( resp.data.slice( 0, count ) )
+                    };
+                }
+            }
+            catch ( err ) {
+                console.log( 'delete post err : ', err )
                 setErrMsg( 'Something went wrong, post was not removed' );
                 if ( !isBrowser() ) return;
                 window.scrollTo( { top: 0, behavior: 'smooth' } );
             }
-            else {
-                setTimeout( async () => {
-                    const resp = await axiosAuth.get( '/posts' )
-                    const newdisplay = resp.data
-                    posts = newdisplay
-                    setDisplay( posts.slice( 0, count ) )
-                }, 1000 );
-            };
-        }
-        catch ( err ) {
-            console.log( 'delete post err : ', err )
-            setErrMsg( 'Something went wrong, post was not removed' );
-            if ( !isBrowser() ) return;
-            window.scrollTo( { top: 0, behavior: 'smooth' } );
-        }
-    };
-
-    const loadMore = () => {
-        if ( !isBrowser() ) return;
-        if ( window.innerHeight + document.documentElement.scrollTop + 1 >
-            document.scrollingElement.scrollHeight - 250 ) {
-            setLoadPost( true )
-        }
+        }, 800 );
     };
 
     useEffect( () => {
+        if ( !isBrowser() ) return;
+        setTimeout( () => {
+            if ( foundHash ) {
+                let targetid = foundHash.replace( /.*\#/, "" );
+                const target = document.getElementById( targetid );
+                console.log( 'target : ', target )
+                if ( target ) {
+                    target.scrollIntoView( {
+                        behavior: "smooth",
+                        block: "start",
+                        inline: "nearest",
+                    } )
+                }
+            }
+        }, 500 );
+    }, [ foundHash ] );
+
+    useEffect( () => {
+        const loadMore = () => {
+            if ( !isBrowser() ) return;
+            if ( window.innerHeight + document.documentElement.scrollTop + 1 >
+                document.scrollingElement.scrollHeight - 250 ) {
+                setLoadPost( true )
+            }
+        };
+
         if ( loadPost ) {
             const newPostLoad = async () => {
                 const resp = await axiosAuth.get( '/posts' )
-                const newdisplay = resp.data
-                posts = newdisplay
                 setLoadPost( false )
                 setCount( count + 5 )
-                setDisplay( posts.slice( 0, count ) )
+                setDisplay( resp.data.slice( 0, count ) )
+                if ( !isBrowser() ) return;
+                sessionStorage.setItem( 'postCount', JSON.stringify( count ) )
             }
             newPostLoad()
         }
         if ( !isBrowser() ) return;
         window.addEventListener( 'scroll', loadMore )
         return () => window.removeEventListener( 'scroll', loadMore )
-    }, [ loadPost, display, count ] );
+    }, [ axiosAuth, loadPost, display, count ] );
 
-    const btnReset = () => {
-        reset();
-        setResetBtnEffect( true );
+    const usrProfileLnk = ( link ) => {
+        setUsrLinkEffect( true );
+        setTimeout( () => {
+            router.push( link )
+        }, 500 );
     };
 
-    const handleComment = () => {
+    const handleComment = ( link ) => {
         setCommentEffect( true );
-
-
+        setTimeout( () => {
+            router.push( link )
+        }, 500 );
     };
 
     const handleShare = () => {
@@ -232,44 +155,39 @@ export default function Cards( { posts, session, params, searchParams } ) {
 
     };
 
-
+    // handle overlays function
+    function showOverlay() {
+        const scrollY = document.documentElement.style.getPropertyValue(
+            "--scroll-y"
+        );
+        const body = document.body;
+        body.style.position = "fixed";
+        body.style.top = `-${ scrollY }`;
+    };
+    function hideOverlay() {
+        const body = document.body;
+        const scrollY = body.style.top;
+        body.style.position = "";
+        body.style.top = "";
+        if ( !isBrowser() ) return;
+        window.scrollTo( 0, parseInt( scrollY || "0" ) * -1 );
+    };
     // user picture zoom
     function showUsrPicZoomOverlay() {
         setUserPicZoom( true );
-        const scrollY = document.documentElement.style.getPropertyValue(
-            "--scroll-y"
-        );
-        const body = document.body;
-        body.style.position = "fixed";
-        body.style.top = `-${ scrollY }`;
+        showOverlay();
     };
     function hideUsrPicZoomOverlay() {
-        const body = document.body;
-        const scrollY = body.style.top;
-        body.style.position = "";
-        body.style.top = "";
-        if ( !isBrowser() ) return;
-        window.scrollTo( 0, parseInt( scrollY || "0" ) * -1 );
+        hideOverlay();
         setUserPicZoom( false );
     };
-
     // post image zoom
     function showPostImgZoomOverlay() {
         setPostImgZoom( true );
-        const scrollY = document.documentElement.style.getPropertyValue(
-            "--scroll-y"
-        );
-        const body = document.body;
-        body.style.position = "fixed";
-        body.style.top = `-${ scrollY }`;
+        showOverlay();
     };
     function hidePostImgZoomOverlay() {
-        const body = document.body;
-        const scrollY = body.style.top;
-        body.style.position = "";
-        body.style.top = "";
-        if ( !isBrowser() ) return;
-        window.scrollTo( 0, parseInt( scrollY || "0" ) * -1 );
+        hideOverlay();
         setPostImgZoom( false );
     };
 
@@ -281,102 +199,59 @@ export default function Cards( { posts, session, params, searchParams } ) {
         );
     } );
 
-
     return (
         <PageWrap>
             <div className='flex flex-col items-center'>
                 <div className='mt-8 mb-4 flex flex-col items-center w-[331.2px]'>
                     {/* post form */ }
-                    <h2 className='text-clamp7'>What&apos;s on your mind?</h2>
-                    <>
-                        <p className={ errMsg ? 'errMsg text-clamp6 my-3' : 'hidden' } aria-live="assertive">{ errMsg }</p>
-                        {/* <div>preview?</div> */ }
-                        <div className='flex flex-col items-center w-full'>
-                            <form className='mb-1 py-1 flex flex-col items-center text-clamp6 w-full' onSubmit={ handleSubmit( submitForm ) }>
-
-                                <input type='text' placeholder="A title..." { ...register( "title" ) } className={ `post_form_input ${ errors.title
-                                    ? 'border-appred focus:border-appred' : '' }` } />
-                                { errors.title && <span className='fieldErrMsg'>{ errors.title.message }</span> }
-
-                                <textarea type="text" placeholder='Your message...' { ...register( "content", {
-                                    required: 'This field is required'
-                                } ) } className={ `post_form_input w-[90%] h-14 resize max-w-full ${ errors.content ? 'border-appred focus:border-appred' : '' }` } />
-                                { errors.content && <span className='fieldErrMsg'>{ errors.content.message }</span> }
-
-                                <div className={ `relative ${ fileWiggle && 'animate-wiggle' }` } onAnimationEnd={ () => setFileWiggle( false ) }>
-                                    <input onClick={ () => setFileWiggle( true ) } type="file" name='fileUrl' placeholder='A video, image, or audio file...' { ...register( "fileUrl" ) }
-                                        className='post_form_input w-[51px] h-[29px] opacity-0 cursor-pointer' />
-                                    <FontAwesomeIcon icon={ faPhotoFilm } size='2x' style={ { color: "#4E5166" } }
-                                        className='absolute left-[0px] top-[3px] -z-20' />
-                                    <FontAwesomeIcon icon={ faMusic } size='2x' style={ errors.fileUrl ? { color: "#FD2D01" } : { color: "#b1ae99" } }
-                                        className='absolute left-[18px] top-[3px] -z-10' />
-                                </div>
-                                { filewatch && filewatch[ 0 ] ?
-                                    <p className={ `max-w-[325px] mx-2 line-clamp-1 hover:line-clamp-none hover:text-ellipsis hover:overflow-hidden active:line-clamp-none active:text-ellipsis active:overflow-hidden 
-                                ${ errors.fileUrl ? 'text-red-600 underline underline-offset-2 font-semibold' : '' }` }>
-                                        { filewatch[ 0 ].name }</p> : <p className='mx-3'>No file selected</p> }
-                                { errors.fileUrl && <span className='fieldErrMsg mt-1 mb-2'>{ errors.fileUrl.message }</span> }
-
-                                <input type="text" placeholder='A link...' { ...register( "link", {
-                                    pattern: {
-                                        value: LINK_REGEX,
-                                        message: 'Enter a valid link url'
-                                    }
-                                } ) } className={ `post_form_input ${ errors.link ? 'border-appred focus:border-appred' : '' }` } />
-                                { errors.link && <span className='fieldErrMsg'>{ errors.link.message }</span> }
-
-                                <div className='flex w-full justify-around'>
-                                    <button type='button' onClick={ () => btnReset() } onAnimationEnd={ () => setResetBtnEffect( false ) } className={ `resetbtn ${ resetBtnEffect && 'animate-moveUp' }` }>Reset</button>
-                                    <button type="submit" onClick={ () => setSendBtnEffect( true ) } onAnimationEnd={ () => setSendBtnEffect( false ) } className={ `post_form_btn_submit ${ sendBtnEffect && 'animate-moveUp' }` }>Send A New Post</button>
-                                </div>
-
-                            </form>
-                        </div>
-                    </>
+                    <h2 className='text-clamp7 font-medium'>What&apos;s on your mind?</h2>
+                    <PostAdd setPosts={ setDisplay } numb={ count } />
                 </div>
 
                 {/* All Posts */ }
                 { display?.map( ( post, index, params ) => (
-                    <>
+                    <div key={ post.id } id={ post.id } className='w-full h-full'>
                         <AnimatePresence>
                             <motion.div
                                 key={ post.id }
                                 animate={ { opacity: [ 0, 1 ], y: [ 40, 0 ] } }
                                 transition={ { duration: 0.6, delay: 0.3 } }
-                                className={ `border-2 rounded-lg shadow-md my-2 relative w-[90%] ${ userPicZoom && 'w-full' }  ` }>
+                                className={ ` m-auto border-2 rounded-lg shadow-md my-2 relative w-[90%] ${ userPicZoom && 'w-full' }  ` }>
 
-                                { clickedBtn === index && userPicZoom && <div className='zoomedOverlay' onClick={ () => hideUsrPicZoomOverlay() }>
-                                    <img src={ post.user.picture } alt={ `${ post.user.username } picture` } className='postPicImgZoomed animate-rotateZoom' />
+                                { clickedBtn === index && userPicZoom && <div className='fixed overflow-y-scroll left-0 right-0 top-0 bottom-0 w-full h-full bg-appblck z-[998] block' onClick={ () => hideUsrPicZoomOverlay() }>
+                                    <Image width={ 0 } height={ 0 } priority placeholder="empty" src={ post.user.picture } alt={ `${ post.user.username } picture` } className='block m-auto w-[96%] h-auto object-cover my-12 rounded-lg animate-rotateZoom' />
                                 </div> }
-                                { clickedBtn === index && postImgZoom && <div className='zoomedOverlay' onClick={ () => hidePostImgZoomOverlay() }>
-                                    <img src={ post.fileUrl } alt="post image" className='postPicImgZoomed animate-rotateZoom' />
+                                { clickedBtn === index && postImgZoom && <div className='fixed overflow-y-scroll left-0 right-0 top-0 bottom-0 w-full h-full bg-appblck z-[998] block' onClick={ () => hidePostImgZoomOverlay() }>
+                                    <Image width={ 0 } height={ 0 } priority placeholder="empty" src={ post.fileUrl } alt="post image" className='block m-auto w-[96%] h-auto object-cover my-12 rounded-lg animate-rotateZoom' />
                                 </div> }
 
                                 <div className='flex text-clamp6 mx-3 mt-1 mb-[3px] touch-auto'>
-                                    <div className='postUserPicContainer' onClick={ () => { setClickedBtn( index ); showUsrPicZoomOverlay() } }>
-                                        <Image width={ 0 } height={ 0 } unoptimized={ true } placeholder='data:image/...' quality={ 100 } className='postUserPic' src={ post.user.picture } alt={ `${ post.user.username } picture` } />
+                                    <div className='w-10 h-10 rounded-full mr-1 border-[1px] border-gray-300 cursor-pointer transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light' onClick={ () => { setClickedBtn( index ); showUsrPicZoomOverlay() } }>
+                                        <Image width={ 0 } height={ 0 } placeholder="empty" className='rounded-full object-cover w-full h-full cursor-pointer' src={ post.user.picture } alt={ `${ post.user.username } picture` } />
                                     </div>
 
                                     <div className='flex items-end'>
                                         {/* onclick link to user[user_id] params */ }
-                                        { session?.user.username === post.user.username ? <p className='mb-[5px]'>You</p> :
-                                            <Link href={ `/user/${ [ post.user_id ] }` } className='mb-[5px] hover:text-appturq active:text-appturq focus:text-appturq'>{ post.user.username }</Link> }
+                                        { session?.user.user_id === post.user_id ? <p className='mb-[5px]'>You</p> :
+                                            <button className={ `mb-[5px] hover:text-appturq active:text-appturq ${ clickedBtn === index && usrLinkEffect && 'animate-resizeBtn' }` }
+                                                onClick={ () => { setClickedBtn( index ); usrProfileLnk( `/csian/${ [ post.user_id ] }?pi=${ post.id }` ) } }
+                                                onAnimationEnd={ () => setUsrLinkEffect( false ) }
+                                            >{ post.user.username }</button> }
                                     </div>
                                 </div>
 
-                                <div className='flex justify-end text-clamp2 mx-2 mt-[-10px] mb-1 font-extralight'>
-                                    {/* { dateParser( post.updatedAt ) > dateParser( post.createdAt ) ? <p className=''>Edited on { dateParser( post.updatedAt ) }</p> : '' } */ }
+                                <div className='flex justify-end text-clamp2 mx-2 mt-[-10px] mb-[1px] font-extralight'>
                                     <p>{ dateParser( post.createdAt ) }</p>
                                 </div>
 
-                                { post.title ? <div className=''><h2 className='text-clamp7 text-center font-semibold border-t-2 border-b-2'>{ post.title }</h2></div> : <hr className='border-b-[1.5px]'></hr> }
+                                { post.title ? <div className=''><h2 className='text-clamp7 text-center font-medium border-t-2 border-b-2'>{ post.title }</h2></div> : <hr className='border-b-[1.5px]'></hr> }
 
                                 <div>
                                     <p className=' cursor-pointer line-clamp-3 text-clamp1 mx-3 mt-2 mb-3 hover:line-clamp-none active:line-clamp-none'>{ post.content }</p>
                                 </div>
 
                                 { post.fileUrl && post.fileUrl?.includes( 'image' ) && <div className='flex w-[260px] h-[150px] max-w[280px] mx-auto my-2 touch-auto' onClick={ () => { setClickedBtn( index ); showPostImgZoomOverlay() } }>
-                                    <Image width={ 0 } height={ 0 } placeholder='data:image/...' className='imgNorm' src={ post.fileUrl } alt="post image" />
+                                    <Image width={ 0 } height={ 0 } placeholder="empty" className='rounded-2xl object-cover object-center-up hover:object-center-down hover:shadow-neatcard w-full h-auto max-w-[280px] max-h-[150px] cursor-pointer' src={ post.fileUrl } alt="post image" />
                                 </div> }
                                 { post.fileUrl && post.fileUrl?.includes( 'audio' ) && <div className='flex justify-center mx-auto my-6'>
                                     <audio controls className='rounded-lg'>
@@ -385,8 +260,8 @@ export default function Cards( { posts, session, params, searchParams } ) {
                                         <source src={ post.fileUrl } type='audio/wav' />
                                         Your browser does not support the audio tag.</audio>
                                 </div> }
-                                { post.fileUrl && post.fileUrl?.includes( 'video' ) && <div className='flex justify-center mx-auto my-6'>
-                                    <video id={ post.id } width="320" height="176" controls >
+                                { post.fileUrl && post.fileUrl?.includes( 'video' ) && <div className='flex justify-center mx-auto my-4'>
+                                    <video id={ post.id } width="98%" height="200" controls >
                                         <source src={ post.fileUrl } type={ 'video/mp4' } />
                                         <source src={ post.fileUrl } type="video/ogg" />
                                         <source src={ post.fileUrl } type="video/webM" />
@@ -395,42 +270,54 @@ export default function Cards( { posts, session, params, searchParams } ) {
 
                                 { post.link && <LinkVideo postLink={ post.link } postid={ post.id } /> }
 
-                                <div className='flex justify-evenly mb-1'>
+                                { session?.user.user_id === post.user_id ? <div className='flex justify-end mb-1 mx-6'>
                                     {/* onclick link to post[id] params */ }
-                                    { session?.user.username === post.user.username && <div className='flex relative items-center mb-2 group'>
-                                        <button onClick={ () => { setClickedBtn( index ); modifBtn( `/post/${ [ post.id ] }` ) } } onAnimationEnd={ () => setModifyBtnEffect( false ) } className={ `post_modify_btn ${ clickedBtn === index && modifyBtnEffect && 'animate-bgSize' }` }>Modify post</button>
-                                    </div> }
-
-                                    { session?.user.username === post.user.username && <div className='flex items-center mb-2'>
-                                        <button onClick={ () => { setClickedBtn( index ); handleDelete( post.id ) } } onAnimationEnd={ () => setDeleteBtnEffect( false ) } className={ `post_delete_btn ${ clickedBtn === index && deleteBtnEffect && 'animate-bgSize' }` } >Delete post</button>
-                                    </div> }
+                                    <div className='flex relative items-center mb-2'>
+                                        <button title='edit post' onClick={ () => { setClickedBtn( index ); modifBtn( `/upd/${ [ post.id ] }` ) } }
+                                            className={ `bg-appstone text-white w-8 h-7 rounded-tl-[15px] rounded-br-[15px] px-2 py-[2px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] mx-4 ${ clickedBtn === index && modifyBtnEffect && 'animate-bgSize' }` }>
+                                            <FontAwesomeIcon icon={ faPenToSquare } />
+                                        </button>
+                                    </div>
+                                    <div className='flex items-center mb-2'>
+                                        <button title='delete post' onClick={ () => { setClickedBtn( index ); handleDelete( post.id ) } } onAnimationEnd={ () => setDeleteBtnEffect( false ) }
+                                            className={ `bg-appred text-white w-8 h-7 rounded-tl-[15px] rounded-br-[15px] mt-2 mb-2 transition-all duration-300 ease-in-out hover:bg-opacity-70 hover:text-appblck hover:translate-y-[7px] hover:shadow-btnlred bg-[linear-gradient(#ca2401,#ca2401)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] ${ clickedBtn === index && deleteBtnEffect && 'animate-bgSize' }` } >
+                                            <FontAwesomeIcon icon={ faTrashCan } />
+                                        </button>
+                                    </div>
+                                </div> : <div></div> }
+                                <div>
+                                    <p className={ errMsg ? 'self-center text-red-600 bg-white font-semibold drop-shadow-light mx-6 rounded-md w-fit px-2 text-clamp6 my-3' : 'hidden' } aria-live="assertive">{ errMsg }</p>
                                 </div>
-
                                 <div className='flex justify-between'>
 
-                                    <PostLiking post={ post } session={ session } />
+                                    <PostLiking post={ post } />
 
                                     {/* comment post */ }
-                                    <div className='mr-[48px] cursor-pointer' > {/* onClick={()=>handleComment} onAnimationEnd={()=> setCommentEffect(false)} */ }
+                                    <div className='mr-[48px]' > {/* onClick={()=>handleComment} onAnimationEnd={()=> setCommentEffect(false)} */ }
                                         {/* add button here with animate? */ }
-                                        <FontAwesomeIcon icon={ faComments } style={ { color: '#2ECEC2' } } />
+                                        <span className='mr-1'>{ post.discussions }</span>
+                                        <button title='enter post discussion' onClick={ () => { setClickedBtn( index ); handleComment( `/coms/${ [ post.id ] }` ) } } onAnimationEnd={ () => setCommentEffect( false ) }
+                                            className={ `cursor-pointer hover:opacity-50 ${ clickedBtn === index && commentEffect && 'animate-resizeBtn' }` }>
+                                            <FontAwesomeIcon icon={ faComments } style={ { color: '#2ECEC2' } } />
+                                        </button>
                                         {/* <Link className='' href={ `/comments/${ [ post.id ] }` }>comments icon</Link> */ }
                                     </div>
 
                                     {/* share */ }
-                                    <div className='mr-4 cursor-pointer'> {/* onClick={()=>handleShare} onAnimationEnd={()=> setShareEffect(false)}*/ }
+                                    <div className='mr-4'> {/* onClick={()=>handleShare} onAnimationEnd={()=> setShareEffect(false)}*/ }
                                         {/* add button here with animate? */ }
-                                        <FontAwesomeIcon icon={ faShareFromSquare } style={ { color: '#7953be' } } />
+                                        <button title='share post'><FontAwesomeIcon icon={ faShareFromSquare } style={ { color: '#7953be' } } /></button>
+
                                     </div>
                                 </div>
 
                                 <div className='flex flex-col items-center justify-center my-1 text-clamp2 font-extralight'>
-                                    { dateParser( post.updatedAt ) > dateParser( post.createdAt ) ? <p className=''>Edited on { dateParser( post.updatedAt ) }</p> : '' }
-                                    {/* <p>Created on { dateParser( post.createdAt ) }</p> */ }
+                                    { post.editedAt ? <p className=''>Edited { dateParser2( post.editedAt ) }</p> : <p></p> }
                                 </div>
+
                             </motion.div>
                         </AnimatePresence>
-                    </>
+                    </div>
                 ) ) }
             </div>
         </PageWrap>

@@ -25,7 +25,7 @@ export default function Error( { error, reset } ) {
             <h2 className='text-clamp3'>Something went wrong !</h2>
             <p className='text-clamp4 mt-4'>Reload page or sign back in</p>
             {/* <p>{ error.message }</p> */ }
-            <button className='errBtn'
+            <button className='bg-appstone text-white uppercase w-fit rounded-xl px-3 py-[3px] mt-8 mb-4 transition-all duration-300 ease-in-out hover:bg-indigo-700 hover:text-white hover:translate-y-[-7px] hover:shadow-btnindigo'
                 onClick={
                     // Attempt to recover by trying to re-render the segment
                     // () => reset()
@@ -35,7 +35,7 @@ export default function Error( { error, reset } ) {
                 Reload
             </button>
             <p>or</p>
-            <button className='errBtn'
+            <button className='bg-appstone text-white uppercase w-fit rounded-xl px-3 py-[3px] mt-8 mb-4 transition-all duration-300 ease-in-out hover:bg-indigo-700 hover:text-white hover:translate-y-[-7px] hover:shadow-btnindigo'
                 onClick={
                     () => logOut()
                 }

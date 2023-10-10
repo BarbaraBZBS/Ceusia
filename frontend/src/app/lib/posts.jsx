@@ -33,3 +33,16 @@ export async function getPost( num ) {
         return data;
     }
 };
+
+export const getPostComments = cache( async ( num ) => {
+    const res = await apiCall.get( `/posts/${ num }/comments` );
+    if ( !res ) {
+        console.log( 'error axios lib all post comments' );
+        // throw new Error( 'Failed to fetch data' );
+    }
+    else {
+        const data = res.data;
+        // console.log( 'res data: ', data )
+        return data;
+    };
+} );

@@ -3,6 +3,9 @@ const colors = require( 'tailwindcss/colors' )
 const plugin = require( 'tailwindcss/plugin' )
 
 module.exports = {
+    future: {
+        hoverOnlyWhenSupported: true,
+    },
     content: [
         './src/components/**/*.{js,ts,jsx,tsx,mdx}',
         './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -45,6 +48,7 @@ module.exports = {
                 'btnorange': '0px 15px 20px rgba(252, 211, 77, 0.4)',
                 'btnstone': '0px 15px 20px rgba(78, 81, 102, 0.4)',
                 'btndred': '0px 15px 20px rgba(190, 18, 60, 0.4)',
+                'btnlred': '0px 15px 20px rgba(254, 108, 77, 0.4)',
                 'neatcard': 'rgba(0, 0, 0, 0.35) 0px 5px 15px;',
                 'elevated': 'rgba(0, 0, 0, 0.3) 0px 19px 38px, rgba(0, 0, 0, 0.22) 0px 15px 12px;',
                 'sidepinkaccordeon': 'rgba(240, 46, 170, 0.4) 5px 5px, rgba(240, 46, 170, 0.3) 10px 10px, rgba(240, 46, 170, 0.2) 15px 15px, rgba(240, 46, 170, 0.1) 20px 20px, rgba(240, 46, 170, 0.05) 25px 25px;',
@@ -89,7 +93,6 @@ module.exports = {
                     from: { transform: 'scale( 1 )' },
                     to: { transform: 'scale( 2.5 )' }
                 },
-
                 rotatezoom: {
                     '0%': {
                         animationTimingFunction: 'ease-in',
@@ -103,15 +106,17 @@ module.exports = {
                         transform: 'rotate(-360deg) scale( 1 )'
                     }
                 },
-                moveup: {
+                pressdown: {
                     '0%': {
                         transform: 'scale(.90)',
+                        backgroundColor: '#C9FFDD',
                     },
                     '40%': {
-                        transform: 'scale(1.02)',
+                        transform: 'scale(1.05)',
                     },
                     '100%': {
-                        transform: 'scale(1)'
+                        transform: 'scale(1)',
+                        // backgroundColor: '#7953be'
                     }
                 },
                 wiggle: {
@@ -125,6 +130,17 @@ module.exports = {
                         "color": "white"
                     },
                     "100%": { "background-size": "0% 0%" },
+                },
+                reverseping: {
+                    '0%': { opacity: 1 },
+                    '50%, 75%': {
+                        transform: 'scale(1.2)',
+                        opacity: 0.2
+                    },
+                    '100%': {
+                        transform: 'scale(1)',
+                        opacity: 1,
+                    }
                 },
                 btnflat: {
                     from: { transform: 'scaleY(1)' },
@@ -152,7 +168,12 @@ module.exports = {
                 resizezoom: {
                     from: { transform: 'scale(0.6)', opacity: 0.2 },
                     to: { transform: 'scale(1)', opacity: 1 }
-                }
+                },
+                resizebtn: {
+                    '10%': { transform: 'scale(0.5)', opacity: 0.5 },
+                    '60%': { transform: 'scale(1.2)', opacity: 0.8 },
+                    '100%': { transform: 'scale(1)', opacity: 1 }
+                },
             },
             animation: {
                 spin: 'spin infinite 1.3s linear',
@@ -160,14 +181,15 @@ module.exports = {
                 fill: 'fill ease-in-out .4s forwards',
                 zoom: 'zoom ease-out .2s forwards',
                 rotateZoom: 'rotatezoom 2s linear',
-                moveUp: 'moveup .6s ease-out backwards',
+                pressDown: 'pressdown .4s ease-in',
                 wiggle: 'wiggle 200ms ease-in-out',
-                btnFill: 'btnfill .5s ease-out linear',
+                reversePing: 'reverseping .3s ease-out forwards',
                 btnFlat: 'btnflat .3s ease-in-out backwards',
                 bgSize: 'bgsize .6s ease-in-out both',
                 reposition: 'reposition .6s forwards .2s',
                 ping2: 'ping2 1s cubic-bezier(0, 0, 0.2, 1) backwards',
-                resizeZoom: 'resizezoom .3s ease-in both'
+                resizeZoom: 'resizezoom .3s ease-in both',
+                resizeBtn: 'resizebtn .4s ease-out',
             }
         },
         colors: {

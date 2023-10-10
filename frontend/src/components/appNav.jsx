@@ -12,39 +12,42 @@ export default function AppNav() {
     console.log( 'nav session: ', { session } );
     // console.log( 'expired? : ', session?.expires )
     useEffect( () => {
-        if ( Date.now() >= Date.parse( session?.expires ) ) {
-            logout();
-            signOut( {
-                callbackUrl: '/auth/signIn'
-            } );
-        };
-        if ( currentRoute !== '/auth/signIn' && currentRoute !== '/' && status !== 'loading' && !session ) {
-            logout();
-            signOut( {
-                callbackUrl: '/auth/signIn'
-            } );
-        };
-        if ( currentRoute !== '/auth/signIn' && status !== 'loading' && session == undefined ) {
-            logout();
-            signOut( {
-                callbackUrl: '/auth/signIn'
-            } );
+        // if ( !session ) return;
+        if ( session && status !== 'loading' ) {
+            if ( Date.now() >= Date.parse( session?.expires ) ) {
+                logout();
+                signOut( {
+                    callbackUrl: '/auth/signIn'
+                } );
+            }
         }
-    }, [ session ] );
+        else if ( status !== 'loading' && ( !session || session == undefined ) ) {
+            // if ( currentRoute !== '/auth/signIn' && currentRoute !== '/' && status !== 'loading' && !session ) {
+            if ( currentRoute === '/' || currentRoute === '/auth/signIn' || currentRoute === '/auth/register' ) {
+                return
+            }
+            else {
+                logout();
+                signOut( {
+                    callbackUrl: '/'
+                } );
+            }
+        };
+    }, [ session, currentRoute, status ] );
 
     return (
         <div className="mb-5 text-clamp5 bg-gray-200 bg-opacity-60">
             <header className="flex flex-row justify-between">
                 <div>
-                    <Link href="/">
+                    <Link href="/" as={ '/' }>
                         <Image className="inline object-cover rounded-br-2xl"
                             src="/images/logo.png"
                             alt="ceusia main logo"
                             width={ 176 }
                             height={ 66 }
-                            unoptimized={ true }
                             priority
                             placeholder="empty"
+                            style={ { width: '176px', height: '66px' } }
                         />
                     </Link>
                 </div>
@@ -52,23 +55,28 @@ export default function AppNav() {
                     { session?.user ? (
                         <div className="flex flex-col">
                             <div>
-                                <Link href="/profile" className="text-appmauvelight drop-shadow-lighter">{ session.user.username }</Link>
+                                <Link href="/profile" as={ '/profile' }
+                                    className={ currentRoute === '/profile' ? "text-appmagenta drop-shadow-lighter" : "text-appmauvedark drop-shadow-lighter hover:text-appmauvelight active:text-appturq" }>
+                                    { session.user ? session.user.username : 'Loading...' }</Link>
                             </div>
                             <div>
-                                <button onClick={ () => signOut( { callbackUrl: '/auth/signIn' } ) } className="signLink linkAnim">
+                                <button onClick={ () => signOut( { callbackUrl: '/auth/signIn' } ) }
+                                    className="hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out linkAnim">
                                     Sign Out
                                 </button>
                             </div>
                         </div>
                     ) : (
                         <>
-                            <div className="linkAnim signLink">
-                                <Link href='/auth/signIn' className={ currentRoute === '/auth/signIn' ? 'signLink activeLink' : 'signLink' }>
+                            <div className="linkAnim hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out">
+                                <Link href='/auth/signIn' as={ '/auth/signIn' }
+                                    className={ currentRoute === '/auth/signIn' ? 'hover:text-appturq hover:translate-y-1 active:text-appturq active:underline transition-all duration-200 ease-in-out text-apppink focus:text-apppink drop-shadow-linkTxt underline uppercase' : 'hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out' }>
                                     Sign In
                                 </Link>
                             </div>
-                            <div className="linkAnim signLink">
-                                <Link href="/auth/register" className={ currentRoute === '/auth/register' ? 'activeLink signLink' : 'signLink' }>
+                            <div className="linkAnim hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out">
+                                <Link href="/auth/register" as={ '/auth/register' }
+                                    className={ currentRoute === '/auth/register' ? 'text-apppink focus:text-apppink drop-shadow-linkTxt underline uppercase hover:text-appturq hover:translate-y-1 active:text-appturq active:underline transition-all duration-200 ease-in-out' : 'hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out' }>
                                     Sign Up
                                 </Link>
                             </div>
