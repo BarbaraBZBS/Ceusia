@@ -29,6 +29,9 @@ const Post = db.define( "post", {
     },
     editedAt: {
         type: DataTypes.TIME
+    },
+    editedByAdmin: {
+        type: DataTypes.BOOLEAN, defaultValue: false
     }
 } );
 

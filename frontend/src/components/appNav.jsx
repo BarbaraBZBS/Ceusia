@@ -9,7 +9,7 @@ import { logout } from "@/app/actions";
 export default function AppNav() {
     const { data: session, status } = useSession();
     const currentRoute = usePathname();
-    console.log( 'nav session: ', { session } );
+    // console.log( 'nav session: ', { session } );
     // console.log( 'expired? : ', session?.expires )
     useEffect( () => {
         // if ( !session ) return;
@@ -36,7 +36,7 @@ export default function AppNav() {
     }, [ session, currentRoute, status ] );
 
     return (
-        <div className="mb-5 text-clamp5 bg-gray-200 bg-opacity-60">
+        <div className="mb-2 text-clamp5 bg-gray-200 bg-opacity-60">
             <header className="flex flex-row justify-between">
                 <div>
                     <Link href="/" as={ '/' }>
@@ -55,9 +55,12 @@ export default function AppNav() {
                     { session?.user ? (
                         <div className="flex flex-col">
                             <div>
-                                <Link href="/profile" as={ '/profile' }
-                                    className={ currentRoute === '/profile' ? "text-appmagenta drop-shadow-lighter" : "text-appmauvedark drop-shadow-lighter hover:text-appmauvelight active:text-appturq" }>
-                                    { session.user ? session.user.username : 'Loading...' }</Link>
+                                { session?.user.role === 'admin' ? <Link href="/profile" as={ '/profile' }
+                                    className={ currentRoute === '/profile' ? "text-red-700 drop-shadow-lighter" : "text-appred drop-shadow-lighter hover:text-appmauvelight active:text-appturq" }> { session?.user.username }
+                                </Link>
+                                    : <Link href="/profile" as={ '/profile' }
+                                        className={ currentRoute === '/profile' ? "text-appmagenta drop-shadow-lighter" : "text-appmauvedark drop-shadow-lighter hover:text-appmauvelight active:text-appturq" }>{ session?.user.username }
+                                    </Link> }
                             </div>
                             <div>
                                 <button onClick={ () => signOut( { callbackUrl: '/auth/signIn' } ) }

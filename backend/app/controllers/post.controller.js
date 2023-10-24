@@ -168,40 +168,81 @@ const updatePost = ( req, res, next ) => {
                         await pipeline( req.file.stream, fs.createWriteStream(
                             path.join( __dirname, '/public', '/files', '/post', '/', fileName )
                         ) )
-                        post.update( {
-                            title: req.body.title,
-                            content: req.body.content,
-                            fileUrl: filePath,
-                            link: req.body.link,
-                            editedAt: new Date()
-                            // user_id: req.auth.user_id // or post.user_id
-                        } )
-                            .then( () => {
-                                console.log( 'success, post updated: ', post )
-                                res.status( 200 ).json( { message: 'post updated' } )
+                        if ( req.auth.role === 'admin' ) {
+                            post.update( {
+                                title: req.body.title,
+                                content: req.body.content,
+                                fileUrl: filePath,
+                                link: req.body.link,
+                                editedAt: new Date(),
+                                editedByAdmin: 1
                             } )
-                            .catch( err => res.status( 500 ).json( { err } ) )
-
+                                .then( () => {
+                                    console.log( 'success, post updated: ', post )
+                                    res.status( 200 ).json( { message: 'post updated' } )
+                                } )
+                                .catch( err => res.status( 500 ).json( { err } ) )
+                        }
+                        else {
+                            post.update( {
+                                title: req.body.title,
+                                content: req.body.content,
+                                fileUrl: filePath,
+                                link: req.body.link,
+                                editedAt: new Date(),
+                                editedByAdmin: 0
+                            } )
+                                .then( () => {
+                                    console.log( 'success, post updated: ', post )
+                                    res.status( 200 ).json( { message: 'post updated' } )
+                                } )
+                                .catch( err => res.status( 500 ).json( { err } ) )
+                        }
                     }
                 }
                 else {
-                    if ( req.body.fileUrl == '' ) {
+                    if ( req.body.fileUrl == "" ) {
                         const oldFile = post.fileUrl.split( '/image/' )[ 1 ] || post.fileUrl.split( '/video/' )[ 1 ] || post.fileUrl.split( '/audio/' )[ 1 ];
                         console.log( 'old image file: ', oldFile );
                         fs.unlinkSync( `app/public/files/post/${ oldFile }` );
-                        post.update( {
-                            fileUrl: null
-                        } )
+                        if ( req.auth.role === 'admin' ) {
+                            post.update( {
+                                fileUrl: null,
+                                editedAt: new Date(),
+                                editedByAdmin: 1
+                            } )
+                        }
+                        else {
+                            post.update( {
+                                fileUrl: null,
+                                editedAt: new Date(),
+                                editedByAdmin: 0
+                            } )
+
+                        }
                     }
-                    post.update( {
-                        title: req.body.title,
-                        content: req.body.content,
-                        link: req.body.link,
-                        editedAt: new Date()
-                        // user_id: req.auth.user_id // or post.user_id
-                    } )
-                    console.log( 'success, post updated: ', post )
-                    res.status( 200 ).json( { message: 'post updated' } )
+                    if ( req.auth.role === 'admin' ) {
+                        post.update( {
+                            title: req.body.title,
+                            content: req.body.content,
+                            link: req.body.link,
+                            editedAt: new Date(),
+                            editedByAdmin: 1
+                        } )
+                        console.log( 'success, post updated by admin: ', post )
+                        res.status( 200 ).json( { message: 'post updated by admin' } )
+                    }
+                    else {
+                        post.update( {
+                            title: req.body.title,
+                            content: req.body.content,
+                            link: req.body.link,
+                            editedAt: new Date(),
+                            editedByAdmin: 0
+                        } )
+                        console.log( 'success, post updated: ', post )
+                        res.status( 200 ).json( { message: 'post updated' } )
+                    }
                 }
             } )
             .catch( err => res.status( 400 ).json( { err } ) )

@@ -103,7 +103,7 @@ export default function RegisterPage() {
                     setErrMsg( 'Inscription failed, please try again.' );
                 }
             }
-        }, 500 );
+        }, 700 );
     };
 
     return (

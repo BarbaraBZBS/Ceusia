@@ -15,9 +15,16 @@ export async function getUser() {
 };
 
 export async function getOUser( person ) {
-    console.log( 'user found? : ', person );
+    // console.log( 'user found? : ', person );
     const res = await apiCall.get( `/auth/user/${ person }` );
     const data = res.data;
-    console.log( 'response get user data: ', data );
+    // console.log( 'response get user data: ', data );
     return data;
 };
+
+export async function getAllUsers() {
+    const resp = await apiCall.get( '/auth/users' );
+    const data = resp.data;
+    // console.log( 'resp get all users data: ', data );
+    return data;
+}

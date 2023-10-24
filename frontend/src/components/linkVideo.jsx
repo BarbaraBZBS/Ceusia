@@ -1,12 +1,12 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 
-export default function LinkVideo( { postLink, postid } ) {
+export default function LinkVideo( { postLink } ) {
     const [ video, setVideo ] = useState();
 
     useEffect( () => {
         const handleVideo = () => {
-            console.log( 'post link : ', postLink )
+            // console.log( 'post link : ', postLink )
             if ( postLink.includes( "https://www.yout" ) ) {
                 let embed = postLink.replace( "watch?v=", "embed/" );
                 setVideo( embed.split( "&" )[ 0 ] );

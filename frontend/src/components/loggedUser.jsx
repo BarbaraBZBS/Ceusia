@@ -5,9 +5,8 @@ import Image from 'next/image';
 import useAxiosAuth from '@/utils/hooks/useAxiosAuth';
 import { useSession, signOut } from 'next-auth/react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPhotoFilm, faMusic, faCheckDouble, faPenFancy, faEraser } from '@fortawesome/free-solid-svg-icons';
+import { faPhotoFilm, faCheckDouble, faPenFancy, faEraser, faImagePortrait, faArrowRotateLeft } from '@fortawesome/free-solid-svg-icons';
 import FollowersFollowing from './followersFollowing';
-import { logout } from '@/app/actions';
 import { motion } from 'framer-motion';
 
 const USER_REGEX = /(^[a-zA-Z]{2,})+([A-Za-z0-9-_])/
@@ -39,7 +38,6 @@ export default function LoggedUser( { user } ) {
             picture: ''
         },
         mode: "onSubmit",
-        // mode: "onBlur",
     } );
     const password = useRef( {} );
     password.current = watch( 'password', '' );
@@ -63,6 +61,7 @@ export default function LoggedUser( { user } ) {
     const [ pswUpdatedEffect, setPswUpdatedEffect ] = useState( false );
     const [ resetBtnEffect, setResetBtnEffect ] = useState( false );
     const [ bgZoomed, setBgZoomed ] = useState( false );
+    const [ defaultPicEffect, setDefaultPicEffect ] = useState( false );
 
     useEffect( () => {
         if ( errors?.username ) {
@@ -87,15 +86,11 @@ export default function LoggedUser( { user } ) {
             password: getValues( 'password' ),
             motto: getValues( 'motto' )
         };
-        const headers = {
-            'Content-Type': 'application/json',
-        };
         try {
             await axiosAuth( {
                 method: 'put',
                 url: `/auth/user/${ user.id }`,
                 data: data,
-                headers: headers,
             } )
                 .then( async ( response ) => {
                     const resData = JSON.parse( response.config.data )
@@ -156,7 +151,7 @@ export default function LoggedUser( { user } ) {
         try {
             await axiosAuth( {
                 method: 'post',
-                url: `/auth/upload`,
+                url: `/auth/user/${ user.id }/upload`,
                 data: form,
                 headers: headers
             } )
@@ -165,8 +160,7 @@ export default function LoggedUser( { user } ) {
                         console.log( 'response data: ', response?.data )
                         console.log( 'updated' )
                         const resp = await axiosAuth.get( `/auth/user/${ user.id }` )
-                        const userInfo = resp.data
-                        setUserDetail( userInfo )
+                        setUserDetail( resp.data )
                         setPictureUpdated( true )
                     };
                 } )
@@ -196,7 +190,6 @@ export default function LoggedUser( { user } ) {
         setPictureUpdated( false );
         setDeleteEffect( true );
         setErrMsg();
-        // const headers = { 'Content-Type': 'application/json', };
         setTimeout( async () => {
             try {
                 let answer = window.confirm( 'LAST CONFIRMATION : Are you sure you want to delete your account?' );
@@ -204,7 +197,6 @@ export default function LoggedUser( { user } ) {
                     await axiosAuth( {
                         method: 'delete',
                         url: `/auth/user/${ user.id }`,
-                        // headers: headers
                     } )
                         .then( () => {
                             console.log( 'account removed !' )
@@ -250,6 +242,44 @@ export default function LoggedUser( { user } ) {
         if ( !isBrowser() ) return;
         window.scrollTo( 0, parseInt( scrollY || "0" ) * -1 );
         setBgZoomed( false );
+    };
+
+    const restoreDefault = () => {
+        setDefaultPicEffect( true );
+        setPasswordUpdated( false );
+        setPictureUpdated( false );
+        setErrMsg();
+        const data = { picture: '' };
+        setTimeout( async () => {
+            try {
+                await axiosAuth( {
+                    method: 'post',
+                    url: `/auth/user/${ user.id }/upload`,
+                    data: data,
+                } )
+                    .then( async ( response ) => {
+                        if ( response ) {
+                            console.log( 'response data: ', response.data )
+                            console.log( 'updated and restored default pic' )
+                            const resp = await axiosAuth.get( `/auth/user/${ user.id }` )
+                            setUserDetail( resp.data )
+                            setPictureUpdated( true )
+                        };
+                    } )
+            }
+            catch ( err ) {
+                if ( !err?.response ) {
+                    setErrMsg( 'Server unresponsive, please try again or come back later.' );
+                    if ( !isBrowser() ) return;
+                    window.scrollTo( { top: 0, behavior: 'smooth' } );
+                }
+                else {
+                    setErrMsg( 'Update failed, please try again.' );
+                    if ( !isBrowser() ) return;
+                    window.scrollTo( { top: 0, behavior: 'smooth' } );
+                }
+            }
+        }, 700 );
     };
 
     if ( !isBrowser() ) return;
@@ -376,16 +406,16 @@ export default function LoggedUser( { user } ) {
                 </div>
 
                 <div className='flex flex-col items-center'>
-                    <form className='mb-1 py-1 flex flex-col items-center text-clamp6 w-full' onSubmit={ handleSubmit( submitPicUpdate ) }>
+                    <form className=' py-1 flex flex-col items-center text-clamp6 w-full' onSubmit={ handleSubmit( submitPicUpdate ) }>
 
                         <div className='flex w-[60%] items-center justify-evenly'>
                             <div className={ `relative hover:opacity-70 ml-[16%] ${ fileWiggle && 'animate-wiggle' }` } onAnimationEnd={ () => setFileWiggle( false ) }>
                                 <input type="file" onClick={ () => setFileWiggle( true ) } name='picture' placeholder="  Update Profile Picture" { ...register( "picture" ) }
-                                    className='border-2 border-appstone rounded-md drop-shadow-linkTxt my-1 focus:border-apppink focus:outline-none focus:invalid:border-appred w-[51px] h-[29px] opacity-0 file:cursor-pointer' />
+                                    className='border-2 border-appstone rounded-md drop-shadow-linkTxt my-1 focus:border-apppink focus:outline-none focus:invalid:border-appred w-[53px] h-[29px] opacity-0 file:cursor-pointer' />
                                 <FontAwesomeIcon icon={ faPhotoFilm } size='2x' style={ { color: "#4E5166" } }
                                     className='absolute left-[0px] top-[3px] -z-20' />
-                                <FontAwesomeIcon icon={ faMusic } size='2x' style={ errors.picture ? { color: "#FD2D01" } : { color: "#b1ae99" } }
-                                    className='absolute left-[18px] top-[3px] -z-10' />
+                                <FontAwesomeIcon icon={ faImagePortrait } size='xl' style={ errors.picture ? { color: "#FD2D01" } : { color: "#b1ae99" } }
+                                    className='absolute left-[34.5px] top-[10px] -z-10' />
                             </div>
                             <button title='confirm picture update' type="submit" disabled={ filewatch === null || !filewatch[ 0 ]?.name } onClick={ () => setPicEffect( true ) } onAnimationEnd={ () => setPicEffect( false ) } className={ `bg-appstone text-white w-fit rounded-2xl mt-2 mb-2 transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40 py-1 px-[10px] ml-[24%] mr-[14%] ${ picEffect && 'animate-bgSize' }` }>
                                 <FontAwesomeIcon icon={ faPenFancy } />
@@ -395,15 +425,22 @@ export default function LoggedUser( { user } ) {
                             <p className={ `max-w-[325px] mx-2 line-clamp-1 hover:line-clamp-none hover:text-ellipsis hover:overflow-hidden active:line-clamp-none active:text-ellipsis active:overflow-hidden 
                                 ${ errors.picture ? 'text-red-600 underline underline-offset-2 font-semibold' : '' }` }>
                                 { filewatch[ 0 ].name }</p> : <p className='ml-3 mr-[6%]'>No file selected</p> }
-                        { errors.picture && <span className='text-red-600  bg-white font-semibold drop-shadow-light px-2 rounded-md mt-1 mb-2'>{ errors.picture.message }</span> }
-                        <div className='flex w-[45vw] justify-around items-center'>
+                        { errors.picture && <span className='text-red-600 bg-white font-semibold drop-shadow-light px-2 rounded-md mt-1 mb-2'>{ errors.picture.message }</span> }
+                        <div className='flex w-[45vw] justify-around items-center mt-2 mb-1'>
                             { pictureUpdated && <FontAwesomeIcon icon={ faCheckDouble } size={ 'xl' } style={ { color: '#84CC16' } } /> }
                         </div>
                     </form>
+                    <button type='button' title='set to default picture' onClick={ () => restoreDefault() } onAnimationEnd={ () => setDefaultPicEffect( false ) }
+                        className={ `relative self-end mr-[20%] cursor-pointer hover:opacity-70 transition-all duration-300 ease-in-out hover:translate-y-[5px] ${ defaultPicEffect && 'animate-btnFlat' }` }>
+                        <FontAwesomeIcon icon={ faImagePortrait } size='xl' style={ { color: "#4E5166" } }
+                            className='absolute left-[0px] top-[0px]' />
+                        <FontAwesomeIcon icon={ faArrowRotateLeft } size='sm' style={ { color: "#FF7900" } }
+                            className='absolute left-[11px] top-[0px]' />
+                    </button>
                 </div>
                 <div className='flex justify-center'>
                     <button title='reset fields' type='button' onClick={ () => { setResetBtnEffect( true ); reset() } } onAnimationEnd={ () => setResetBtnEffect( false ) }
-                        className={ `bg-[#FF7900] text-appblck w-fit rounded-xl px-2 py-1 mt-5 mb-2 transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px]
+                        className={ `bg-[#FF7900] text-appblck w-[38.5px] h-8 rounded-xl mt-3 mb-2 transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px]
                     hover:shadow-btnorange bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] ${ resetBtnEffect && 'animate-bgSize' }` }>
                         <FontAwesomeIcon icon={ faEraser } size='lg' />
                     </button>
@@ -411,19 +448,22 @@ export default function LoggedUser( { user } ) {
             </motion.div>
 
             {/* account suppression */ }
-            <motion.div
-                animate={ { opacity: [ 0, 1 ], y: [ 50, 0 ] } }
-                transition={ { duration: 0.6, delay: 0.6 } }
+            { session?.user.role === 'user' ?
+                <motion.div
+                    animate={ { opacity: [ 0, 1 ], y: [ 50, 0 ] } }
+                    transition={ { duration: 0.6, delay: 0.6 } }
 
-                className='flex flex-col text-clamp5 items-center justify-center mt-8 mb-8'>
-                <hr className='w-[80%] text-center mb-8 border-t-solid border-t-[4px] rounded-md border-t-gray-300'></hr>
-                <h3 className='text-clamp3 text-center mb-5'>DELETE USER ACCOUNT</h3>
-                <p>Want to delete your account?</p>
-                <p className='uppercase'> This cannot be undone!</p>
-                <button onClick={ () => handleDelete() } onAnimationEnd={ () => setDeleteEffect( false ) }
-                    className={ `border-none bg-appred text-white hover:bg-red-700 hover:shadow-btndred uppercase my-6 w-52 h-8 rounded-2xl transition-all ease hover:translate-y-[5px] bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] ${ deleteEffect && 'animate-bgSize' }` }>
-                    Delete account</button>
-            </motion.div>
+                    className='flex flex-col text-clamp5 items-center justify-center mt-8 mb-8'>
+                    <hr className='w-[80%] text-center mb-8 border-t-solid border-t-[4px] rounded-md border-t-gray-300'></hr>
+                    <h3 className='text-clamp3 text-center mb-5'>DELETE USER ACCOUNT</h3>
+                    <p>Want to delete your account?</p>
+                    <p className='uppercase'> This cannot be undone!</p>
+                    <button onClick={ () => handleDelete() } onAnimationEnd={ () => setDeleteEffect( false ) }
+                        className={ `border-none bg-appred text-white hover:bg-red-700 hover:shadow-btndred uppercase my-6 w-52 h-8 rounded-2xl transition-all ease hover:translate-y-[5px] bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] ${ deleteEffect && 'animate-bgSize' }` }>
+                        Delete account</button>
+                </motion.div>
+                :
+                <div></div> }
         </div>
     )
 }

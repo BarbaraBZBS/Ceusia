@@ -119,6 +119,17 @@ module.exports = {
                         // backgroundColor: '#7953be'
                     }
                 },
+                pressed: {
+                    '0%': {
+                        transform: 'scale(0.8)',
+                    },
+                    '40%': {
+                        transform: 'scale(1.05)',
+                    },
+                    '100%': {
+                        transform: 'scale(1)',
+                    }
+                },
                 wiggle: {
                     "0%, 100%": { transform: "rotate(-3deg)" },
                     "50%": { transform: "rotate(3deg)" }
@@ -143,8 +154,9 @@ module.exports = {
                     }
                 },
                 btnflat: {
-                    from: { transform: 'scaleY(1)' },
-                    to: { transform: 'scaleY(0)' }
+                    "0%": { transform: 'scaleY(1)' },
+                    "60%": { transform: 'scaleY(0)' },
+                    "100%": { transform: 'scaleY(1)' }
                 },
                 reposition: {
                     '0%': {
@@ -174,6 +186,17 @@ module.exports = {
                     '60%': { transform: 'scale(1.2)', opacity: 0.8 },
                     '100%': { transform: 'scale(1)', opacity: 1 }
                 },
+                slideleft: {
+                    '30%': { transform: 'translateX(0px)', opacity: 0.5 },
+                    '100%': { transform: 'translateX(-5px)', opacity: 1 }
+                },
+                slideright: {
+                    '30%': { transform: 'translateX(0px)', opacity: 0.5 },
+                    '100%': { transform: 'translateX(5px)', opacity: 1 }
+                },
+                pop: {
+                    to: { backdropFilter: 'blur(4px)' }
+                },
             },
             animation: {
                 spin: 'spin infinite 1.3s linear',
@@ -184,12 +207,16 @@ module.exports = {
                 pressDown: 'pressdown .4s ease-in',
                 wiggle: 'wiggle 200ms ease-in-out',
                 reversePing: 'reverseping .3s ease-out forwards',
-                btnFlat: 'btnflat .3s ease-in-out backwards',
+                btnFlat: 'btnflat .6s ease-in-out both',
                 bgSize: 'bgsize .6s ease-in-out both',
                 reposition: 'reposition .6s forwards .2s',
                 ping2: 'ping2 1s cubic-bezier(0, 0, 0.2, 1) backwards',
                 resizeZoom: 'resizezoom .3s ease-in both',
                 resizeBtn: 'resizebtn .4s ease-out',
+                slideLeft: 'slideleft .4s ease-out',
+                slideRight: 'slideright .4s ease-out',
+                pressed: 'pressed .4s ease-in-out',
+                pop: 'pop 1s forwards',
             }
         },
         colors: {

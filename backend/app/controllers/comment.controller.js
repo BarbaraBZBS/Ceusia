@@ -152,7 +152,7 @@ const updateComment = ( req, res, next ) => {
                 if ( !post ) {
                     return res.status( 404 ).json( { message: 'post not found' } )
                 }
-                Comment.findOne( { where: { id: req.params.cid, post_id: post.id, user_id: req.auth.user_id } } )
+                Comment.findOne( { where: { id: req.params.cid, post_id: post.id } } )
                     .then( async ( comment ) => {
                         if ( !comment ) {
                             return res.status( 404 ).json( { message: 'comment not found' } )
@@ -184,16 +184,32 @@ const updateComment = ( req, res, next ) => {
                                 await pipeline( req.file.stream, fs.createWriteStream(
                                     path.join( __dirname, '/public', '/files', '/comment', '/', fileName )
                                 ) )
-                                comment.update( {
-                                    message: req.body.message,
-                                    image: filePath,
-                                    editedAt: new Date()
-                                } )
-                                    .then( () => {
-                                        console.log( 'success, post updated: ', comment )
-                                        res.status( 200 ).json( { message: 'comment updated' } )
+                                if ( req.auth.role === 'admin' ) {
+                                    comment.update( {
+                                        message: req.body.message,
+                                        image: filePath,
+                                        editedAt: new Date(),
+                                        editedByAdmin: 1
                                     } )
-                                    .catch( err => res.status( 400 ).json( { err } ) )
+                                        .then( () => {
+                                            console.log( 'success, post updated by admin: ', comment )
+                                            res.status( 200 ).json( { message: 'comment updated by admin' } )
+                                        } )
+                                        .catch( err => res.status( 400 ).json( { err } ) )
+                                }
+                                else {
+                                    comment.update( {
+                                        message: req.body.message,
+                                        image: filePath,
+                                        editedAt: new Date(),
+                                        editedByAdmin: 0
+                                    } )
+                                        .then( () => {
+                                            console.log( 'success, post updated: ', comment )
+                                            res.status( 200 ).json( { message: 'comment updated' } )
+                                        } )
+                                        .catch( err => res.status( 400 ).json( { err } ) )
+                                }
                             }
                         }
                         else {
@@ -201,20 +217,45 @@ const updateComment = ( req, res, next ) => {
                                 const oldImg = comment.image.split( '/image/' )[ 1 ];
                                 console.log( 'old image: ', oldImg );
                                 fs.unlinkSync( `app/public/files/comment/${ oldImg }` );
-                                comment.update( {
-                                    image: null
-                                } )
+                                if ( req.auth.role === 'admin' ) {
+                                    comment.update( {
+                                        image: null,
+                                        editedAt: new Date(),
+                                        editedByAdmin: 1
+                                    } )
+                                }
+                                else {
+                                    comment.update( {
+                                        image: null,
+                                        editedAt: new Date(),
+                                        editedByAdmin: 0
+                                    } )
+                                }
                             }
-                            comment.update( {
-                                // user_id: req.auth.user_id
-                                message: req.body.message,
-                                editedAt: new Date()
-                            } )
-                                .then( () => {
-                                    console.log( 'success, post updated: ', comment )
-                                    res.status( 200 ).json( { message: 'comment updated' } )
+                            if ( req.auth.role === 'admin' ) {
+                                comment.update( {
+                                    message: req.body.message,
+                                    editedAt: new Date(),
+                                    editedByAdmin: 1
                                 } )
-                                .catch( err => res.status( 400 ).json( { err } ) )
+                                    .then( () => {
+                                        console.log( 'success, post updated by admin: ', comment )
+                                        res.status( 200 ).json( { message: 'comment updated by admin' } )
+                                    } )
+                                    .catch( err => res.status( 400 ).json( { err } ) )
+                            }
+                            else {
+                                comment.update( {
+                                    message: req.body.message,
+                                    editedAt: new Date(),
+                                    editedByAdmin: 0
+                                } )
+                                    .then( () => {
+                                        console.log( 'success, post updated: ', comment )
+                                        res.status( 200 ).json( { message: 'comment updated' } )
+                                    } )
+                                    .catch( err => res.status( 400 ).json( { err } ) )
+                            }
                         }
                     } )
                     .catch( err => res.status( 400 ).json( { err } ) )
@@ -232,7 +273,7 @@ const deleteComment = ( req, res ) => {
             if ( !post ) {
                 return res.status( 404 ).json( { message: 'comment not found' } )
             }
-            Comment.findOne( { where: { id: req.params.cid, post_id: post.id, user_id: req.auth.user_id } } )
+            Comment.findOne( { where: { id: req.params.cid, post_id: post.id } } )
                 .then( ( comment ) => {
                     if ( !comment ) {
                         return res.status( 404 ).json( { message: 'comment not found' } )

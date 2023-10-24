@@ -39,7 +39,7 @@ export default function ModifyPost( { post } ) {
     const [ updatedPost, setUpdatedPost ] = useState( post );
     const [ errMsg, setErrMsg ] = useState( '' );
     const filewatch = watch( 'fileUrl' );
-    console.log( filewatch );
+    // console.log( filewatch );
     const [ postFile, setPostFile ] = useState();
     const isBrowser = () => typeof window !== 'undefined';
 
@@ -140,21 +140,24 @@ export default function ModifyPost( { post } ) {
 
     const handleFileDelete = () => {
         setFileDeleteEffect( true );
-        const data = { fileUrl: '' }
+        const data = { fileUrl: "" }
         setTimeout( async () => {
             try {
-                await axiosAuth( {
-                    method: "put",
-                    url: `/posts/${ post.id }`,
-                    data: data,
-                } )
-                    .then( async ( response ) => {
-                        if ( response ) {
-                            console.log( 'file removed', response );
-                            const res = await axiosAuth.get( `/posts/${ post.id }` );
-                            setUpdatedPost( res.data );
-                        }
+                const answer = window.confirm( 'Are you sure you want to delete this file from your post?' )
+                if ( answer ) {
+                    await axiosAuth( {
+                        method: "put",
+                        url: `/posts/${ post.id }`,
+                        data: data,
                     } )
+                        .then( async ( response ) => {
+                            if ( response ) {
+                                console.log( 'file removed', response );
+                                const res = await axiosAuth.get( `/posts/${ post.id }` );
+                                setUpdatedPost( res.data );
+                            }
+                        } )
+                }
             }
             catch ( err ) {
                 if ( !err?.response ) {

@@ -37,7 +37,7 @@ userRoutes.put( "/user/:id", auth, userCtrl.updateUser );
 userRoutes.delete( "/user/:id", auth, userCtrl.deleteUser );
 
 // User profile image handle
-userRoutes.post( "/upload", auth, upload.single( 'picture' ), uploadCtrl.userPicture );
+userRoutes.post( "/user/:id/upload", auth, upload.single( 'picture' ), uploadCtrl.userPicture );
 
 //User following
 userRoutes.post( "/follow/:id", followCtrl.followUser ); //or patch

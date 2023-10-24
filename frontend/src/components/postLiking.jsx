@@ -3,10 +3,8 @@ import React, { useEffect, useState } from 'react';
 import useAxiosAuth from '@/utils/hooks/useAxiosAuth';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faThumbsUp as thumbupempty, faThumbsDown as thumbdownempty } from '@fortawesome/free-regular-svg-icons';
-import { faThumbsUp as thumbupfull, faThumbsDown as thumbdownfull } from '@fortawesome/free-solid-svg-icons';
+import { faThumbsUp as thumbupfull, faThumbsDown as thumbdownfull, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { usePathname, useRouter } from 'next/navigation';
-
-export const revalidate = 0;
 
 export default function PostLiking( { post } ) {
     const axiosAuth = useAxiosAuth();
@@ -53,7 +51,8 @@ export default function PostLiking( { post } ) {
                 }, 4000 )
             }
         }
-    }
+    };
+
     const dislike = async () => {
         setErrMsg( '' );
         try {
@@ -93,13 +92,14 @@ export default function PostLiking( { post } ) {
         like();
         setLikeEffect( true );
     };
+
     const dislikeBtn = () => {
         dislike();
         setDislikeEffect( true );
     };
 
     useEffect( () => {
-        async function checkLiked() {
+        const checkLiked = async () => {
             const data = { post_id: post.id }
             const likeRes = await axiosAuth( {
                 method: 'post',
@@ -116,8 +116,8 @@ export default function PostLiking( { post } ) {
                 setLiked( false );
             }
         }
-        checkLiked()
-    }, [ axiosAuth, post, liked, disliked, router, pathname ] )
+        checkLiked();
+    }, [ axiosAuth, post, liked, disliked, router, pathname ] );
 
     return (
         <>

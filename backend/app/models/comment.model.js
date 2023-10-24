@@ -38,6 +38,9 @@ const Comment = db.define( 'comment', {
     },
     editedAt: {
         type: DataTypes.TIME
+    },
+    editedByAdmin: {
+        type: DataTypes.BOOLEAN, defaultValue: false
     }
 }, {
     freezeTableName: true,

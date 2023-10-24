@@ -55,7 +55,7 @@ export default function LogInPage() {
                 redirect: true,
                 callbackUrl: '/'
             } )
-        }, 500 )
+        }, 700 )
     };
 
     const signErrors = {

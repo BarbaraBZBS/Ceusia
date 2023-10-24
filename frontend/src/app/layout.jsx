@@ -1,6 +1,7 @@
 import './globals.css';
 import { ysabeauO } from './font';
 import AppNav from '../components/appNav';
+import Search from '@/components/search';
 import Footer from '../components/footer';
 import Provider from './Provider';
 // import { getServerSession } from 'next-auth';
@@ -22,6 +23,7 @@ export default async function RootLayout( { children } ) {
                 <Provider>
                     <AppLoad />
                     <AppNav />
+                    <Search />
                     { children }
                     <Footer />
                 </Provider>

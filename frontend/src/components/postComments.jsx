@@ -17,7 +17,7 @@ import CommentAdd from './commentAdd';
 import CommentLiking from './commentLiking';
 
 export default function PostComments( { post, comments } ) {
-    console.log( 'commms : ', comments )
+    // console.log( 'commms : ', comments )
     const axiosAuth = useAxiosAuth();
     const router = useRouter();
     const { data: session } = useSession();
@@ -44,6 +44,7 @@ export default function PostComments( { post, comments } ) {
     const [ delCommentBtnEffect, setDelCommentBtnEffect ] = useState( false );
     const [ shareCommentBtnEffect, setShareCommentBtnEffect ] = useState( false );
     const [ commentImgZoom, setCommentImgZoom ] = useState( false );
+    const [ updatedPostDetail, setUpdatedPostDetail ] = useState( post );
     const isBrowser = () => typeof window !== 'undefined';
     const {
         register,
@@ -65,11 +66,11 @@ export default function PostComments( { post, comments } ) {
         // reValidateMode: "onBlur"
     } );
     const filewatch = watch( 'fileUrl' );
-    console.log( 'file : ', filewatch )
+    // console.log( 'file : ', filewatch )
     const ttl = watch( 'title' );
     const ctt = watch( 'content' );
     const lnk = watch( 'link' );
-    console.log( 'post details : ', postDetail )
+    // console.log( 'post details : ', postDetail )
 
     useEffect( () => {
         if ( errors?.content ) {
@@ -179,7 +180,7 @@ export default function PostComments( { post, comments } ) {
             form.append( "title", getValues( "title" ) );
             form.append( "content", getValues( "content" ) );
             form.append( "link", getValues( "link" ) );
-            console.log( 'file upload? : ', form );
+            // console.log( 'file upload? : ', form );
             data = form;
             headers = { 'Content-Type': "multipart/form-data" };
         };
@@ -193,7 +194,7 @@ export default function PostComments( { post, comments } ) {
                 } )
                     .then( async ( response ) => {
                         if ( response ) {
-                            console.log( response );
+                            // console.log( response );
                             hideFormOverlay();
                             const reload = await refreshPost();
                             setPostDetail( reload )
@@ -225,7 +226,7 @@ export default function PostComments( { post, comments } ) {
                 let answer = window.confirm( 'Are you sure you want to delete this post?' );
                 if ( answer ) {
                     const res = await axiosAuth.delete( `/posts/${ postid }` )
-                    console.log( 'deleted ? : ', res )
+                    // console.log( 'deleted ? : ', res )
                     if ( !res ) {
                         setErrMsg( 'Something went wrong, post was not removed' );
                     }
@@ -247,9 +248,8 @@ export default function PostComments( { post, comments } ) {
         const data = { fileUrl: '' }
         setTimeout( async () => {
             try {
-                let answer = window.confirm( 'Are you sure you want to delete this image from your post?' );
+                let answer = window.confirm( 'Are you sure you want to delete this file from your post?' );
                 if ( answer ) {
-
                     await axiosAuth( {
                         method: "put",
                         url: `/posts/${ post.id }`,
@@ -257,8 +257,9 @@ export default function PostComments( { post, comments } ) {
                     } )
                         .then( async ( response ) => {
                             if ( response ) {
-                                console.log( 'file removed', response );
+                                // console.log( 'file removed', response );
                                 const res = await axiosAuth.get( `/posts/${ post.id }` );
+                                setUpdatedPostDetail( res.data )
                                 setPostDetail( res.data )
                             }
                         } )
@@ -437,7 +438,7 @@ export default function PostComments( { post, comments } ) {
                         </div>
                     </div>
                     <div className='flex text-clamp2 font-extralight justify-center items-center text-center'>
-                        { postDetail.updatedAt > postDetail.createdAt ? <p className=''>Edited { dateParser2( postDetail.updatedAt ) }</p>
+                        { postDetail.editedAt ? ( postDetail.editedByAdmin ? <p className=''>Edited <span className='font-medium text-indigo-500'> BY ADMIN</span> { dateParser2( postDetail.editedAt ) }</p> : <p className=''>Edited { dateParser2( postDetail.editedAt ) }</p> )
                             : <p>Created { dateParser2( postDetail.createdAt ) }</p> }
                     </div>
                 </div>
@@ -464,7 +465,7 @@ export default function PostComments( { post, comments } ) {
                 <div>
                     <p className='text-clamp1 mx-3 mt-2 mb-3'>{ postDetail.content }</p>
                 </div>
-                { session?.user.user_id === postDetail.user_id ?
+                { session?.user.user_id === postDetail.user_id || session?.user.role === 'admin' ?
                     <div className='flex justify-evenly mb-2'>
                         {/* onclick link to post[id] params */ }
                         <div className='flex relative items-center mb-2 group'>
@@ -559,7 +560,8 @@ export default function PostComments( { post, comments } ) {
                             </div> }
                             <div>
                                 { comment.editedAt ?
-                                    <p>Edited { dateParser2( comment.editedAt ) }</p> :
+                                    ( comment.editedByAdmin ?
+                                        <p>Edited <span className='font-medium text-indigo-500'> BY ADMIN</span> { dateParser2( comment.editedAt ) }</p> : <p>Edited { dateParser2( comment.editedAt ) }</p> ) :
                                     <p>Added { dateParser2( comment.createdAt ) }</p> }
                             </div>
                         </div>

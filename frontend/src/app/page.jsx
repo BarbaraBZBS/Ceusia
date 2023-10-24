@@ -2,25 +2,18 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '../../pages/api/auth/[...nextauth]';
 import Posts from '@/components/posts';
 import { renderDelay } from './lib/posts';
-import axios from 'axios';
-import { logout } from './actions';
+import { Suspense } from 'react';
+import Loading from './loading';
 
 export const revalidate = 0;
 
 export default async function Home() {
     const session = await getServerSession( authOptions() );
-    console.log( 'session: home page-- ', session );
-    // if ( !session || session === undefined ) {
-    //     logout();
-    //     await axios( {
-    //         method: 'post',
-    //         url: '/api/auth/signout',
-    //     } );
-    // };
-    await renderDelay( 2000 );
+    // console.log( 'session: home page-- ', session );
+    // await renderDelay( 2000 );
     return (
         <>
-            { session && session?.user ? (
+            { session && session.user ? (
                 <>
                     <main className="flex flex-col items-center justify-between">
                         <Posts />

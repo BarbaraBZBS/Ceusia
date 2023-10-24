@@ -279,15 +279,28 @@ const updateUser = async ( req, res ) => {
                     }
                 }
                 else if ( req.body.motto ) {
-                    user.update( { motto: req.body.motto } )
-                        .then( () => {
-                            console.log( req.body.motto )
-                            res.status( 200 ).json( { message: 'Success: user motto modified.' } )
-                        } )
-                        .catch( err => {
-                            console.log( 'error: ', err )
-                            res.status( 400 ).json( { message: err } )
-                        } )
+                    if ( req.body.motto === " " ) {
+                        user.update( { motto: null } )
+                            .then( () => {
+                                console.log( req.body.motto )
+                                res.status( 200 ).json( { message: 'Success: user motto modified.' } )
+                            } )
+                            .catch( err => {
+                                console.log( 'error: ', err )
+                                res.status( 400 ).json( { message: err } )
+                            } )
+                    }
+                    else {
+                        user.update( { motto: req.body.motto } )
+                            .then( () => {
+                                console.log( req.body.motto )
+                                res.status( 200 ).json( { message: 'Success: user motto modified.' } )
+                            } )
+                            .catch( err => {
+                                console.log( 'error: ', err )
+                                res.status( 400 ).json( { message: err } )
+                            } )
+                    }
                 }
             }
         } )
