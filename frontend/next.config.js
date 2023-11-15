@@ -2,7 +2,6 @@
 const nextConfig = {
     experimental: {
         // appDocumentPreloading: true,
-        serverActions: true,
     },
     // compiler: {
     //     removeConsole: false,

@@ -14,7 +14,7 @@ const ApiCall = () => {
     instance.interceptors.request.use(
         async ( request ) => {
             const session = await getServerSession( authOptions() );
-            // console.log( 'session: axios config-- ', session )
+             console.log( 'session: axios config-- ', session )
             if ( session ) {
                 request.headers.Authorization = `Bearer ${ session.user.token }`;
             }

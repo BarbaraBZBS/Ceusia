@@ -17,11 +17,11 @@
 } */
 
 body {
-    /* width: auto;
+	/* width: auto;
     height: auto; */
-    --scroll-behavior: smooth !important;
-    scroll-behavior: smooth !important;
-  /* color: rgb(var(--foreground-rgb));
+	--scroll-behavior: smooth !important;
+	scroll-behavior: smooth !important;
+	/* color: rgb(var(--foreground-rgb));
   background: linear-gradient(
       to bottom,
       transparent,
@@ -31,23 +31,25 @@ body {
 }
 
 body {
-    font-family: var(--custom-font-ysabeau0)
+	font-family: var(--custom-font-ysabeau0);
 }
 
 @layer base {
-    html {
-        @apply w-full h-full
-    }
-    body {
-        @apply w-full h-full
-    }
-    /* @media (hover: none) {
+	/* base font size in percentage then change font-size and some other values to rem for browser font-size change to work */
+	/* 1rem = 16px and 100% = 16px so 62.5% = 10px, and with 62.5% (10px) then 2rem = 20px */
+	html {
+		@apply w-full h-full text-[62.5%];
+	}
+	body {
+		@apply w-full h-full min-h-[100vh] flex flex-col;
+	}
+	/* @media (hover: none) {
         @apply hover:none
     } */
 }
 
 @layer components {
-  /* ... */
-  /* @screen lg { // applying font size for lg breakpoint
+	/* ... */
+	/* @screen lg { // applying font size for lg breakpoint
   } */
 }
