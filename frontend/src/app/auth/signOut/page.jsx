@@ -1,18 +1,20 @@
 "use client";
 import React, { useState } from "react";
 import { signOut } from "next-auth/react";
-import { PageWrap } from "@/components/motions/pageWrap";
+import { PageWrap } from "@/app/(components)/motions/pageWrap";
 import Loading from "./loading";
+import { logout } from "@/app/actions";
 
 export default function SignOut() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [logoutEffect, setLogoutEffect] = useState(false);
 
-	const logout = () => {
+	const logUserOut = () => {
 		setLogoutEffect(true);
 		setTimeout(() => {
 			setIsLoading(true);
-			signOut({ callbackUrl: "/auth/signIn" });
+			logout();
+			signOut({ callbackUrl: "/" });
 		}, 600);
 	};
 
@@ -22,15 +24,17 @@ export default function SignOut() {
 				<Loading />
 			) : (
 				<section className=" w-full h-[22.5rem] flex flex-col justify-center items-center">
-					<h1 className="text-clamp3 my-[3rem]">See you soon!</h1>
+					<h1 className="text-clamp8 my-[3rem]">
+						Are you sure you want to sign out?
+					</h1>
 					<nav>
 						<button
-							className={`text-clamp7 rounded-2xl bg-appred text-white px-[0.8rem] py-[0.4rem] ${
+							className={`text-clamp5 uppercase rounded-2xl bg-appred text-white px-[0.8rem] py-[0.4rem] ${
 								logoutEffect && "animate-pressed"
 							}`}
-							onClick={() => logout()}
+							onClick={() => logUserOut()}
 							onAnimationEnd={() => setLogoutEffect(false)}>
-							Log Out
+							Sign me Out
 						</button>
 					</nav>
 				</section>

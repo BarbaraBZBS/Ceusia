@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import { PageWrap } from "../../components/motions/pageWrap";
+import { PageWrap } from "../(components)/motions/pageWrap";
 //import PageWrapper from "@/components/motions/PageWrapper";
 
 export default function About() {

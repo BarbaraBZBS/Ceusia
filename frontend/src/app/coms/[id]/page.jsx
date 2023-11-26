@@ -1,7 +1,7 @@
-import { getPostComments } from "@/app/lib/posts";
-import { getPost } from "@/app/lib/posts";
-import PostComments from "@/components/comments/postComments";
-import { PageWrap } from "@/components/motions/pageWrap";
+import { getPostComments } from "@/lib/posts";
+import { getPost } from "@/lib/posts";
+import PostComments from "@/app/(components)/comments/postComments";
+import { PageWrap } from "@/app/(components)/motions/pageWrap";
 
 export default async function postComments({ params: { id } }) {
 	const post = await getPost(id);

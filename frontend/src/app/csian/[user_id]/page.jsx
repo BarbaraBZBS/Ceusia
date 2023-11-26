@@ -1,8 +1,8 @@
-import React, { Suspense } from "react";
-import { getOUser } from "@/app/lib/users";
-import UserProfileCard from "@/components/users/userProfileCard";
+import { Suspense } from "react";
+import { getOUser } from "@/lib/users";
+import UserProfileCard from "@/app/(components)/users/userProfileCard";
 import Loading from "../loading";
-import { PageWrap } from "@/components/motions/pageWrap";
+import { PageWrap } from "@/app/(components)/motions/pageWrap";
 
 export default async function UserIdProfile({ params: { user_id } }) {
 	const user = await getOUser(user_id);

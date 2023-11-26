@@ -6,12 +6,15 @@ import Loading from "./loading";
 import { useSearchParams } from "next/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
-import { PageWrap } from "@/components/motions/pageWrap";
+import { PageWrap } from "@/app/(components)/motions/pageWrap";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 
 export default function LogInPage() {
 	const router = useRouter();
+	const searchParams = useSearchParams();
+	const currt = searchParams.get("currt");
+	const cbu = searchParams.get("callbackUrl") ?? "";
 	const [logState, setLogState] = useState();
 	const [load, setLoad] = useState(false);
 	const [submitBtnEffect, setSubmitBtnEffect] = useState(false);
@@ -55,7 +58,7 @@ export default function LogInPage() {
 				email: getValues("email"),
 				password: getValues("password"),
 				redirect: true,
-				callbackUrl: "/",
+				callbackUrl: currt ? currt : "/thread",
 			});
 		}, 700);
 	};
@@ -82,8 +85,9 @@ export default function LogInPage() {
 
 	useEffect(() => {
 		if (error) {
+			const newcurrt = cbu?.split("3000")[1] ?? "/thread";
 			setTimeout(() => {
-				router.replace("/auth/signIn");
+				router.replace(`/auth/signIn?currt=${newcurrt}`);
 			}, 5000);
 		}
 	});
@@ -100,7 +104,11 @@ export default function LogInPage() {
 								No account yet ?
 								<a
 									className="text-appmauvedark hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out uppercase"
-									href="/auth/register"
+									href={
+										currt
+											? `/auth/register?currt=${currt}`
+											: "/auth/register"
+									}
 									as={"/auth/register"}>
 									{" "}
 									Sign up

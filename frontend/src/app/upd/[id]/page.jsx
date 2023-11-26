@@ -1,7 +1,6 @@
-import React from "react";
-import { getPost } from "@/app/lib/posts";
-import ModifyPost from "@/components/posts/postModify";
-import { PageWrap } from "@/components/motions/pageWrap";
+import { getPost } from "@/lib/posts";
+import ModifyPost from "@/app/(components)/posts/postModify";
+import { PageWrap } from "@/app/(components)/motions/pageWrap";
 
 export default async function PostUpdate({ params: { id } }) {
 	console.log("post id ? : ", id);

@@ -2,12 +2,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import axios from "axios";
-import Link from "next/link";
 import Loading from "./loading";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEye } from "@fortawesome/free-solid-svg-icons";
-import { PageWrap } from "@/components/motions/pageWrap";
+import { PageWrap } from "@/app/(components)/motions/pageWrap";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 
 // eslint-disable-next-line max-len
 const USER_REGEX = /(^[a-zA-Z]{2,})+([A-Za-z0-9-_])/;
@@ -20,6 +20,8 @@ const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9])/;
 const REGISTER_URL = "/api/auth/signup";
 
 export default function RegisterPage({ props }) {
+	const searchParams = useSearchParams();
+	const currt = searchParams.get("currt");
 	const {
 		register,
 		handleSubmit,
@@ -139,7 +141,11 @@ export default function RegisterPage({ props }) {
 									Already have an account ?
 									<a
 										className="text-appmauvedark hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out uppercase"
-										href="/auth/signIn"
+										href={
+											currt
+												? `/auth/signIn?currt=${currt}`
+												: "/auth/signIn"
+										}
 										as={"/auth/signIn"}>
 										{" "}
 										Sign in

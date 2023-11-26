@@ -28,6 +28,7 @@ module.exports = {
 				clamp6: "clamp(1.6rem, 2.3vw, 1.84rem)",
 				clamp7: "clamp(1.808rem, 2.3vw, 2rem)",
 				clamp8: "clamp(2.16rem, 4vw, 3.2rem)",
+				clamp9: "clamp(2.7rem, 4vw, 3.3rem)",
 			},
 			dropShadow: {
 				"3xl": "0 35px 35px rgba(0, 0, 0, 0.25)",
