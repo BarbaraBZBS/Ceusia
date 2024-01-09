@@ -11,6 +11,8 @@ import {
 	faFileCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { AnimatePresence, motion } from "framer-motion";
+import Picker from "emoji-picker-react";
+import { BsEmojiSmileFill } from "react-icons/bs";
 
 export default function CommentUpdate({
 	comment,
@@ -27,10 +29,14 @@ export default function CommentUpdate({
 	const [commentImg, setCommentImg] = useState();
 	const [updatedComment, setUpdatedComment] = useState(comment);
 	const [errMsg, setErrMsg] = useState("");
+	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+	const [emojiBtnClickEffect, setEmojiBtnClickEffect] = useState(false);
+
 	const {
 		register,
 		handleSubmit,
 		getValues,
+		setValue,
 		watch,
 		reset,
 		formState: { errors },
@@ -143,6 +149,16 @@ export default function CommentUpdate({
 		}, 600);
 	};
 
+	const handleEmojiPickerHideShow = () => {
+		setShowEmojiPicker(!showEmojiPicker);
+	};
+
+	const handleEmojiClick = (emoji) => {
+		let message = getValues("message");
+		message += emoji.emoji;
+		setValue("message", message);
+	};
+
 	return (
 		<motion.section
 			initial={{ x: 100, opacity: 0 }}
@@ -159,7 +175,7 @@ export default function CommentUpdate({
 					{...register("message", {
 						required: "This field is required",
 					})}
-					className={`border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-[90%] max-w-full h-[4.4rem] resize mt-0 mb-[1.2rem] ${
+					className={`border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-[90%] max-w-[98%] h-[4.4rem] resize mt-0 mb-[1.2rem] ${
 						errors.message
 							? "border-appred focus:border-appred"
 							: ""
@@ -273,6 +289,30 @@ export default function CommentUpdate({
 							}`}>
 							<FontAwesomeIcon icon={faEraser} />
 						</button>
+
+						<div className="">
+							<BsEmojiSmileFill
+								className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+									emojiBtnClickEffect && "animate-pressed"
+								}`}
+								onClick={() => {
+									setEmojiBtnClickEffect(true);
+									handleEmojiPickerHideShow();
+								}}
+								onAnimationEnd={() =>
+									setEmojiBtnClickEffect(false)
+								}
+							/>
+							{showEmojiPicker && (
+								<div className="absolute top-[28%] left-[calc(50vw-(350px/2))] z-20">
+									<Picker
+										onEmojiClick={handleEmojiClick}
+										className="bg-appmauvedark"
+									/>
+								</div>
+							)}
+						</div>
+
 						<button
 							title="confirm comment update"
 							type="submit"

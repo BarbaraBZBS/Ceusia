@@ -17,6 +17,8 @@ import {
 import FollowersFollowing from "./followersFollowing";
 import { AnimatePresence, motion, useAnimate } from "framer-motion";
 import { logout } from "@/app/actions";
+import Picker from "emoji-picker-react";
+import { BsEmojiSmileFill } from "react-icons/bs";
 
 const USER_REGEX = /(^[a-zA-Z]{2,})+([A-Za-z0-9-_])/;
 const EMAIL_REGEX =
@@ -32,6 +34,7 @@ export default function LoggedUser({ user }) {
 		register,
 		handleSubmit,
 		getValues,
+		setValue,
 		watch,
 		setError,
 		setFocus,
@@ -80,6 +83,8 @@ export default function LoggedUser({ user }) {
 	const [scope, animate] = useAnimate();
 	const [goToPostEffect, setGoToPostEffect] = useState(false);
 	const [clickedBtn, setClickedBtn] = useState(0);
+	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+	const [emojiBtnClickEffect, setEmojiBtnClickEffect] = useState(false);
 
 	useEffect(() => {
 		if (errors?.username) {
@@ -359,6 +364,16 @@ export default function LoggedUser({ user }) {
 		}, 700);
 	};
 
+	const handleEmojiPickerHideShow = () => {
+		setShowEmojiPicker(!showEmojiPicker);
+	};
+
+	const handleEmojiClick = (emoji) => {
+		let message = getValues("motto");
+		message += emoji.emoji;
+		setValue("motto", message);
+	};
+
 	if (!isBrowser()) return;
 	window.addEventListener("scroll", () => {
 		document.documentElement.style.setProperty(
@@ -397,7 +412,7 @@ export default function LoggedUser({ user }) {
 					</motion.p>
 				)}
 			</AnimatePresence>
-			<section className="flex flex-col text-clamp8 items-center mb-[3.2rem]">
+			<section className="flex flex-col text-clamp8 items-center mb-[3.2rem] gap-[1rem]">
 				<p>{userDetail.username}</p>
 				<p>{userDetail.email}</p>
 				{userDetail.motto == "" || userDetail.motto == null ? (
@@ -797,19 +812,41 @@ export default function LoggedUser({ user }) {
 									: `  ${userDetail.motto}`
 							}
 							{...register("motto")}
-							className="border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred h-[9.6rem] resize w-[74%]"
+							className="border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred h-[9.6rem] resize w-[74%] max-w-[98%]"
 						/>
-						<button
-							title="confirm motto update"
-							type="submit"
-							disabled={!mt}
-							onClick={() => setMottoEffect(true)}
-							onAnimationEnd={() => setMottoEffect(false)}
-							className={`bg-appstone text-white w-fit rounded-2xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40 py-[0.4rem] px-[1rem] ${
-								mottoEffect && "animate-bgSize"
-							}`}>
-							<FontAwesomeIcon icon={faPenFancy} />
-						</button>
+						<div className="flex flex-col items-center">
+							<BsEmojiSmileFill
+								className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+									emojiBtnClickEffect && "animate-pressed"
+								}`}
+								onClick={() => {
+									setEmojiBtnClickEffect(true);
+									handleEmojiPickerHideShow();
+								}}
+								onAnimationEnd={() =>
+									setEmojiBtnClickEffect(false)
+								}
+							/>
+							{showEmojiPicker && (
+								<div className="absolute top-[54%] left-[calc(50vw-(350px/2))] z-20">
+									<Picker
+										onEmojiClick={handleEmojiClick}
+										className="bg-appmauvedark"
+									/>
+								</div>
+							)}
+							<button
+								title="confirm motto update"
+								type="submit"
+								disabled={!mt}
+								onClick={() => setMottoEffect(true)}
+								onAnimationEnd={() => setMottoEffect(false)}
+								className={`bg-appstone text-white w-fit rounded-2xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40 py-[0.4rem] px-[1rem] ${
+									mottoEffect && "animate-bgSize"
+								}`}>
+								<FontAwesomeIcon icon={faPenFancy} />
+							</button>
+						</div>
 					</form>
 				</div>
 

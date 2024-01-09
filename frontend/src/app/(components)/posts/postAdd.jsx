@@ -10,27 +10,33 @@ import {
 	faCirclePlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import Picker from "emoji-picker-react";
+import { BsEmojiSmileFill } from "react-icons/bs";
 
 // eslint-disable-next-line max-len
 const LINK_REGEX = /^https?:\/\//gm;
 //or this one to match domains extensions and base urls
 // const LINK_REGEX = /(https:\/\/www\.|http:\/\/www\.|https:\/\/|http:\/\/)?[a-zA-Z0-9]{2,}(\.[a-zA-Z0-9]{2,})(\.[a-zA-Z0-9]{2,})?/
 
-export default function PostAdd({ setPosts }) {
+export default function PostAdd({ setPosts, display }) {
 	const axiosAuth = useAxiosAuth();
-	const router = useRouter();
-	const path = usePathname();
 	const searchParams = useSearchParams();
-	const page = searchParams.get("page");
+	const pg = searchParams.get("page") ?? "1";
 	const [resetBtnEffect, setResetBtnEffect] = useState(false);
 	const [sendBtnEffect, setSendBtnEffect] = useState(false);
 	const [fileWiggle, setFileWiggle] = useState(false);
 	const [errMsg, setErrMsg] = useState("");
+	const [showTEmojiPicker, setShowTEmojiPicker] = useState(false);
+	const [showCEmojiPicker, setShowCEmojiPicker] = useState(false);
+	const [emojiTBtnClickEffect, setEmojiTBtnClickEffect] = useState(false);
+	const [emojiCBtnClickEffect, setEmojiCBtnClickEffect] = useState(false);
+
 	const {
 		register,
 		handleSubmit,
 		getValues,
+		setValue,
 		watch,
 		setError,
 		setFocus,
@@ -83,11 +89,10 @@ export default function PostAdd({ setPosts }) {
 				withCredentials: true,
 			}).then(async (response) => {
 				console.log(response);
-				if (Number(page) > 1) {
-					router.replace("?page=1&per_page=6");
-				} else {
-					router.refresh();
-				}
+				const resp = await axiosAuth.get(
+					`/posts?page=${pg}&per_page=6`
+				);
+				setPosts(resp.data.content);
 			});
 		} catch (err) {
 			if (!err?.response) {
@@ -121,8 +126,47 @@ export default function PostAdd({ setPosts }) {
 		reset();
 	};
 
+	const handleTEmojiPickerHideShow = () => {
+		setShowTEmojiPicker(!showTEmojiPicker);
+		setShowCEmojiPicker(false);
+	};
+
+	const handleCEmojiPickerHideShow = () => {
+		setShowCEmojiPicker(!showCEmojiPicker);
+		setShowTEmojiPicker(false);
+	};
+
+	const handleTEmojiClick = (emoji) => {
+		let message = getValues("title");
+		message += emoji.emoji;
+		setValue("title", message);
+	};
+
+	const handleCEmojiClick = (emoji) => {
+		let message = getValues("content");
+		message += emoji.emoji;
+		setValue("content", message);
+	};
+
 	return (
-		<section>
+		<motion.section
+			layout
+			key="add-post"
+			initial={{ opacity: 0, x: "-50vw" }}
+			animate={{ opacity: 1, x: 0 }}
+			exit={{
+				opacity: 0,
+				x: "-50vw",
+				transition: {
+					ease: "easeOut",
+					duration: 0.3,
+				},
+			}}
+			transition={{
+				type: "spring",
+				delay: 0.5,
+			}}
+			className="mt-[1rem]">
 			<AnimatePresence>
 				{errMsg && (
 					<motion.p
@@ -136,38 +180,96 @@ export default function PostAdd({ setPosts }) {
 					</motion.p>
 				)}
 			</AnimatePresence>
+
 			{/* <div>preview?</div> */}
 			<div className="flex flex-col items-center w-full">
 				<form
 					className="mb-[0.4rem] py-[0.4rem] flex flex-col items-center text-clamp6 w-full"
 					onSubmit={handleSubmit(submitForm)}>
-					<input
-						type="text"
-						placeholder="A title..."
-						{...register("title")}
-						className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred ${
-							errors.title
-								? "border-appred focus:border-appred"
-								: ""
-						}`}
-					/>
+					<div className="flex gap-[1rem]">
+						{/* title emoji */}
+						<div className="flex items-center">
+							<div className="">
+								<BsEmojiSmileFill
+									className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+										emojiTBtnClickEffect &&
+										"animate-pressed"
+									}`}
+									onClick={() => {
+										setEmojiTBtnClickEffect(true);
+										handleTEmojiPickerHideShow();
+									}}
+									onAnimationEnd={() =>
+										setEmojiTBtnClickEffect(false)
+									}
+								/>
+								{showTEmojiPicker && (
+									<div className="absolute top-[40%] left-[calc(50vw-(350px/2))] z-20">
+										<Picker
+											onEmojiClick={handleTEmojiClick}
+											className="bg-appmauvedark"
+										/>
+									</div>
+								)}
+							</div>
+						</div>
+						<input
+							type="text"
+							placeholder="A title..."
+							{...register("title")}
+							className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred ${
+								errors.title
+									? "border-appred focus:border-appred"
+									: ""
+							}`}
+						/>
+					</div>
 					{errors.title && (
 						<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md">
 							{errors.title.message}
 						</span>
 					)}
-					<textarea
-						type="text"
-						placeholder="Your message..."
-						{...register("content", {
-							required: "This field is required",
-						})}
-						className={`border-2 border-appstone rounded-md my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-[90%] h-[5.6rem] resize max-w-full ${
-							errors.content
-								? "border-appred focus:border-appred"
-								: ""
-						}`}
-					/>
+					<div className="flex justify-center gap-[1rem] w-[100%]">
+						{/* content emoji */}
+						<div className="flex items-center">
+							<div className="">
+								<BsEmojiSmileFill
+									className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+										emojiCBtnClickEffect &&
+										"animate-pressed"
+									}`}
+									onClick={() => {
+										setEmojiCBtnClickEffect(true);
+										handleCEmojiPickerHideShow();
+									}}
+									onAnimationEnd={() =>
+										setEmojiCBtnClickEffect(false)
+									}
+								/>
+								{showCEmojiPicker && (
+									<div className="absolute top-[40%] left-[calc(50vw-(350px/2))] z-20">
+										<Picker
+											onEmojiClick={handleCEmojiClick}
+											className="bg-appmauvedark"
+										/>
+									</div>
+								)}
+							</div>
+						</div>
+
+						<textarea
+							type="text"
+							placeholder="Your message..."
+							{...register("content", {
+								required: "This field is required",
+							})}
+							className={`border-2 border-appstone rounded-md my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-[80%] min-w-[11rem] h-[5.6rem] min-h-[2.6rem] resize max-w-[37.5rem] ${
+								errors.content
+									? "border-appred focus:border-appred"
+									: ""
+							}`}
+						/>
+					</div>
 					{errors.content && (
 						<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md">
 							{errors.content.message}
@@ -265,6 +367,6 @@ export default function PostAdd({ setPosts }) {
 					</div>
 				</form>
 			</div>
-		</section>
+		</motion.section>
 	);
 }

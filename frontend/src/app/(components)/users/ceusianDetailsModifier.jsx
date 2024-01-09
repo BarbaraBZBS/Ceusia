@@ -248,7 +248,7 @@ export default function CeusianDetailsModifier(props) {
 								: `  ${props.current.motto}`
 						}
 						{...register("motto")}
-						className="border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred h-[9.6rem] resize w-[74%]"
+						className="border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred h-[9.6rem] resize w-[74%] max-w-[98%]"
 					/>
 					<div className="">
 						<button

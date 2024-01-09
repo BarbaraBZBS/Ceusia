@@ -11,12 +11,12 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import useAxiosAuth from "@/app/(utils)/hooks/useAxiosAuth";
 import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
+import Picker from "emoji-picker-react";
+import { BsEmojiSmileFill } from "react-icons/bs";
 
 export default function CommentsUpdatePostForm({
 	postDetail,
 	setPostDetail,
-	//setUpdatedPostDetail,
 	hideFormOverlay,
 	blur,
 	setBlur,
@@ -29,11 +29,16 @@ export default function CommentsUpdatePostForm({
 	const [postUpdEffect, setPostUpdEffect] = useState(false);
 	const [resetUpdEffect, setResetUpdEffect] = useState(false);
 	const [errMsg, setErrMsg] = useState("");
+	const [showTEmojiPicker, setShowTEmojiPicker] = useState(false);
+	const [showCEmojiPicker, setShowCEmojiPicker] = useState(false);
+	const [emojiTBtnClickEffect, setEmojiTBtnClickEffect] = useState(false);
+	const [emojiCBtnClickEffect, setEmojiCBtnClickEffect] = useState(false);
 
 	const {
 		register,
 		handleSubmit,
 		getValues,
+		setValue,
 		watch,
 		setError,
 		setFocus,
@@ -59,11 +64,13 @@ export default function CommentsUpdatePostForm({
 			setFocus("content");
 		}
 	});
+
 	const refreshPost = async () => {
 		const resp = await axiosAuth.get(`/posts/${postDetail.id}`);
 		setPostDetail(resp.data);
 		return resp.data;
 	};
+
 	const cancelbackBtn = () => {
 		setCancelUpdBtnEffect(true);
 		setTimeout(() => {
@@ -73,11 +80,13 @@ export default function CommentsUpdatePostForm({
 			hideFormOverlay();
 		}, 500);
 	};
+
 	const resetBtn = async () => {
 		setResetUpdEffect(true);
 		const data = await refreshPost();
 		reset({ ...data });
 	};
+
 	const submitUpdateForm = async (data, e) => {
 		e.preventDefault();
 		setErrMsg("");
@@ -138,6 +147,7 @@ export default function CommentsUpdatePostForm({
 			}
 		}, 500);
 	};
+
 	const handleFileDelete = () => {
 		setFileDeleteEffect(true);
 		const data = { fileUrl: "" };
@@ -149,19 +159,17 @@ export default function CommentsUpdatePostForm({
 				if (answer) {
 					await axiosAuth({
 						method: "put",
-						url: `/posts/${post.id}`,
+						url: `/posts/${postDetail.id}`,
 						data: data,
 					}).then(async (response) => {
 						if (response) {
-							const res = await axiosAuth.get(
-								`/posts/${post.id}`
-							);
-							//setUpdatedPostDetail(res.data);
-							setPostDetail(res.data);
+							console.log("file removed", response);
+							setPostDetail({ ...postDetail, fileUrl: null });
 						}
 					});
 				}
 			} catch (err) {
+				console.log("del file err : ", err);
 				if (!err?.response) {
 					setErrMsg(
 						"Server unresponsive, please try again or come back later."
@@ -172,6 +180,7 @@ export default function CommentsUpdatePostForm({
 			}
 		}, 600);
 	};
+
 	useEffect(() => {
 		const handleFile = () => {
 			if (postDetail?.fileUrl) {
@@ -205,12 +214,34 @@ export default function CommentsUpdatePostForm({
 				setTimeout(async () => {
 					setErrMsg("");
 					const resp = await axiosAuth.get(`/posts/${postDetail.id}`);
-					reset({ ...resp.data });
+					setPostDetail(resp.data);
 				}, 600);
 			}
 		};
 		resetForm();
 	});
+
+	const handleTEmojiPickerHideShow = () => {
+		setShowTEmojiPicker(!showTEmojiPicker);
+		setShowCEmojiPicker(false);
+	};
+
+	const handleCEmojiPickerHideShow = () => {
+		setShowCEmojiPicker(!showCEmojiPicker);
+		setShowTEmojiPicker(false);
+	};
+
+	const handleTEmojiClick = (emoji) => {
+		let message = getValues("title");
+		message += emoji.emoji;
+		setValue("title", message);
+	};
+
+	const handleCEmojiClick = (emoji) => {
+		let message = getValues("content");
+		message += emoji.emoji;
+		setValue("content", message);
+	};
 
 	return (
 		<motion.section
@@ -221,41 +252,96 @@ export default function CommentsUpdatePostForm({
 			className={`fixed overflow-y-scroll left-0 right-0 top-0 bottom-0 w-full h-full z-[998] block py-[1.2rem] ${
 				blur && "animate-pop"
 			}`}>
-			{" "}
 			<div className="flex flex-col mx-auto bg-appsand border-2 border-appsand w-[90%] items-center mt-[5.6rem] rounded-xl shadow-elevated">
 				<form
-					className="flex flex-col z-[999] mx-auto h-auto items-center text-clamp6 mt-[2.4rem] mb-[1.2rem] py-[2.4rem]"
+					className="flex flex-col z-[999] mx-auto h-auto items-center text-clamp6 mt-[2.4rem] mb-[1.2rem] py-[2.4rem] gap-[1rem]"
 					onSubmit={handleSubmit(submitUpdateForm)}>
 					<h1 className="text-clamp4 mb-[2.4rem] uppercase font-semibold">
 						Update your post
 					</h1>
-					<input
-						type="text"
-						placeholder={"A title..."}
-						{...register("title")}
-						className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred mb-[2.4rem] ${
-							errors.title
-								? "border-appred focus:border-appred"
-								: ""
-						}`}
-					/>
+					<div className="flex gap-[1rem]">
+						{/* title emoji */}
+						<div className="flex items-center">
+							<div className="">
+								<BsEmojiSmileFill
+									className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+										emojiTBtnClickEffect &&
+										"animate-pressed"
+									}`}
+									onClick={() => {
+										setEmojiTBtnClickEffect(true);
+										handleTEmojiPickerHideShow();
+									}}
+									onAnimationEnd={() =>
+										setEmojiTBtnClickEffect(false)
+									}
+								/>
+								{showTEmojiPicker && (
+									<div className="absolute top-[31%] left-[calc(50vw-(350px/2))] z-20">
+										<Picker
+											onEmojiClick={handleTEmojiClick}
+											className="bg-appmauvedark"
+										/>
+									</div>
+								)}
+							</div>
+						</div>
+						<input
+							type="text"
+							placeholder={"A title..."}
+							{...register("title")}
+							className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred ${
+								errors.title
+									? "border-appred focus:border-appred"
+									: ""
+							}`}
+						/>
+					</div>
 					{errors.title && (
 						<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md">
 							{errors.title.message}
 						</span>
 					)}
-					<textarea
-						type="text"
-						placeholder="Your message..."
-						{...register("content", {
-							required: "This field is required",
-						})}
-						className={`border-2 border-appstone rounded-md my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-full h-[5.6rem] resize max-w-[31rem] mb-[2.4rem] ${
-							errors.content
-								? "border-appred focus:border-appred"
-								: ""
-						}`}
-					/>
+					<div className="flex justify-center gap-[1rem] w-[100%]">
+						{/* content emoji */}
+						<div className="flex items-center">
+							<div className="">
+								<BsEmojiSmileFill
+									className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+										emojiCBtnClickEffect &&
+										"animate-pressed"
+									}`}
+									onClick={() => {
+										setEmojiCBtnClickEffect(true);
+										handleCEmojiPickerHideShow();
+									}}
+									onAnimationEnd={() =>
+										setEmojiCBtnClickEffect(false)
+									}
+								/>
+								{showCEmojiPicker && (
+									<div className="absolute top-[31%] left-[calc(50vw-(350px/2))] z-20">
+										<Picker
+											onEmojiClick={handleCEmojiClick}
+											className="bg-appmauvedark"
+										/>
+									</div>
+								)}
+							</div>
+						</div>
+						<textarea
+							type="text"
+							placeholder="Your message..."
+							{...register("content", {
+								required: "This field is required",
+							})}
+							className={`border-2 border-appstone rounded-md my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-full h-[5.6rem] resize max-w-[31rem] ${
+								errors.content
+									? "border-appred focus:border-appred"
+									: ""
+							}`}
+						/>
+					</div>
 					{errors.content && (
 						<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md mb-[2rem]">
 							{errors.content.message}
@@ -304,25 +390,19 @@ export default function CommentsUpdatePostForm({
 					)}
 					{!filewatch?.[0]?.name && postDetail.fileUrl && (
 						<>
-							<p className="mx-[1.2rem] mb-[0.4rem]">
-								No file selected
-							</p>
-							<p className="max-w-[32.5rem] mx-[1.2rem] mb-[1.2rem] text-ellipsis overflow-hidden">
+							<p className="mx-[1.2rem]">No file selected</p>
+							<p className="max-w-[32.5rem] mx-[1.2rem] text-ellipsis overflow-hidden">
 								Post file: {postFile}
 							</p>{" "}
 						</>
 					)}
 					{!filewatch && !postDetail?.fileUrl ? (
-						<p className="mx-[1.2rem] mb-[1.2rem]">
-							No file selected
-						</p>
+						<p className="mx-[1.2rem]">No file selected</p>
 					) : (
 						filewatch &&
 						!filewatch?.[0]?.name &&
 						!postDetail.fileUrl && (
-							<p className="mx-[1.2rem] mb-[1.2rem]">
-								No file selected
-							</p>
+							<p className="mx-[1.2rem]">No file selected</p>
 						)
 					)}
 					{postDetail.fileUrl && (
@@ -350,7 +430,7 @@ export default function CommentsUpdatePostForm({
 						type="text"
 						placeholder="A link..."
 						{...register("link")}
-						className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred mb-[2.4rem] ${
+						className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred ${
 							errors.link
 								? "border-appred focus:border-appred"
 								: ""

@@ -80,7 +80,7 @@ export default function FollowersFollowing({ user }) {
 	};
 
 	return (
-		<div className="mb-[2.4rem]">
+		<div className="my-[1rem]">
 			<div className="mb-[1.6rem] flex">
 				{followers === 1 ? (
 					<button

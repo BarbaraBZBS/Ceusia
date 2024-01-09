@@ -2,6 +2,67 @@
 @tailwind components;
 @tailwind utilities;
 
+::-webkit-scrollbar {
+	width: 3px;
+	height: 5px;
+}
+
+/*::-webkit-scrollbar-track {
+	background: #f4f1fa;
+}*/
+
+::-webkit-scrollbar-thumb {
+	background: #4e5166;
+	border-radius: 1rem;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #7953be;
+	width: 16px !important;
+	height: 18px !important;
+}
+
+:root {
+	--primary: #7953be;
+	--secondary: #4e5166;
+}
+
+aside.EmojiPickerReact.epr-main {
+	background-color: #4e5166;
+	box-shadow: 0 5px 10px #9a86f3;
+	border-color: #9186f3;
+	--epr-highlight-color: #9186f3 !important;
+	--epr-search-input-bg-color: transparent;
+	--epr-search-input-text-color: white;
+}
+.EmojiPickerReact .emoji-categories button {
+	filter: contrast(0);
+}
+.EmojiPickerReact .epr-search-container input.epr-search {
+	background-color: transparent;
+	border: 1px solid transparent;
+}
+.EmojiPickerReact .epr-search-container .epr-icn-search {
+	color: white !important;
+}
+.EmojiPickerReact li.epr-emoji-category > .epr-emoji-category-label {
+	background-color: #4e5166 !important;
+	color: white !important;
+}
+.EmojiPickerReact .epr-preview {
+	border-top: 1px solid #9186f3 !important;
+	color: white !important;
+}
+.epr-preview-emoji-label {
+	color: white !important;
+}
+
+/*Firefox
+* {
+	scrollbar-width: thin;
+	scrollbar-color: var(--secondary) var(--primary);
+}*/
+
 /* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;

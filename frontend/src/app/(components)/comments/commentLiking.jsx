@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import useAxiosAuth from "@/app/(utils)/hooks/useAxiosAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,8 +15,9 @@ import {
 	faThumbsDown as thumbdownfull,
 } from "@fortawesome/free-solid-svg-icons";
 import { usePathname, useRouter } from "next/navigation";
+import { ChatContext } from "../ChatContext";
 
-export default function CommentLiking({ post, comment, errorMsg }) {
+export default function CommentLiking({ post, comment, errorMsg, session }) {
 	const axiosAuth = useAxiosAuth();
 	const router = useRouter();
 	const pathname = usePathname();
@@ -26,6 +27,7 @@ export default function CommentLiking({ post, comment, errorMsg }) {
 	const [disliked, setDisliked] = useState(false);
 	const [likeEffect, setLikeEffect] = useState(false);
 	const [dislikeEffect, setDislikeEffect] = useState(false);
+	const { socket } = useContext(ChatContext);
 
 	const like = async () => {
 		errorMsg("");
@@ -37,6 +39,12 @@ export default function CommentLiking({ post, comment, errorMsg }) {
 			if (likeStat === "comment liked !") {
 				setLiked(true);
 				setDisliked(false);
+				socket.current.emit("like-comment", {
+					post_id: post.id,
+					comment_id: comment.id,
+					sender_id: session?.user?.user_id,
+					user_id: comment.user_id,
+				});
 			}
 			if (likeStat === "comment unliked !") {
 				setLiked(false);
@@ -73,6 +81,12 @@ export default function CommentLiking({ post, comment, errorMsg }) {
 			if (dislikeStat === "comment disliked !") {
 				setDisliked(true);
 				setLiked(false);
+				socket.current.emit("dislike-comment", {
+					post_id: post.id,
+					comment_id: comment.id,
+					sender_id: session?.user?.user_id,
+					user_id: comment.user_id,
+				});
 			}
 			if (dislikeStat === "comment dislike removed !") {
 				setDisliked(false);

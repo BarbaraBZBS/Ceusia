@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import useAxiosAuth from "@/app/(utils)/hooks/useAxiosAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -12,8 +12,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+import { ChatContext } from "../ChatContext";
 
-export default function PostLiking({ post }) {
+export default function PostLiking({ post, session }) {
 	const axiosAuth = useAxiosAuth();
 	const router = useRouter();
 	const pathname = usePathname();
@@ -24,6 +25,7 @@ export default function PostLiking({ post }) {
 	const [likeEffect, setLikeEffect] = useState(false);
 	const [dislikeEffect, setDislikeEffect] = useState(false);
 	const [errMsg, setErrMsg] = useState("");
+	const { socket } = useContext(ChatContext);
 
 	const like = async () => {
 		setErrMsg("");
@@ -33,6 +35,11 @@ export default function PostLiking({ post }) {
 			if (likeStat === "post liked !") {
 				setLiked(true);
 				setDisliked(false);
+				socket.current.emit("like-post", {
+					post_id: post.id,
+					sender_id: session?.user.user_id,
+					user_id: post.user_id,
+				});
 			}
 			if (likeStat === "post unliked !") {
 				setLiked(false);
@@ -41,6 +48,8 @@ export default function PostLiking({ post }) {
 			const res = await axiosAuth.get(`/posts/${post.id}`);
 			setLikes(res.data.likes);
 			setDislikes(res.data.dislikes);
+
+			//console.log("checking post like", post);
 		} catch (err) {
 			if (!err?.response) {
 				console.log(err);
@@ -66,6 +75,11 @@ export default function PostLiking({ post }) {
 			if (dislikeStat === "post disliked !") {
 				setDisliked(true);
 				setLiked(false);
+				socket.current.emit("dislike-post", {
+					post_id: post.id,
+					sender_id: session?.user?.user_id,
+					user_id: post.user_id,
+				});
 			}
 			if (dislikeStat === "post dislike removed !") {
 				setDisliked(false);

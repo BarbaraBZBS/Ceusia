@@ -21,7 +21,7 @@ const REGISTER_URL = "/api/auth/signup";
 
 export default function RegisterPage({ props }) {
 	const searchParams = useSearchParams();
-	const currt = searchParams.get("currt");
+	const cbu = searchParams.get("callbackUrl");
 	const {
 		register,
 		handleSubmit,
@@ -142,8 +142,8 @@ export default function RegisterPage({ props }) {
 									<a
 										className="text-appmauvedark hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out uppercase"
 										href={
-											currt
-												? `/auth/signIn?currt=${currt}`
+											cbu
+												? `/auth/signIn?callbackUrl=${cbu}`
 												: "/auth/signIn"
 										}
 										as={"/auth/signIn"}>

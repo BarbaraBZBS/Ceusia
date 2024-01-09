@@ -91,7 +91,7 @@ const createPost = async (req, res, next) => {
 	} catch (err) {
 		console.log(err);
 		console.log("error: post not created", res.statusCode);
-		res.status(500).json({ message: "uploading file error" });
+		res.status(500).json({ message: "post creation error" });
 	}
 };
 

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import useAxiosAuth from "@/app/(utils)/hooks/useAxiosAuth";
 import { useForm } from "react-hook-form";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,20 +11,35 @@ import {
 	faMusic,
 } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion";
+import { ChatContext } from "../ChatContext";
+import Picker from "emoji-picker-react";
+import { BsEmojiSmileFill } from "react-icons/bs";
 
-export default function CommentAdd({ post, setPost, setAllComms, setAddComm }) {
+export default function CommentAdd({
+	post,
+	setPost,
+	allComms,
+	setAllComms,
+	setAddComm,
+	session,
+}) {
 	const axiosAuth = useAxiosAuth();
 	const [addCommentBtnEffect, setAddCommentBtnEffect] = useState(false);
 	const [resetCommentBtnEffect, setResetCommentBtnEffect] = useState(false);
 	const [backCommentBtnEffect, setBackCommentBtnEffect] = useState(false);
 	const [fileWiggle, setFileWiggle] = useState(false);
 	const [errMsg, setErrMsg] = useState("");
+	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+	const [emojiBtnClickEffect, setEmojiBtnClickEffect] = useState(false);
+
 	const {
 		register,
 		handleSubmit,
 		getValues,
+		setValue,
 		watch,
 		setError,
+		setFocus,
 		reset,
 		formState: { errors, isSubmitSuccessful },
 	} = useForm({
@@ -36,6 +51,7 @@ export default function CommentAdd({ post, setPost, setAllComms, setAddComm }) {
 	});
 	const msg = watch("message");
 	const imgwatch = watch("image");
+	const { socket } = useContext(ChatContext);
 
 	const refreshPost = async () => {
 		const resp = await axiosAuth.get(`/posts/${post.id}`);
@@ -43,10 +59,17 @@ export default function CommentAdd({ post, setPost, setAllComms, setAddComm }) {
 		return resp.data;
 	};
 
+	useEffect(() => {
+		if (!msg) {
+			setFocus("message");
+		}
+	}, [msg, setFocus]);
+
 	const submitAddComment = async (data, e) => {
 		e.preventDefault();
 		setErrMsg("");
 		let headers;
+		const msg = getValues("message");
 		if (data.image <= 0) {
 			data = {
 				message: getValues("message"),
@@ -74,6 +97,15 @@ export default function CommentAdd({ post, setPost, setAllComms, setAddComm }) {
 					);
 					setAllComms(resp.data);
 					setAddComm(false);
+					const findCommId = resp.data.find((comm) => {
+						return comm.message === msg;
+					});
+					socket.current.emit("comment-post", {
+						post_id: post.id,
+						comment_id: findCommId.id,
+						sender_id: session?.user?.user_id,
+						user_id: post.user_id,
+					});
 				});
 			} catch (err) {
 				if (!err?.response) {
@@ -120,6 +152,16 @@ export default function CommentAdd({ post, setPost, setAllComms, setAddComm }) {
 		}
 	}, [isSubmitSuccessful, reset]);
 
+	const handleEmojiPickerHideShow = () => {
+		setShowEmojiPicker(!showEmojiPicker);
+	};
+
+	const handleEmojiClick = (emoji) => {
+		let message = getValues("message");
+		message += emoji.emoji;
+		setValue("message", message);
+	};
+
 	return (
 		<motion.section
 			initial={{ x: 100, opacity: 0 }}
@@ -128,7 +170,7 @@ export default function CommentAdd({ post, setPost, setAllComms, setAddComm }) {
 			transition={{ type: "popLayout" }}
 			className="">
 			<form
-				className="flex flex-col mx-auto w-[96%] h-auto z-[999] items-center text-clamp6 mt-[2.4rem] mb-[1.2rem]"
+				className="flex flex-col mx-auto w-[96%] h-auto z-[999] items-center text-clamp6 mt-[2.4rem] mb-[1.2rem] gap-[0.5rem]"
 				onSubmit={handleSubmit(submitAddComment)}>
 				<textarea
 					type="text"
@@ -136,7 +178,7 @@ export default function CommentAdd({ post, setPost, setAllComms, setAddComm }) {
 					{...register("message", {
 						required: "This field is required",
 					})}
-					className={`border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-[80%] h-[5.6rem] resize mt-0 mb-[0.8rem] ${
+					className={`border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-[80%] max-w-[98%] h-[5.6rem] resize mt-0 mb-[0.8rem] ${
 						errors.message
 							? "border-appred focus:border-appred"
 							: ""
@@ -224,18 +266,42 @@ export default function CommentAdd({ post, setPost, setAllComms, setAddComm }) {
 							<FontAwesomeIcon icon={faEraser} />
 						</button>
 					</div>
-					<button
-						title="send new comment"
-						type="submit"
-						disabled={!msg}
-						onClick={() => setAddCommentBtnEffect(true)}
-						onAnimationEnd={() => setAddCommentBtnEffect(false)}
-						className={`h-[3.6rem] w-[3.6rem] bg-appstone text-white rounded-xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-appopred hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnblue disabled:opacity-50 shadow-neatcard ${
-							addCommentBtnEffect &&
-							"animate-pressDown bg-apppastgreen"
-						}`}>
-						<FontAwesomeIcon icon={faPlus} />
-					</button>
+					<div className="flex justify-evenly w-[30%] items-center">
+						<div className="">
+							<BsEmojiSmileFill
+								className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+									emojiBtnClickEffect && "animate-pressed"
+								}`}
+								onClick={() => {
+									setEmojiBtnClickEffect(true);
+									handleEmojiPickerHideShow();
+								}}
+								onAnimationEnd={() =>
+									setEmojiBtnClickEffect(false)
+								}
+							/>
+							{showEmojiPicker && (
+								<div className="absolute top-[58%] left-[calc(50vw-(350px/2))] z-20">
+									<Picker
+										onEmojiClick={handleEmojiClick}
+										className="bg-appmauvedark"
+									/>
+								</div>
+							)}
+						</div>
+						<button
+							title="send new comment"
+							type="submit"
+							disabled={!msg}
+							onClick={() => setAddCommentBtnEffect(true)}
+							onAnimationEnd={() => setAddCommentBtnEffect(false)}
+							className={`h-[3.6rem] w-[3.6rem] bg-appstone text-white rounded-xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-appopred hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnblue disabled:opacity-50 shadow-neatcard ${
+								addCommentBtnEffect &&
+								"animate-pressDown bg-apppastgreen"
+							}`}>
+							<FontAwesomeIcon icon={faPlus} />
+						</button>
+					</div>
 				</div>
 				<AnimatePresence>
 					{errMsg && (

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import Loading from "../loading";
 import Image from "next/image";
 import axios from "@/app/(utils)/axios";
@@ -13,6 +13,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import CeusianDetailsModifier from "./ceusianDetailsModifier";
 import { motion, AnimatePresence } from "framer-motion";
+import { ChatContext } from "../ChatContext";
 
 export default function UserProfileCard({ user }) {
 	const { data: session } = useSession();
@@ -32,6 +33,13 @@ export default function UserProfileCard({ user }) {
 	const searchParams = useSearchParams();
 	const postId = searchParams.get("pi") ?? null;
 	const pg = searchParams.get("pg") ?? "1";
+	const { onlineUsers } = useContext(ChatContext);
+	const isOnline = onlineUsers.some((usr) => {
+		return usr?.userId === user?.id;
+	});
+	const { socket } = useContext(ChatContext);
+	//console.log(isOnline);
+	//console.log(user);
 
 	useEffect(() => {
 		if (usr) {
@@ -117,6 +125,11 @@ export default function UserProfileCard({ user }) {
 					data: data,
 				});
 				setFollowed(true);
+
+				socket.current.emit("follow", {
+					sender_id: session?.user?.user_id,
+					user_id: user.id,
+				});
 			} catch (err) {
 				if (!err?.response) {
 					console.log(err);
@@ -187,7 +200,7 @@ export default function UserProfileCard({ user }) {
 				<Loading />
 			) : (
 				<>
-					<div className="flex flex-col justify-center items-center pt-[3.2rem] pb-[4rem] mt-[4rem] mb-[5.6rem] min-h-[40rem] border-gray-900 bg-apppastgreen bg-opacity-30 rounded-lg shadow-lg w-[90%] mx-auto">
+					<div className=" relative flex flex-col justify-center items-center pt-[3.2rem] pb-[4rem] mt-[4rem] mb-[5.6rem] min-h-[40rem] border-gray-900 bg-apppastgreen bg-opacity-30 rounded-lg shadow-lg w-[90%] mx-auto">
 						<div>
 							<h1 className="text-clamp3 text-center uppercase pb-[1.6rem] font-semibold">
 								Viewing {usr.username} profile
@@ -203,6 +216,13 @@ export default function UserProfileCard({ user }) {
 								<p className="text-clamp5 mb-[1.2rem]">{`"${usr.motto}"`}</p>
 							)}
 						</div>
+						{followed && followingUsr && (
+							<div
+								className={`inline-block h-[2.2rem] w-[2.2rem] rounded-[50%] absolute z-[2] top-[14rem] left-[9rem]
+							${isOnline ? "bg-[#0CDA0B]" : "bg-gray-500"}
+							`}></div>
+						)}
+
 						<div
 							className="flex justify-center items-center w-[14rem] h-[14rem] rounded-full relative mb-[2rem] transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light"
 							onClick={() => showUsrPicZoomOverlay()}>

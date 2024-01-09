@@ -12,9 +12,10 @@ import {
 	faFileCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { faMusic } from "@fortawesome/free-solid-svg-icons";
-import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearchParams } from "next/navigation";
+import Picker from "emoji-picker-react";
+import { BsEmojiSmileFill } from "react-icons/bs";
 
 export default function ModifyPost({ post }) {
 	const router = useRouter();
@@ -25,10 +26,11 @@ export default function ModifyPost({ post }) {
 		register,
 		handleSubmit,
 		getValues,
+		setValue,
 		watch,
 		setError,
 		reset,
-		formState: { errors, isSubmitSuccessful },
+		formState: { errors },
 	} = useForm({
 		defaultValues: {
 			title: post.title,
@@ -48,8 +50,12 @@ export default function ModifyPost({ post }) {
 	const [fileDeleteEffect, setFileDeleteEffect] = useState(false);
 	const [updatedPost, setUpdatedPost] = useState(post);
 	const [errMsg, setErrMsg] = useState("");
+	const [showTEmojiPicker, setShowTEmojiPicker] = useState(false);
+	const [showCEmojiPicker, setShowCEmojiPicker] = useState(false);
+	const [emojiTBtnClickEffect, setEmojiTBtnClickEffect] = useState(false);
+	const [emojiCBtnClickEffect, setEmojiCBtnClickEffect] = useState(false);
 	const filewatch = watch("fileUrl");
-	// console.log( filewatch );
+	console.log(filewatch);
 	const [postFile, setPostFile] = useState();
 	const isBrowser = () => typeof window !== "undefined";
 
@@ -88,8 +94,6 @@ export default function ModifyPost({ post }) {
 				}).then(async (response) => {
 					if (response) {
 						console.log(response);
-						const resp = await axiosAuth.get(`/posts/${post.id}`);
-						reset({ ...resp.data });
 						router.push(
 							`/thread?page=${pg}&per_page=6#${post.id}`,
 							{ scroll: true }
@@ -127,24 +131,30 @@ export default function ModifyPost({ post }) {
 
 	useEffect(() => {
 		const handleFile = () => {
-			if (post?.fileUrl) {
-				if (post.fileUrl.includes("/image/")) {
+			if (updatedPost?.fileUrl) {
+				if (updatedPost.fileUrl.includes("/image/")) {
 					setPostFile(
-						post.fileUrl.split("http://localhost:8000/image/")[1]
+						updatedPost.fileUrl.split(
+							"http://localhost:8000/image/"
+						)[1]
 					);
-				} else if (post.fileUrl.includes("/video/")) {
+				} else if (updatedPost.fileUrl.includes("/video/")) {
 					setPostFile(
-						post.fileUrl.split("http://localhost:8000/video/")[1]
+						updatedPost.fileUrl.split(
+							"http://localhost:8000/video/"
+						)[1]
 					);
-				} else if (post.fileUrl.includes("/audio/")) {
+				} else if (updatedPost.fileUrl.includes("/audio/")) {
 					setPostFile(
-						post.fileUrl.split("http://localhost:8000/audio/")[1]
+						updatedPost.fileUrl.split(
+							"http://localhost:8000/audio/"
+						)[1]
 					);
 				}
 			}
 		};
 		handleFile();
-	}, [post.fileUrl, filewatch]);
+	}, [updatedPost.fileUrl, filewatch]);
 
 	const resetBtn = () => {
 		reset();
@@ -153,22 +163,8 @@ export default function ModifyPost({ post }) {
 
 	const backBtn = () => {
 		setBackBtnEffect(true);
-		reset();
 		router.refresh();
 	};
-
-	//useEffect(() => {
-	//	const resetForm = async () => {
-	//		if (isSubmitSuccessful) {
-	//			//setTimeout(async () => {
-	//			setErrMsg("");
-	//			const resp = await axiosAuth.get(`/posts/${post.id}`);
-	//			reset({ ...resp.data });
-	//			//}, 50);
-	//		}
-	//	};
-	//	resetForm();
-	//}, [isSubmitSuccessful, axiosAuth, post.id, reset]);
 
 	const handleFileDelete = () => {
 		setFileDeleteEffect(true);
@@ -186,14 +182,12 @@ export default function ModifyPost({ post }) {
 					}).then(async (response) => {
 						if (response) {
 							console.log("file removed", response);
-							const res = await axiosAuth.get(
-								`/posts/${post.id}`
-							);
-							setUpdatedPost(res.data);
+							setUpdatedPost({ ...updatedPost, fileUrl: null });
 						}
 					});
 				}
 			} catch (err) {
+				console.log("del file err : ", err);
 				if (!err?.response) {
 					setErrMsg(
 						"Server unresponsive, please try again or come back later."
@@ -203,6 +197,28 @@ export default function ModifyPost({ post }) {
 				}
 			}
 		}, 500);
+	};
+
+	const handleTEmojiPickerHideShow = () => {
+		setShowTEmojiPicker(!showTEmojiPicker);
+		setShowCEmojiPicker(false);
+	};
+
+	const handleCEmojiPickerHideShow = () => {
+		setShowCEmojiPicker(!showCEmojiPicker);
+		setShowTEmojiPicker(false);
+	};
+
+	const handleTEmojiClick = (emoji) => {
+		let message = getValues("title");
+		message += emoji.emoji;
+		setValue("title", message);
+	};
+
+	const handleCEmojiClick = (emoji) => {
+		let message = getValues("content");
+		message += emoji.emoji;
+		setValue("content", message);
 	};
 
 	return (
@@ -234,36 +250,94 @@ export default function ModifyPost({ post }) {
 				</AnimatePresence>
 				<div className="flex flex-col items-center w-full">
 					<form
-						className="mb-[0.4rem] py-[3.2rem] flex flex-col items-center text-clamp6 w-full z-0"
+						className="mb-[0.4rem] py-[3.2rem] flex flex-col items-center text-clamp6 w-full z-0 gap-[2rem]"
 						onSubmit={handleSubmit(submitUpdateForm)}>
-						<input
-							type="text"
-							placeholder="A title..."
-							{...register("title")}
-							className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred mb-[2.4rem] ${
-								errors.title
-									? "border-appred focus:border-appred"
-									: ""
-							}`}
-						/>
+						<div className="flex gap-[1rem]">
+							{/* title emoji */}
+							<div className="flex items-center">
+								<div className="">
+									<BsEmojiSmileFill
+										className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+											emojiTBtnClickEffect &&
+											"animate-pressed"
+										}`}
+										onClick={() => {
+											setEmojiTBtnClickEffect(true);
+											handleTEmojiPickerHideShow();
+										}}
+										onAnimationEnd={() =>
+											setEmojiTBtnClickEffect(false)
+										}
+									/>
+									{showTEmojiPicker && (
+										<div className="absolute top-[40%] left-[calc(50vw-(350px/2))] z-20">
+											<Picker
+												onEmojiClick={handleTEmojiClick}
+												className="bg-appmauvedark"
+											/>
+										</div>
+									)}
+								</div>
+							</div>
+
+							<input
+								type="text"
+								placeholder="A title..."
+								{...register("title")}
+								className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred ${
+									errors.title
+										? "border-appred focus:border-appred"
+										: ""
+								}`}
+							/>
+						</div>
 						{errors.title && (
 							<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md">
 								{errors.title.message}
 							</span>
 						)}
+						<div className="flex justify-center gap-[1rem] w-[100%]">
+							{/* content emoji */}
+							<div className="flex items-center">
+								<div className="">
+									<BsEmojiSmileFill
+										className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+											emojiCBtnClickEffect &&
+											"animate-pressed"
+										}`}
+										onClick={() => {
+											setEmojiCBtnClickEffect(true);
+											handleCEmojiPickerHideShow();
+										}}
+										onAnimationEnd={() =>
+											setEmojiCBtnClickEffect(false)
+										}
+									/>
+									{showCEmojiPicker && (
+										<div className="absolute top-[40%] left-[calc(50vw-(350px/2))] z-20">
+											<Picker
+												onEmojiClick={handleCEmojiClick}
+												className="bg-appmauvedark"
+											/>
+										</div>
+									)}
+								</div>
+							</div>
 
-						<textarea
-							type="text"
-							placeholder="Your message..."
-							{...register("content", {
-								required: "This field is required",
-							})}
-							className={`border-2 border-appstone rounded-md my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-full h-[5.6rem] resize max-w-[31rem] mb-[2.4rem] ${
-								errors.content
-									? "border-appred focus:border-appred"
-									: ""
-							}`}
-						/>
+							<textarea
+								type="text"
+								placeholder="Your message..."
+								{...register("content", {
+									required: "This field is required",
+								})}
+								className={`border-2 border-appstone rounded-md my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-full h-[5.6rem] resize max-w-[31rem] ${
+									errors.content
+										? "border-appred focus:border-appred"
+										: ""
+								}`}
+							/>
+						</div>
+
 						{errors.content && (
 							<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md mb-[2rem]">
 								{errors.content.message}
@@ -316,15 +390,13 @@ export default function ModifyPost({ post }) {
 								<p className="mx-[1.2rem] mb-[0.4rem]">
 									No file selected
 								</p>
-								<p className="max-w-[32.5rem] mx-[1.2rem] mb-[1.2rem] text-ellipsis overflow-hidden">
+								<p className="max-w-[32.5rem] mx-[1.2rem] text-ellipsis overflow-hidden">
 									Post file: {postFile}
 								</p>{" "}
 							</>
 						)}
 						{!filewatch && !updatedPost?.fileUrl ? (
-							<p className="mx-[1.2rem] mb-[1.2rem]">
-								No file selected
-							</p>
+							<p className="mx-[1.2rem]">No file selected</p>
 						) : (
 							filewatch &&
 							!filewatch?.[0]?.name &&
@@ -362,7 +434,7 @@ export default function ModifyPost({ post }) {
 							type="text"
 							placeholder="A link..."
 							{...register("link")}
-							className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred mb-[2.4rem] ${
+							className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred ${
 								errors.link
 									? "border-appred focus:border-appred"
 									: ""

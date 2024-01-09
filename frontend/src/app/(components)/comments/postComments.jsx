@@ -48,7 +48,6 @@ export default function PostComments({ post, comments }) {
 	const [updCommentBtnEffect, setUpdCommentBtnEffect] = useState(false);
 	const [updCommentCard, setUpdCommentCard] = useState(false);
 	const [delCommentBtnEffect, setDelCommentBtnEffect] = useState(false);
-	//const [shareCommentBtnEffect, setShareCommentBtnEffect] = useState(false);
 	const [commentImgZoom, setCommentImgZoom] = useState(false);
 	const [postFocus, setPostFocus] = useState(true);
 	const isBrowser = () => typeof window !== "undefined";
@@ -210,10 +209,6 @@ export default function PostComments({ post, comments }) {
 		}, 600);
 	};
 
-	const handleShareComment = () => {
-		setShareCommentBtnEffect(true);
-	};
-
 	const backToLast = () => {
 		setBackBtnEffect(true);
 		setTimeout(() => {
@@ -258,7 +253,6 @@ export default function PostComments({ post, comments }) {
 						<CommentsUpdatePostForm
 							postDetail={postDetail}
 							setPostDetail={setPostDetail}
-							//setUpdatedPostDetail={setUpdatedPostDetail}
 							hideFormOverlay={hideFormOverlay}
 							blur={blur}
 							setBlur={setBlur}
@@ -499,7 +493,9 @@ export default function PostComments({ post, comments }) {
 				{newComment && (
 					<CommentAdd
 						post={post}
+						session={session}
 						setPost={setPostDetail}
+						allComms={commentsDetail}
 						setAllComms={setCommentsDetail}
 						setAddComm={setNewComment}
 					/>
@@ -607,6 +603,7 @@ export default function PostComments({ post, comments }) {
 								<div className="flex justify-around">
 									<CommentLiking
 										post={post}
+										session={session}
 										comment={comment}
 										errorMsg={setErrMsg}
 									/>

@@ -21,6 +21,7 @@ import { useSearchParams } from "next/navigation";
 import ShareLink from "../tools/shareLink";
 import { create } from "@/app/actions";
 import PaginationController from "../global/paginationController";
+import { MdOutlinePostAdd } from "react-icons/md";
 
 export default function Cards({
 	posts,
@@ -47,6 +48,8 @@ export default function Cards({
 	const [allFollowers, setAllFollowers] = useState();
 	const [allFollowings, setAllFollowings] = useState();
 	const [errMsg, setErrMsg] = useState(false);
+	const [addPostEffect, setAddPostEffect] = useState(false);
+	const [showAddPost, setShowAddPost] = useState(false);
 	const isBrowser = () => typeof window !== "undefined";
 
 	useEffect(() => {
@@ -58,7 +61,7 @@ export default function Cards({
 	useEffect(() => {
 		if (session && posts) {
 			setIsLoading(false);
-			setDisplay(posts);
+			//setDisplay(posts);
 		}
 	}, [session, posts, display]);
 
@@ -108,7 +111,10 @@ export default function Cards({
 						if (!isBrowser()) return;
 						window.scrollTo({ top: 0, behavior: "smooth" });
 					} else {
-						router.refresh();
+						const resp = await axiosAuth.get(
+							`/posts?page=${pg}&per_page=6`
+						);
+						setDisplay(resp.data.content);
 					}
 				}
 			} catch (err) {
@@ -216,10 +222,36 @@ export default function Cards({
 									setAllFollowings={setAllFollowings}
 								/>
 								{/* post form */}
-								<h3 className="text-clamp7 font-medium underline underline-offset-2">
-									What&apos;s on your mind?
-								</h3>
-								<PostAdd setPosts={setDisplay} />
+								<div className="flex items-center flex-col">
+									<hr className="w-[80vw] text-center my-[2rem] border-t-solid border-t-[0.22rem] rounded-md border-t-gray-300"></hr>
+									<div className="flex items-center gap-[2rem]">
+										<h3 className="text-clamp7 font-medium underline underline-offset-2">
+											What&apos;s on your mind?
+										</h3>
+										<MdOutlinePostAdd
+											className={`w-[3rem] h-[3rem] text-appturq ${
+												addPostEffect &&
+												"animate-pressed"
+											}`}
+											onClick={() => {
+												setAddPostEffect(true);
+												setShowAddPost(!showAddPost);
+											}}
+											onAnimationEnd={() =>
+												setAddPostEffect(false)
+											}
+										/>
+									</div>
+									<AnimatePresence>
+										{showAddPost && (
+											<PostAdd
+												display={display}
+												setPosts={setDisplay}
+											/>
+										)}
+									</AnimatePresence>
+									<hr className="w-[80vw] text-center my-[2rem] border-t-solid border-t-[0.22rem] rounded-md border-t-gray-300"></hr>
+								</div>
 							</div>
 							{/* back to top button */}
 							<ScrollTopButton />
@@ -242,7 +274,7 @@ export default function Cards({
 												delay: 0.2,
 											}}
 											// transition={ { duration: 0.6, delay: 0.3 } }
-											className={` m-auto border-2 rounded-lg shadow-md my-[0.8rem] relative w-[90%] ${
+											className={`m-auto border-2 rounded-lg shadow-md my-[0.8rem] relative w-[90%] bg-appmauvelighter border-appmauvelight ${
 												userPicZoom && "w-full"
 											}  `}>
 											{/* zoom overlays */}
@@ -357,12 +389,12 @@ export default function Cards({
 											</div>
 											{post.title ? (
 												<div className="">
-													<h2 className="text-clamp7 text-center font-medium border-t-2 border-b-2">
+													<h2 className="text-clamp7 text-center font-medium border-t-2 border-t-appmauvelight">
 														{post.title}
 													</h2>
 												</div>
 											) : (
-												<hr className="border-b-[1.5px]"></hr>
+												<hr className="border-b-[1.5px] border-b-appmauvelight"></hr>
 											)}
 											<nav
 												onClick={() => {
@@ -575,7 +607,10 @@ export default function Cards({
 												<div></div>
 											)}
 											<div className="flex justify-between text-clamp2">
-												<PostLiking post={post} />
+												<PostLiking
+													post={post}
+													session={session}
+												/>
 												{/* comment post */}
 												<div className="flex mr-[4.8rem]">
 													<span className="mr-[0.4rem]">
@@ -651,7 +686,7 @@ export default function Cards({
 						<PaginationController
 							totalPages={totalPages}
 							hasPrevPage={Number(page) > 1}
-							hasNextPage={Number(page) < Number(totalPages) - 1}
+							hasNextPage={Number(page) < Number(totalPages)}
 						/>
 					</>
 				</PageWrap>
