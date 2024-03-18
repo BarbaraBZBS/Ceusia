@@ -73,7 +73,7 @@ export default function MeetFollow(props) {
 				<div className="flex items-center">
 					<button
 						title="followed"
-						className={`bg-appstone text-clamp6 text-green-500 w-[3.4rem] h-[2.8rem] rounded-3xl shadow-neatcard`}>
+						className="bg-appstone dark:bg-appmauvedark text-clamp6 mob88:text-[1.2rem] text-green-500 w-[3.4rem] h-[2.8rem] mob88:w-[2.4rem] mob88:h-[1.8rem] rounded-3xl shadow-neatcard focus-visible:outline-offset-[0.3rem]">
 						<FontAwesomeIcon icon={faCheck} />
 					</button>
 				</div>
@@ -85,8 +85,8 @@ export default function MeetFollow(props) {
 							handleFollow();
 						}}
 						onAnimationEnd={() => setFollowEffect(false)}
-						className={`bg-appstone text-clamp6 text-white w-[3.4rem] h-[2.8rem] rounded-3xl transition-all duration-300 ease-in-out
-                    hover:bg-appopred hover:border-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue shadow-neatcard ${
+						className={`bg-appstone dark:bg-appmauvedark text-clamp6 mob88:text-[1.2rem] text-white w-[3.4rem] h-[2.8rem] mob88:w-[2.4rem] mob88:h-[1.8rem] rounded-3xl transition-all duration-300 ease-in-out
+                    hover:bg-appopred dark:hover:bg-appopred hover:border-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue shadow-neatcard focus-visible:outline-offset-[0.3rem] ${
 						followEffect &&
 						"animate-btnFlat text-appblck bg-apppastgreen"
 					}`}>

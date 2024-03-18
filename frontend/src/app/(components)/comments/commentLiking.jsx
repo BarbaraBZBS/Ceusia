@@ -115,12 +115,17 @@ export default function CommentLiking({ post, comment, errorMsg, session }) {
 	};
 
 	const likeBtn = () => {
-		like();
 		setLikeEffect(true);
+		setTimeout(() => {
+			like();
+		}, 400);
 	};
+
 	const dislikeBtn = () => {
-		dislike();
 		setDislikeEffect(true);
+		setTimeout(() => {
+			dislike();
+		}, 400);
 	};
 
 	useEffect(() => {
@@ -145,75 +150,72 @@ export default function CommentLiking({ post, comment, errorMsg, session }) {
 	}, [axiosAuth, comment, liked, disliked, router, pathname]);
 
 	return (
-		<>
-			<div className="text-clamp2">
-				{liked ? (
-					<>
-						<span className="ml-[0.8rem]">{likes}</span>
-						<button
-							title="unlike"
-							onClick={() => likeBtn()}
-							onAnimationEnd={() => setLikeEffect(false)}
-							className={`mx-[0.3rem] cursor-pointer opacity-50 ${
-								likeEffect && "animate-fill"
-							}`}>
-							<FontAwesomeIcon
-								icon={heartfull}
-								className="text-appgreenlight hover:text-appred hover:opacity-60"
-							/>
-						</button>
-					</>
-				) : (
-					<>
-						<span className="ml-[0.8rem]">{likes}</span>
-						<button
-							title="like"
-							onClick={() => likeBtn()}
-							onAnimationEnd={() => setLikeEffect(false)}
-							className={`mx-[0.3rem] cursor-pointer ${
-								likeEffect && "animate-scale"
-							}`}>
-							<FontAwesomeIcon
-								icon={heartempty}
-								className="text-appgreenlight hover:text-green-400"
-							/>
-						</button>
-					</>
-				)}
-				{disliked ? (
-					<>
-						<span className="ml-[0.5rem]">{dislikes}</span>
-						<button
-							title="remove dislike"
-							onClick={() => dislikeBtn()}
-							onAnimationEnd={() => setDislikeEffect(false)}
-							className={`mx-[0.3rem] cursor-pointer opacity-50 ${
-								dislikeEffect && "animate-scale"
-							}`}>
-							<FontAwesomeIcon
-								icon={heartcrackfull}
-								className="text-appred hover:text-appgreenlight"
-							/>
-						</button>
-					</>
-				) : (
-					<>
-						<span className="ml-[0.5rem]">{dislikes}</span>
-						<button
-							title="dislike"
-							onClick={() => dislikeBtn()}
-							onAnimationEnd={() => setDislikeEffect(false)}
-							className={`mx-[0.3rem] cursor-pointer ${
-								dislikeEffect && "animate-fill"
-							}`}>
-							<FontAwesomeIcon
-								icon={thumbdownempty}
-								className="text-appred hover:text-red-400"
-							/>
-						</button>
-					</>
-				)}
-			</div>
-		</>
+		<div className="text-clamp2">
+			{/* likes */}
+			<>
+				<span aria-label={`${likes} likes`} className="sr-only"></span>
+				<span aria-hidden className="ml-[0.8rem]">
+					{likes}
+				</span>
+				<button
+					type="button"
+					title={liked ? "unlike" : "like"}
+					aria-labelledby={liked ? "unlike" : "like"}
+					onClick={() => likeBtn()}
+					onAnimationEnd={() => setLikeEffect(false)}
+					className={
+						liked
+							? `mx-[0.3rem] cursor-pointer opacity-50
+							${likeEffect && "animate-fill"}
+							`
+							: `mx-[0.3rem] cursor-pointer
+							  ${likeEffect && "animate-scale"}
+							`
+					}>
+					<FontAwesomeIcon
+						icon={liked ? heartfull : heartempty}
+						className={
+							liked
+								? "text-appgreenlight hover:text-appred hover:opacity-60"
+								: "text-appgreenlight hover:text-green-400"
+						}
+					/>
+				</button>
+			</>
+			{/* dislikes */}
+			<>
+				<span
+					aria-label={`${dislikes} dislikes`}
+					className="sr-only"></span>
+				<span aria-hidden className="ml-[0.5rem]">
+					{dislikes}
+				</span>
+				<button
+					type="button"
+					title={disliked ? "remove dislike" : "dislike"}
+					aria-labelledby={disliked ? "remove dislike" : "dislike"}
+					onClick={() => dislikeBtn()}
+					onAnimationEnd={() => setDislikeEffect(false)}
+					className={
+						disliked
+							? `mx-[0.3rem] cursor-pointer opacity-50 ${
+									dislikeEffect && "animate-scale"
+							  }`
+							: `mx-[0.3rem] cursor-pointer ${
+									dislikeEffect && "animate-fill"
+							  }`
+					}>
+					<FontAwesomeIcon
+						icon={disliked ? thumbdownfull : thumbdownempty}
+						//icon={heartcrackfull}
+						className={
+							disliked
+								? "text-appred hover:text-appgreenlight"
+								: "text-appred hover:text-red-400"
+						}
+					/>
+				</button>
+			</>
+		</div>
 	);
 }

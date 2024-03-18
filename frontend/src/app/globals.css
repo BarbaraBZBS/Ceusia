@@ -3,8 +3,9 @@
 @tailwind utilities;
 
 ::-webkit-scrollbar {
-	width: 3px;
-	height: 5px;
+	width: 8px;
+	height: 8px;
+	border-radius: 1rem;
 }
 
 /*::-webkit-scrollbar-track {
@@ -12,29 +13,77 @@
 }*/
 
 ::-webkit-scrollbar-thumb {
-	background: #4e5166;
+	background: rgb(78, 81, 102, 0.33);
+	opacity: 40%;
 	border-radius: 1rem;
+	border: 2px solid transparent;
+	background-clip: padding-box;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+	background: rgb(78, 81, 102, 0.9);
+	border-radius: 1rem;
+	border: 2px solid transparent;
+	background-clip: padding-box;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background: #7953be;
-	width: 16px !important;
-	height: 18px !important;
+	background: rgb(121, 83, 190, 0.5);
+	opacity: 0.5;
+	border: 0;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+	background: rgb(201, 255, 221, 0.7);
+	border: 0;
 }
 
 :root {
 	--primary: #7953be;
 	--secondary: #4e5166;
+	--tertiary: #c9ffdd;
+	--quaternary: #ffc4d8;
 }
 
 aside.EmojiPickerReact.epr-main {
-	background-color: #4e5166;
+	background-color: var(--secondary);
 	box-shadow: 0 5px 10px #9a86f3;
 	border-color: #9186f3;
 	--epr-highlight-color: #9186f3 !important;
 	--epr-search-input-bg-color: transparent;
 	--epr-search-input-text-color: white;
+	width: 350px;
+	height: 450px;
 }
+
+@media (max-width: 388px) {
+	aside.EmojiPickerReact.epr-main {
+		max-width: 250px;
+		max-height: 350px;
+	}
+}
+
+@media ((min-width: 450px) and (max-width: 639px) and (max-height: 720px)) {
+	aside.EmojiPickerReact.epr-main {
+		min-width: 480px;
+		max-height: 310px;
+	}
+}
+
+@media ((min-width: 700px) and (max-width: 800px) and (max-height: 600px)) {
+	aside.EmojiPickerReact.epr-main {
+		min-width: 500px;
+		max-height: 290px;
+	}
+}
+
+@media (min-width: 1024px) {
+	aside.EmojiPickerReact.epr-main {
+		min-width: 600px;
+		max-height: 350px;
+	}
+}
+
 .EmojiPickerReact .emoji-categories button {
 	filter: contrast(0);
 }
@@ -46,7 +95,7 @@ aside.EmojiPickerReact.epr-main {
 	color: white !important;
 }
 .EmojiPickerReact li.epr-emoji-category > .epr-emoji-category-label {
-	background-color: #4e5166 !important;
+	background-color: var(--secondary) !important;
 	color: white !important;
 }
 .EmojiPickerReact .epr-preview {
@@ -57,6 +106,17 @@ aside.EmojiPickerReact.epr-main {
 	color: white !important;
 }
 
+.popmod::-webkit-scrollbar {
+	display: none !important; /*Chrome Safari Opera*/
+}
+.popmod {
+	-ms-overflow-style: none !important; /* IE and Edge */
+	scrollbar-width: none !important; /* Firefox */
+}
+
+.nav-icon {
+	text-shadow: 0 0 10px violet;
+}
 /*Firefox
 * {
 	scrollbar-width: thin;
@@ -90,10 +150,10 @@ body {
 	/* base font size in percentage then change font-size and some other values to rem for browser font-size change to work */
 	/* 1rem = 16px and 100% = 16px so 62.5% = 10px, and with 62.5% (10px) then 2rem = 20px */
 	html {
-		@apply w-full h-full text-[62.5%];
+		@apply w-screen h-full text-[62.5%];
 	}
 	body {
-		@apply w-full h-full;
+		@apply w-screen min-h-screen flex flex-col;
 	}
 	/* @media (hover: none) {
         @apply hover:none min-h-screen flex flex-col
@@ -104,4 +164,7 @@ body {
 	/* ... */
 	/* @screen lg { // applying font size for lg breakpoint
   } */
+	.focused {
+		@apply bg-yellow-200 outline outline-2 font-extrabold;
+	}
 }

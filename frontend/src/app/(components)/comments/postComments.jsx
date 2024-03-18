@@ -23,6 +23,7 @@ import CommentLiking from "./commentLiking";
 import { motion, AnimatePresence } from "framer-motion";
 import CommentsUpdatePostForm from "./commentsUpdatePostForm";
 import ShareLink from "../tools/shareLink";
+import { FocusOn } from "react-focus-on";
 
 export default function PostComments({ post, comments }) {
 	const axiosAuth = useAxiosAuth();
@@ -32,6 +33,7 @@ export default function PostComments({ post, comments }) {
 	const { data: session } = useSession();
 	const [postDetail, setPostDetail] = useState(post);
 	const [commentsDetail, setCommentsDetail] = useState(comments);
+	const [postImgZoom, setPostImgZoom] = useState(false);
 	const [userPicZoom, setUserPicZoom] = useState(false);
 	const [userComPicZoom, setUserComPicZoom] = useState(false);
 	const [clickedBtn, setClickedBtn] = useState(0);
@@ -106,6 +108,15 @@ export default function PostComments({ post, comments }) {
 		hideOverlay();
 		setUserPicZoom(false);
 	}
+	// post image zoom
+	function showPostImgZoomOverlay() {
+		setPostImgZoom(true);
+		showOverlay();
+	}
+	function hidePostImgZoomOverlay() {
+		hideOverlay();
+		setPostImgZoom(false);
+	}
 	// comments user pic zoom
 	function showUsrPicComZoomOverlay() {
 		setUserComPicZoom(true);
@@ -172,6 +183,7 @@ export default function PostComments({ post, comments }) {
 		setCommentEffect(true);
 		setTimeout(() => {
 			setNewComment(!newComment);
+			setUpdCommentCard(false);
 		}, 500);
 	};
 
@@ -179,6 +191,7 @@ export default function PostComments({ post, comments }) {
 		setUpdCommentBtnEffect(true);
 		setTimeout(() => {
 			setUpdCommentCard(!updCommentCard);
+			setNewComment(false);
 		}, 500);
 	};
 
@@ -198,7 +211,7 @@ export default function PostComments({ post, comments }) {
 								`/posts/${post.id}/comments`
 							);
 							setCommentsDetail(res.data);
-							await refreshPost();
+							refreshPost();
 						});
 				}
 			} catch (err) {
@@ -227,22 +240,48 @@ export default function PostComments({ post, comments }) {
 	return (
 		<>
 			{/* post */}
-			<section className="p-[0.8rem] pb-[1.2rem] border-b-2 shadow-neatcard">
+			<section className="p-[0.8rem] pb-[1.2rem] border-b-2 dark:border-b-applightdark shadow-neatcard dark:bg-applightdark">
 				{/* user pic zoom overlay */}
 				{userPicZoom ? (
-					<div
-						className="fixed overflow-y-scroll left-0 right-0 top-0 bottom-0 w-full h-full bg-appblck z-[998] block"
-						onClick={() => hideUsrPicZoomOverlay()}>
-						<Image
-							width={0}
-							height={0}
-							priority={true}
-							src={postDetail.user.picture}
-							alt={`${postDetail.user.username} picture`}
-							placeholder="empty"
-							className="block m-auto w-[96%] h-auto object-cover my-[4.8rem] rounded-lg animate-rotateZoom"
-						/>
-					</div>
+					<FocusOn onEscapeKey={() => hideUsrPicZoomOverlay()}>
+						<div
+							className="fixed overflow-y-auto left-0 right-0 top-0 bottom-0 w-screen h-full bg-white dark:bg-appblck z-[998] block"
+							onClick={() => hideUsrPicZoomOverlay()}>
+							<div className="flex w-full h-full justify-center items-center">
+								<Image
+									width={0}
+									height={0}
+									priority={true}
+									src={postDetail.user.picture}
+									alt={`${postDetail.user.username} picture`}
+									placeholder="empty"
+									className="block m-auto w-[96%] h-auto object-cover rounded-lg animate-rotateZoom"
+								/>
+							</div>
+						</div>
+					</FocusOn>
+				) : (
+					<div></div>
+				)}
+				{/* post image zoom overlay */}
+				{postImgZoom ? (
+					<FocusOn onEscapeKey={() => hidePostImgZoomOverlay()}>
+						<div
+							className="fixed overflow-y-auto left-0 right-0 top-0 bottom-0 w-screen h-full bg-white dark:bg-appblck z-[998] block"
+							onClick={() => hidePostImgZoomOverlay()}>
+							<div className="flex w-full h-full justify-center items-center">
+								<Image
+									width={0}
+									height={0}
+									priority={true}
+									src={postDetail.fileUrl}
+									alt="post image"
+									placeholder="empty"
+									className="block m-auto w-[96%] h-auto object-cover rounded-lg animate-rotateZoom"
+								/>
+							</div>
+						</div>
+					</FocusOn>
 				) : (
 					<div></div>
 				)}
@@ -263,20 +302,27 @@ export default function PostComments({ post, comments }) {
 				{/* post card */}
 				<div className="flex justify-between">
 					<div className="flex text-clamp6 mx-[1.2rem] mt-[0.4rem] touch-auto mb-[0.8rem]">
-						<div
-							className="w-[2.8rem] h-[2.8rem] rounded-full mr-[0.4rem] border-[1px] border-gray-300 cursor-pointer transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light shadow-strip"
+						<button
+							title="click or press enter to zoom in"
+							className="w-[2.8rem] h-[2.8rem] rounded-full focus-visible:outline-offset-[0.4rem] mr-[0.4rem] border-[1px] border-gray-300 cursor-pointer transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light shadow-strip"
 							onClick={() => {
 								showUsrPicZoomOverlay();
 							}}>
 							<Image
+								aria-description="click or press enter to zoom in"
 								src={postDetail?.user?.picture}
 								width={0}
 								height={0}
 								placeholder="empty"
 								className="rounded-full object-cover w-full h-full cursor-pointer"
-								alt={`${postDetail?.user?.username} picture`}
+								alt={
+									session?.user?.user_id ===
+									postDetail?.user_id
+										? "Your user picture"
+										: `${postDetail?.user?.username} user picture`
+								}
 							/>
-						</div>
+						</button>
 						<div className="flex items-end">
 							{/* onclick link to user[user_id] params */}
 							{session?.user?.user_id === postDetail?.user_id ? (
@@ -298,6 +344,7 @@ export default function PostComments({ post, comments }) {
 										setMainPostUsrLinkEffect(false)
 									}>
 									<a
+										className="block px-[0.5rem]"
 										href={`/csian/${[postDetail?.user_id]}`}
 										as={`/csian/${[postDetail?.user_id]}`}>
 										{postDetail?.user?.username}
@@ -339,14 +386,25 @@ export default function PostComments({ post, comments }) {
 				)}
 				{postDetail?.fileUrl &&
 					postDetail.fileUrl?.includes("image") && (
-						<div className="flex w-[92%] mx-auto my-[2.4rem] touch-auto rounded-xl shadow-card">
+						<div
+							tabIndex={0}
+							title="click or press enter to zoom in"
+							className="flex w-[92%] mx-auto my-[2.4rem] touch-auto rounded-xl shadow-card"
+							onClick={() => showPostImgZoomOverlay()}
+							onKeyUp={(e) => {
+								if (e.key === "Enter") {
+									showPostImgZoomOverlay();
+								}
+							}}>
 							<Image
+								aria-description="click or press escape to zoom out"
 								width={0}
 								height={0}
 								placeholder="empty"
 								className="object-cover rounded-xl min-w-full w-full h-full"
 								src={postDetail.fileUrl}
-								alt="postDetail image"
+								alt="post image"
+								priority={true}
 							/>
 						</div>
 					)}
@@ -416,7 +474,7 @@ export default function PostComments({ post, comments }) {
 								title="edit post"
 								onClick={() => modifBtn()}
 								onAnimationEnd={() => setModifyBtnEffect(false)}
-								className={`bg-appstone text-[1.4rem] text-white w-[3rem] h-[2.8rem] rounded-tl-[15px] rounded-br-[15px] mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] shadow-neatcard ${
+								className={`bg-appstone dark:bg-appmauvedark text-[1.4rem] text-white w-[3rem] h-[2.8rem] mob00:w-[2.7rem] mob00:h-[2.5rem] rounded-tl-[15px] rounded-br-[15px] mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:bg-appopred dark:hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] shadow-neatcard ${
 									modifyBtnEffect && "animate-bgSize"
 								}`}>
 								<FontAwesomeIcon icon={faPenToSquare} />
@@ -427,7 +485,7 @@ export default function PostComments({ post, comments }) {
 								title="delete post"
 								onClick={() => handleDelete(post.id)}
 								onAnimationEnd={() => setDeleteBtnEffect(false)}
-								className={`bg-appred text-[1.4rem] text-white w-[3rem] h-[2.8rem] rounded-tl-[1.5rem] rounded-br-[1.5rem] mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:bg-opacity-70 hover:text-appblck hover:translate-y-[7px] hover:shadow-btnlred bg-[linear-gradient(#ca2401,#ca2401)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] shadow-neatcard ${
+								className={`bg-appred text-[1.4rem] text-white w-[3rem] h-[2.8rem] mob00:w-[2.7rem] mob00:h-[2.5rem] rounded-tl-[1.5rem] rounded-br-[1.5rem] mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:bg-opacity-60 hover:text-appblck dark:hover:text-white hover:translate-y-[7px] hover:shadow-btnlred bg-[linear-gradient(#ca2401,#ca2401)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] shadow-neatcard ${
 									deleteBtnEffect && "animate-bgSize"
 								}`}>
 								<FontAwesomeIcon icon={faTrashCan} />
@@ -442,11 +500,18 @@ export default function PostComments({ post, comments }) {
 
 					{/* add comment*/}
 					<div className="mr-[4.8rem] relative">
-						<span className="text-clamp2 mr-[0.4rem]">
+						<span
+							aria-label={`${postDetail?.discussions} comments`}
+							className="sr-only"></span>
+						<span aria-hidden className="text-clamp2 mr-[0.4rem]">
 							{postDetail?.discussions}
 						</span>
 						<button
-							title="add a comment"
+							title={
+								newComment
+									? "cancel new comment"
+									: "add new comment"
+							}
 							onClick={() => addComment()}
 							onAnimationEnd={() => setCommentEffect(false)}
 							className={`cursor-pointer hover:opacity-50 ${
@@ -471,16 +536,16 @@ export default function PostComments({ post, comments }) {
 					<ShareLink />
 				</div>
 			</section>
-			<div>
+			<div className="flex justify-center my-[1.6rem]">
 				<nav
 					onClick={() => backToLast()}
 					onAnimationEnd={() => setBackBtnEffect(false)}
-					className="flex justify-center my-[1.6rem]">
+					className="">
 					<a
 						title="back to post"
 						href={`/thread?page=${pg}#${postDetail?.id}`}
 						as={`/#${postDetail?.id}`}
-						className={`bg-[#FF7900] text-appblck rounded-xl flex justify-center items-center w-[3.6rem] h-[3.6rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px] hover:shadow-btnorange m-0 shadow-neatcard ${
+						className={`bg-[#FF7900] text-appblck rounded-xl flex justify-center items-center w-[3.6rem] h-[3.6rem] mob00:w-[3rem] mob00:h-[3rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px] hover:shadow-btnorange m-0 shadow-neatcard ${
 							backBtnEffect && "animate-pressDown bg-apppastgreen"
 						}`}>
 						<FontAwesomeIcon icon={faLeftLong} size="2xl" />
@@ -495,7 +560,6 @@ export default function PostComments({ post, comments }) {
 						post={post}
 						session={session}
 						setPost={setPostDetail}
-						allComms={commentsDetail}
 						setAllComms={setCommentsDetail}
 						setAddComm={setNewComment}
 					/>
@@ -506,7 +570,7 @@ export default function PostComments({ post, comments }) {
 			<section
 				className={
 					commentsDetail.length > 0
-						? "bg-appstone py-[1.6rem]"
+						? "bg-appstone dark:bg-applightdark py-[1.6rem]"
 						: "py-[0.4rem]"
 				}>
 				{commentsDetail.length > 0 ? (
@@ -514,67 +578,112 @@ export default function PostComments({ post, comments }) {
 						<article
 							key={comment.id}
 							id={comment.id}
-							className="flex flex-col border-2 w-[94%] mx-auto my-[0.4rem] rounded-xl px-[1.2rem] py-[0.4rem] bg-white">
+							className="flex flex-col border-2 w-[94%] mx-auto my-[0.4rem] rounded-xl px-[1.2rem] py-[0.4rem] bg-white dark:bg-appmauvedarker dark:border-appmauvedarker">
 							{/* comment user pic zoom overlay */}
 							{clickedBtn === index && userComPicZoom ? (
-								<div
-									className="fixed overflow-y-scroll left-0 right-0 top-0 bottom-0 w-full h-full bg-appblck z-[998] block"
-									onClick={() => hideUsrPicComZoomOverlay()}>
-									<Image
-										width={0}
-										height={0}
-										priority={true}
-										src={comment.user.picture}
-										alt={`${comment.user.username} picture`}
-										placeholder="empty"
-										className="block m-auto w-[96%] h-auto object-cover my-[4.8rem] rounded-lg animate-rotateZoom"
-									/>
-								</div>
+								<FocusOn
+									onEscapeKey={() =>
+										hideUsrPicComZoomOverlay()
+									}>
+									<div
+										className="fixed overflow-y-auto left-0 right-0 top-0 bottom-0 w-screen h-full bg-white dark:bg-appblck z-[998] block"
+										onClick={() =>
+											hideUsrPicComZoomOverlay()
+										}>
+										<div className="flex w-full h-full justify-center items-center">
+											<Image
+												tabIndex={0}
+												title="click or press enter to zoom out"
+												width={0}
+												height={0}
+												priority={true}
+												src={comment.user.picture}
+												alt={
+													session?.user?.user_id ===
+													comment.user_id
+														? "Your user picture"
+														: `${comment.user.username} user picture`
+												}
+												placeholder="empty"
+												className="block m-auto w-[96%] h-auto object-cover rounded-lg animate-rotateZoom"
+											/>
+										</div>
+									</div>
+								</FocusOn>
 							) : (
 								<div></div>
 							)}
 							{clickedBtn === index && commentImgZoom ? (
-								<div
-									className="fixed overflow-y-scroll left-0 right-0 top-0 bottom-0 w-full h-full bg-appblck z-[998] block"
-									onClick={() => hideCommImgZoomOverlay()}>
-									<Image
-										width={0}
-										height={0}
-										priority={true}
-										src={comment.image}
-										alt={`${comment.user.username}'s zoomed comment image`}
-										placeholder="empty"
-										className="block m-auto w-[96%] h-auto object-cover my-[4.8rem] rounded-lg animate-resizeZoom"
-									/>
-								</div>
+								<FocusOn
+									onEscapeKey={() =>
+										hideCommImgZoomOverlay()
+									}>
+									<div
+										className="fixed overflow-y-auto left-0 right-0 top-0 bottom-0 w-screen h-full bg-white dark:bg-appblck z-[998] block focus-visible:outline-offset-[0.4rem]"
+										onClick={() =>
+											hideCommImgZoomOverlay()
+										}>
+										<div className="flex w-full h-full justify-center items-center">
+											<Image
+												tabIndex={0}
+												title="click or press enter to zoom out"
+												width={0}
+												height={0}
+												priority={true}
+												src={comment.image}
+												alt={`${comment.user.username}'s zoomed comment image`}
+												placeholder="empty"
+												className="block m-auto w-[96%] h-auto object-cover rounded-lg animate-resizeZoom"
+											/>
+										</div>
+									</div>
+								</FocusOn>
 							) : (
 								<div></div>
 							)}
 
 							<div className="flex justify-between">
 								<div className="flex justify-start">
-									<div
-										className="rounded-full mr-[0.4rem] border-[1px] border-gray-300 cursor-pointer transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light w-[2.4rem] h-[2.4rem]"
+									<button
+										title="click or press enter to zoom in"
+										className="rounded-full mr-[0.4rem] border-[1px] border-gray-300 focus-visible:outline-offset-[0.4rem] transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light w-[2.4rem] h-[2.4rem]"
 										onClick={() => {
 											setClickedBtn(index);
 											showUsrPicComZoomOverlay();
+										}}
+										onKeyUp={(e) => {
+											if (e.key === "Enter") {
+												setClickedBtn(index);
+												showUsrPicComZoomOverlay();
+											}
 										}}>
 										<Image
+											aria-description="click or press enter to zoom in"
 											width={0}
 											height={0}
 											placeholder="empty"
 											className="rounded-full object-cover w-full h-full cursor-pointer"
 											src={comment.user.picture}
-											alt={`${comment.user.username} picture`}
+											alt={
+												session?.user?.user_id ===
+												comment.user_id
+													? "Your user picture"
+													: `${comment.user.username} user picture`
+											}
 										/>
-									</div>
+									</button>
 									{session?.user.user_id ===
 									comment.user_id ? (
 										<div>
-											<p className="text-clamp2">You</p>
+											<p
+												aria-hidden
+												className="text-clamp2">
+												You
+											</p>
 										</div>
 									) : (
 										<nav
+											aria-label="go to user profile"
 											className={`text-clamp2 hover:text-appturq active:text-appturq focus:text-appturq ${
 												clickedBtn === index &&
 												usrLinkEffect &&
@@ -594,7 +703,8 @@ export default function PostComments({ post, comments }) {
 												]}?page=${pg}`}
 												as={`/csian/${[
 													postDetail.user_id,
-												]}`}>
+												]}`}
+												className="block px-[0.5rem]">
 												{comment.user.username}
 											</a>
 										</nav>
@@ -609,22 +719,43 @@ export default function PostComments({ post, comments }) {
 									/>
 								</div>
 							</div>
-							<div className="text-clamp6 mt-[0.8rem] mb-[0.4rem]">
+							<div
+								tabIndex={0}
+								aria-label={`comment ${
+									comment.id
+								} message from ${
+									comment.user.username ===
+									session?.user?.username
+										? "you"
+										: comment.user.username
+								}`}
+								aria-description={comment.message}
+								className="text-clamp6 mt-[0.8rem] mb-[0.4rem] px-[0.3rem]">
 								<p>{comment.message}</p>
 							</div>
 
 							{comment.image ? (
 								<div
-									className="flex items-center justify-end w-[54%] h-[11.2rem] self-center my-[0.8rem] rounded-lg shadow-card"
+									tabIndex={0}
+									title="click or press enter to zoom in"
+									className="flex items-center justify-end w-[54%] h-[11.2rem] self-center my-[0.8rem] focus-visible:outline-offset-[0.4rem] rounded-lg shadow-card"
 									onClick={() => {
 										setClickedBtn(index);
 										showCommImgZoomOverlay();
+									}}
+									onKeyUp={(e) => {
+										if (e.key === "Enter") {
+											setClickedBtn(index);
+											showCommImgZoomOverlay();
+										}
 									}}>
 									<Image
+										aria-description="click or press enter to zoom in"
 										width={0}
 										height={0}
 										src={comment.image}
 										alt="comment image"
+										priority={true}
 										placeholder="empty"
 										className="rounded-lg object-cover w-full h-full cursor-pointer"
 									/>
@@ -641,8 +772,8 @@ export default function PostComments({ post, comments }) {
 											title={
 												clickedBtn === index &&
 												updCommentCard
-													? "cancel update"
-													: "edit"
+													? "cancel comment update"
+													: "edit comment"
 											}
 											onClick={() => {
 												setClickedBtn(index);
@@ -671,7 +802,7 @@ export default function PostComments({ post, comments }) {
 											)}
 										</button>
 										<button
-											title="delete"
+											title="delete comment"
 											onClick={() => {
 												setClickedBtn(index);
 												handleDeleteComment(comment.id);
@@ -694,7 +825,7 @@ export default function PostComments({ post, comments }) {
 								) : (
 									<ShareLink comment={comment} />
 								)}
-								<div>
+								<div className="mob48:text-[1.2rem]">
 									{comment.editedAt ? (
 										comment.editedByAdmin ? (
 											<p>
@@ -738,6 +869,7 @@ export default function PostComments({ post, comments }) {
 											type: "popLayout",
 										}}
 										className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 my-[1.2rem]"
+										role="alert"
 										aria-live="assertive">
 										{errMsg}
 									</motion.p>

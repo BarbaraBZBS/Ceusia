@@ -21,22 +21,14 @@ export default async function Thread({ searchParams }) {
 
 	return (
 		<div className="w-full h-full">
-			{posts.length > 0 ? (
-				<>
-					<Cards
-						posts={posts}
-						allPosts={allPosts}
-						users={users}
-						session={session}
-						totalPages={totalPages}
-						page={page}
-					/>
-				</>
-			) : (
-				<div className="flex justify-center items-center text-clamp7">
-					<p>Sorry, there&apos;s no posts to display</p>
-				</div>
-			)}
+			<Cards
+				posts={posts}
+				allPosts={allPosts}
+				users={users}
+				session={session}
+				totalPages={totalPages}
+				page={page}
+			/>
 		</div>
 	);
 }

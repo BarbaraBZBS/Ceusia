@@ -19,6 +19,8 @@ import { AnimatePresence, motion, useAnimate } from "framer-motion";
 import { logout } from "@/app/actions";
 import Picker from "emoji-picker-react";
 import { BsEmojiSmileFill } from "react-icons/bs";
+import { FocusOn } from "react-focus-on";
+import { RemoveScrollBar } from "react-remove-scroll-bar";
 
 const USER_REGEX = /(^[a-zA-Z]{2,})+([A-Za-z0-9-_])/;
 const EMAIL_REGEX =
@@ -62,6 +64,7 @@ export default function LoggedUser({ user }) {
 	const confpasw = watch("confirm_password");
 	const mt = watch("motto");
 	const [errMsg, setErrMsg] = useState("");
+	const [errMsgDel, setErrMsgDel] = useState("");
 	const [passwordUpdated, setPasswordUpdated] = useState(false);
 	const [pictureUpdated, setPictureUpdated] = useState(false);
 	const [usrnEffect, setUsrnEffect] = useState(false);
@@ -85,6 +88,14 @@ export default function LoggedUser({ user }) {
 	const [clickedBtn, setClickedBtn] = useState(0);
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 	const [emojiBtnClickEffect, setEmojiBtnClickEffect] = useState(false);
+	const [isSent, setIsSent] = useState(false);
+	const isBtnUsrnDisabled = !usrN;
+	const isBtnEmlDisabled = !eml;
+	const isBtnPswDisabled = !curpsw || !psw || !confpasw;
+	const isBtnMtDisabled = !mt;
+	const isBtnImgDisabled = filewatch === null || !filewatch?.[0]?.name;
+	const isBtnPicDisabled =
+		user.picture === "http://localhost:8000/profile/defaultUser.png";
 
 	useEffect(() => {
 		if (errors?.username) {
@@ -106,7 +117,6 @@ export default function LoggedUser({ user }) {
 			setIsPostsShown(true);
 		}, 300);
 		setTimeout(async () => {
-			document.getElementById("body-container").style.overflow = "hidden";
 			try {
 				const myPosts = await axiosAuth.get(
 					`/posts/user/${session.user.user_id}`
@@ -134,7 +144,6 @@ export default function LoggedUser({ user }) {
 		}, 390);
 		setTimeout(() => {
 			setIsPostsShown(false);
-			document.getElementById("body-container").style.overflow = "";
 		}, 400);
 	};
 
@@ -145,7 +154,6 @@ export default function LoggedUser({ user }) {
 		}, 490);
 		setTimeout(() => {
 			setIsPostsShown(false);
-			document.getElementById("body-container").style.overflow = "";
 		}, 500);
 	};
 
@@ -153,6 +161,8 @@ export default function LoggedUser({ user }) {
 		setPasswordUpdated(false);
 		setPictureUpdated(false);
 		setErrMsg();
+		setErrMsgDel();
+		setIsSent(false);
 		data = {
 			username: getValues("username"),
 			email: getValues("email"),
@@ -181,6 +191,7 @@ export default function LoggedUser({ user }) {
 					};
 					await update(updSession);
 				}
+				setIsSent(true);
 				const resp = await axiosAuth.get(`/auth/user/${user.id}`);
 				const userInfo = resp.data;
 				setUserDetail(userInfo);
@@ -190,8 +201,12 @@ export default function LoggedUser({ user }) {
 				setErrMsg(
 					"Server unresponsive, please try again or come back later."
 				);
-				if (!isBrowser()) return;
-				window.scrollTo({ top: 0, behavior: "smooth" });
+			} else if (err.response?.status === 401) {
+				setError("currpsw", {
+					type: "custom",
+					message: "Incorrect password detail",
+				});
+				setFocus("currpsw");
 			} else if (err.response?.status === 409) {
 				setError("username", {
 					type: "custom",
@@ -201,13 +216,11 @@ export default function LoggedUser({ user }) {
 			} else if (err.response?.status === 403) {
 				setError("email", {
 					type: "custom",
-					message: "Email already taken",
+					message: "This email is already linked",
 				});
 				setFocus("email");
 			} else {
 				setErrMsg("Update failed, please try again.");
-				if (!isBrowser()) return;
-				window.scrollTo({ top: 0, behavior: "smooth" });
 			}
 		}
 	};
@@ -224,29 +237,36 @@ export default function LoggedUser({ user }) {
 		};
 		setPasswordUpdated(false);
 		setPictureUpdated(false);
-		setErrMsg();
+		setErrMsg("");
+		setErrMsgDel("");
+		setIsSent(false);
+		const abortSignal = AbortSignal.timeout(4000);
 		try {
 			await axiosAuth({
 				method: "post",
 				url: `/auth/user/${user.id}/upload`,
 				data: form,
 				headers: headers,
+				signal: abortSignal,
 			}).then(async (response) => {
 				if (response) {
 					//console.log("response data: ", response?.data);
 					//console.log("updated");
 					const resp = await axiosAuth.get(`/auth/user/${user.id}`);
+					setIsSent(true);
 					setUserDetail(resp.data);
 					setPictureUpdated(true);
 				}
 			});
 		} catch (err) {
-			if (!err?.response) {
+			if (err.code === "ERR_CANCELED" && abortSignal.aborted) {
+				setErrMsg(
+					"Request timed out, please try again or chose another file."
+				);
+			} else if (!err?.response) {
 				setErrMsg(
 					"Server unresponsive, please try again or come back later."
 				);
-				if (!isBrowser()) return;
-				window.scrollTo({ top: 0, behavior: "smooth" });
 			} else if (err.response?.status === 409) {
 				setError("picture", {
 					type: "custom",
@@ -259,8 +279,6 @@ export default function LoggedUser({ user }) {
 				});
 			} else {
 				setErrMsg("Update failed, please try again.");
-				if (!isBrowser()) return;
-				window.scrollTo({ top: 0, behavior: "smooth" });
 			}
 		}
 	};
@@ -270,6 +288,7 @@ export default function LoggedUser({ user }) {
 		setPictureUpdated(false);
 		setDeleteEffect(true);
 		setErrMsg();
+		setErrMsgDel();
 		setTimeout(async () => {
 			try {
 				let answer = window.confirm(
@@ -287,25 +306,23 @@ export default function LoggedUser({ user }) {
 				}
 			} catch (err) {
 				if (!err?.response) {
-					setErrMsg(
+					setErrMsgDel(
 						"Server unresponsive, please try again or come back later."
 					);
-					if (!isBrowser()) return;
-					window.scrollTo({ top: 0, behavior: "smooth" });
 				} else {
-					setErrMsg("Account removal failed, please try again.");
-					if (!isBrowser()) return;
-					window.scrollTo({ top: 0, behavior: "smooth" });
+					setErrMsgDel("Account removal failed, please try again.");
 				}
 			}
 		}, 600);
 	};
 
 	useEffect(() => {
-		if (isSubmitSuccessful) {
+		if (isSubmitSuccessful && isSent) {
+			setErrMsg("");
+			setErrMsgDel("");
 			reset();
 		}
-	}, [isSubmitSuccessful, reset]);
+	}, [isSubmitSuccessful, isSent, reset]);
 
 	function showUsrPicZoomOverlay() {
 		setBgZoomed(true);
@@ -353,12 +370,8 @@ export default function LoggedUser({ user }) {
 					setErrMsg(
 						"Server unresponsive, please try again or come back later."
 					);
-					if (!isBrowser()) return;
-					window.scrollTo({ top: 0, behavior: "smooth" });
 				} else {
 					setErrMsg("Update failed, please try again.");
-					if (!isBrowser()) return;
-					window.scrollTo({ top: 0, behavior: "smooth" });
 				}
 			}
 		}, 700);
@@ -374,6 +387,13 @@ export default function LoggedUser({ user }) {
 		setValue("motto", message);
 	};
 
+	const handleShowEmoji = () => {
+		setEmojiBtnClickEffect(true);
+		setTimeout(() => {
+			handleEmojiPickerHideShow();
+		}, 400);
+	};
+
 	if (!isBrowser()) return;
 	window.addEventListener("scroll", () => {
 		document.documentElement.style.setProperty(
@@ -385,45 +405,22 @@ export default function LoggedUser({ user }) {
 	return (
 		<div className="flex flex-col mb-[2.4rem]">
 			{/* profile info */}
-			<h1 className="text-clamp3 text-center pt-[3.2rem] mb-[2rem] uppercase font-semibold">
+			<h1 className="text-clamp3 mob48:text-clamp5 text-center pt-[3.2rem] mb-[2rem] uppercase font-semibold">
 				My Profile
 			</h1>
-			<AnimatePresence>
-				{errMsg && (
-					<motion.p
-						initial={{
-							x: 70,
-							opacity: 0,
-						}}
-						animate={{
-							x: 0,
-							opacity: 1,
-						}}
-						exit={{
-							x: 70,
-							opacity: 0,
-						}}
-						transition={{
-							type: "popLayout",
-						}}
-						className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 my-[1.2rem]"
-						aria-live="assertive">
-						{errMsg}
-					</motion.p>
-				)}
-			</AnimatePresence>
-			<section className="flex flex-col text-clamp8 items-center mb-[3.2rem] gap-[1rem]">
+			<section className="flex flex-col text-clamp8 mob48:text-clamp7 items-center mb-[3.2rem] gap-[1rem]">
 				<p>{userDetail.username}</p>
 				<p>{userDetail.email}</p>
 				{userDetail.motto == "" || userDetail.motto == null ? (
 					<p>no motto</p>
 				) : (
-					<p className="mx-[0.8rem]">{`"${userDetail.motto}"`}</p>
+					<p className="mx-[0.8rem]">{` ${userDetail.motto} `}</p>
 				)}
 				<FollowersFollowing user={user} />
 				<button
+					title="click or press enter to zoom in"
 					onClick={() => showUsrPicZoomOverlay()}
-					className="w-[12.8rem] h-[12.8rem] rounded-full cursor-pointer touch-auto transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light">
+					className="w-[12.8rem] h-[12.8rem] rounded-full focus-visible:outline-offset-[0.4rem] touch-auto transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light">
 					<Image
 						width={0}
 						height={0}
@@ -431,37 +428,46 @@ export default function LoggedUser({ user }) {
 						src={userDetail.picture}
 						alt={`${userDetail.username} picture`}
 						placeholder="empty"
-						className="rounded-full w-full h-full border-2"
+						className="rounded-full w-full h-full border-2 shadow-strip"
 					/>
 				</button>
-				<div
-					className={
-						bgZoomed
-							? "fixed overflow-y-scroll left-0 right-0 top-0 bottom-0 w-full h-full bg-appblck z-[998] flex"
-							: "hidden"
-					}
-					onClick={() => hideUsrPicZoomOverlay()}>
-					{bgZoomed && (
-						<Image
-							width={0}
-							height={0}
-							priority={true}
-							src={userDetail.picture}
-							placeholder="empty"
-							alt={`${userDetail.username} picture`}
-							className="block m-auto w-[96%] aspect-square object-cover rounded-full border-2 animate-resizeZoom"
-						/>
-					)}
-				</div>
+				{bgZoomed && (
+					<FocusOn
+						onEscapeKey={() => {
+							hideUsrPicZoomOverlay();
+						}}>
+						<div
+							className={
+								bgZoomed
+									? "fixed overflow-y-auto left-0 right-0 top-0 bottom-0 w-screen h-full bg-white dark:bg-appblck z-[998] flex"
+									: "hidden"
+							}
+							onClick={() => hideUsrPicZoomOverlay()}>
+							{bgZoomed && (
+								<Image
+									tabIndex={0}
+									title="click or press escape to zoom out"
+									width={0}
+									height={0}
+									priority={true}
+									src={userDetail.picture}
+									placeholder="empty"
+									alt={`zoomed ${userDetail.username} picture`}
+									className="block m-auto w-[96%] aspect-square object-cover rounded-full border-2 animate-resizeZoom"
+								/>
+							)}
+						</div>
+					</FocusOn>
+				)}
 			</section>
 
 			{/* logged user posts */}
 			<div
 				ref={scope}
-				className="flex justify-center mt-[1.2rem] mb-[2.5rem]">
+				className="flex justify-center mt-[1.2rem] mb-[2.5rem] sm:mb-[3.5rem]">
 				<button
 					onClick={() => showPosts()}
-					className="border-2 border-appmauvedark text-appmauvedark text-clamp7 uppercase font-medium bg-apppastgreen rounded-full px-[0.8rem] py-[0.4rem] hover:bg-indigo-100">
+					className="border-[0.3rem] border-appmauvedark dark:border-apppastgreen text-appmauvedark text-clamp8 uppercase font-bold bg-apppastgreen rounded-full px-[0.8rem] py-[0.4rem] hover:bg-indigo-100 focus-visible:outline-offset-[0.4rem] shadow-neatcard">
 					My posts
 				</button>
 			</div>
@@ -484,6 +490,7 @@ export default function LoggedUser({ user }) {
 							type: "popLayout",
 						}}
 						className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 mb-[2rem]"
+						role="alert"
 						aria-live="assertive">
 						{postsErrMsg}
 					</motion.p>
@@ -493,102 +500,196 @@ export default function LoggedUser({ user }) {
 			{/* user posts shown */}
 			<AnimatePresence>
 				{isPostsShown && (
-					<motion.section
-						key="user-posts-card"
-						initial={{ opacity: 0, y: 100, x: 100 }}
-						animate={{ opacity: 1, y: 0, x: 0 }}
-						exit={{ opacity: 0, y: 100, x: 100 }}
-						transition={{ duration: 0.4, origin: 1, delay: 0.25 }}
-						className={`z-[700] w-full top-0 left-0 h-full fixed overflow-auto ${
-							isBlurred && "animate-pop"
-						}`}>
-						<div className="bg-apppinklight absolute top-[9.6rem] left-[4.5%] p-3 w-[90%] min-h-[18rem] rounded-xl shadow-neatcard overflow-auto">
-							<div className="flex justify-end">
-								<FontAwesomeIcon
-									icon={faXmark}
-									size="2xl"
-									onClick={() => handleClose()}
-									onAnimationEnd={() =>
-										setCloseUserPostsEffect(false)
-									}
-									className={`cursor-pointer hover:text-appred mb-[1.2rem] ${
-										closeUserPostsEffect &&
-										"animate-pressed opacity-60"
-									}`}
-								/>
-							</div>
-
-							<AnimatePresence>
-								{userPosts.length > 0 ? (
-									<motion.section
-										key="user-posts-list"
-										layout
-										initial={{ opacity: 0, x: -80 }}
-										animate={{ opacity: 1, x: 0 }}
-										exit={{
-											opacity: 0,
-											x: -80,
-											transition: {
-												ease: "easeOut",
-												duration: 0.4,
-											},
-										}}
-										transition={{
-											type: "spring",
-											delay: 0.7,
-										}}
-										className="">
-										{userPosts &&
-											userPosts.map((post, index) => (
-												<div
-													key={post.id}
-													onClick={() => {
-														setClickedBtn(index);
-														goToPost();
-													}}
-													className={`cursor-pointer border-2 border-white rounded-2xl bg-white my-[0.8rem] text-clamp1 px-[1.4rem] py-[0.8rem] ${
-														clickedBtn === index &&
-														goToPostEffect &&
-														"border-violet-500 bg-violet-200"
-													}`}
-													onAnimationEnd={() =>
-														setGoToPostEffect(false)
-													}>
-													<a
-														href={`/coms/${[
-															post.id,
-														]}`}>
-														{post.title && (
-															<p className="text-clamp5 font-medium text-center mb-[0.4rem]">
-																{post.title}
-															</p>
-														)}
-														<p className="line-clamp-1 mb-[0.4rem]">
-															{post.content}
-														</p>
-														<div className="flex justify-evenly">
-															<p className="text-green-500 drop-shadow-lighter">
-																{post.likes}
-															</p>
-															<p className="text-red-500 drop-shadow-lighter">
-																{post.dislikes}
-															</p>
-															<p className="text-appturq drop-shadow-lighter">
-																{
-																	post.discussions
-																}
-															</p>
-														</div>
-													</a>
-												</div>
-											))}
-									</motion.section>
-								) : (
-									<div></div>
-								)}
-							</AnimatePresence>
-						</div>
-					</motion.section>
+					<>
+						<RemoveScrollBar />
+						<motion.section
+							key="user-posts-card"
+							initial={{ opacity: 0, y: 100, x: 100 }}
+							animate={{ opacity: 1, y: 0, x: 0 }}
+							exit={{ opacity: 0, y: 100, x: 100 }}
+							transition={{
+								duration: 0.4,
+								origin: 1,
+								delay: 0.25,
+							}}
+							className={`z-[700] w-screen top-0 left-0 h-full fixed overflow-scroll popmod ${
+								isBlurred && "animate-pop"
+							}`}>
+							<FocusOn
+								onClickOutside={() => handleClose()}
+								onEscapeKey={() => handleClose()}
+								preventScrollOnFocus
+								noIsolation
+								scrollLock={false}>
+								<div
+									role="dialog"
+									aria-labelledby="posts-ttl"
+									className="bg-gray-200 dark:bg-applightdark absolute top-[7.6rem] left-[calc(50vw-(94vw/2))] p-3 w-[94%] min-h-[18rem] rounded-xl shadow-neatcard">
+									<div className="flex justify-end mb-[1.2rem]">
+										<button
+											onClick={() => handleClose()}
+											aria-label="close posts"
+											className="w-fit">
+											<FontAwesomeIcon
+												icon={faXmark}
+												size="2xl"
+												onAnimationEnd={() =>
+													setCloseUserPostsEffect(
+														false
+													)
+												}
+												className={`hover:text-appred ${
+													closeUserPostsEffect &&
+													"animate-pressed opacity-60"
+												}`}
+											/>
+										</button>
+									</div>
+									<h1
+										id="posts-ttl"
+										className="uppercase text-clamp5 text-center font-semibold">
+										My Posts
+									</h1>
+									<AnimatePresence>
+										{userPosts.length > 0 ? (
+											<motion.section
+												key="user-posts-list"
+												layout
+												initial={{
+													opacity: 0,
+													x: -50,
+												}}
+												animate={{
+													opacity: 1,
+													x: 0,
+												}}
+												exit={{
+													opacity: 0,
+													x: -50,
+													transition: {
+														ease: "easeOut",
+														duration: 0.4,
+													},
+												}}
+												transition={{
+													type: "spring",
+													delay: 0.7,
+												}}
+												className="mt-[3rem] overflow-hidden w-full">
+												{userPosts &&
+													userPosts.map(
+														(post, index) => (
+															<div
+																key={post.id}
+																onClick={() => {
+																	setClickedBtn(
+																		index
+																	);
+																	goToPost();
+																}}
+																className={`cursor-pointer border-2 border-gray-400 dark:border-gray-800 rounded-2xl bg-white dark:bg-appstone my-[0.8rem] text-clamp1 dark:hover:bg-appmauvedark hover:bg-appmauvelight ${
+																	clickedBtn ===
+																		index &&
+																	goToPostEffect &&
+																	"border-violet-500 bg-violet-200 dark:border-violet-700 dark:bg-violet-400 animate-clicked"
+																}`}
+																onAnimationEnd={() =>
+																	setGoToPostEffect(
+																		false
+																	)
+																}>
+																<a
+																	aria-labelledby={
+																		post.title
+																			? "list-post-ttl"
+																			: `post ${index}`
+																	}
+																	href={`/coms/${[
+																		post.id,
+																	]}`}
+																	className="block px-[1.4rem] py-[0.8rem] rounded-2xl">
+																	<div className="">
+																		{post.title && (
+																			<>
+																				<p
+																					id="list-post-ttl"
+																					className="text-clamp5 font-medium text-center mb-[0.4rem]">
+																					{
+																						post.title
+																					}
+																				</p>
+																				<hr className="border-b-[1px]" />
+																			</>
+																		)}
+																		<p className="line-clamp-1 mt-[0.4rem] mb-[0.6rem]">
+																			{
+																				post.content
+																			}
+																		</p>
+																		<hr className="border-b-[1px]" />
+																		<div className="flex justify-evenly font-semibold">
+																			<p className="text-green-500 drop-shadow-lighter">
+																				{
+																					post.likes
+																				}
+																			</p>
+																			<p className="text-red-500 drop-shadow-lighter">
+																				{
+																					post.dislikes
+																				}
+																			</p>
+																			<p className="text-appturq drop-shadow-lighter">
+																				{
+																					post.discussions
+																				}
+																			</p>
+																		</div>
+																	</div>
+																</a>
+															</div>
+														)
+													)}
+											</motion.section>
+										) : (
+											<motion.div
+												key="user-posts-list-empty"
+												layout
+												initial={{
+													opacity: 0,
+													x: -50,
+												}}
+												animate={{
+													opacity: 1,
+													x: 0,
+												}}
+												exit={{
+													opacity: 0,
+													x: -50,
+													transition: {
+														ease: "easeOut",
+														duration: 0.4,
+													},
+												}}
+												transition={{
+													type: "spring",
+													delay: 0.7,
+												}}
+												className="flex flex-col items-center justify-center text-clamp7 mt-[3rem] overflow-hidden w-full">
+												<p>
+													You have shared no posts...
+													😢
+												</p>
+												<p>
+													Go back to home feed to
+													share something!
+												</p>
+											</motion.div>
+										)}
+									</AnimatePresence>
+								</div>
+							</FocusOn>
+						</motion.section>
+					</>
 				)}
 			</AnimatePresence>
 
@@ -597,14 +698,14 @@ export default function LoggedUser({ user }) {
 				animate={{ opacity: [0, 1], y: [50, 0] }}
 				transition={{ duration: 0.6, delay: 0.3 }}>
 				<div className="flex flex-col items-center">
-					<hr className="w-[80vw] text-center mb-[3.2rem] border-t-solid border-t-[4px] rounded-md border-t-gray-300"></hr>
-					<h2 className="text-clamp3 text-center mb-[2rem] uppercase font-semibold">
+					<hr className="w-[80vw] text-center mb-[3.2rem] border-t-solid border-t-[4px] rounded-md border-t-gray-300 dark:border-t-gray-500"></hr>
+					<h2 className="text-clamp3 mob48:text-clamp5 text-center mb-[2rem] uppercase font-semibold">
 						Update Profile Details
 					</h2>
 				</div>
 				<div className="flex flex-col items-center">
 					<form
-						className="mb-[0.4rem] py-[0.4rem] flex items-center justify-evenly text-clamp6 w-[80%]"
+						className="mb-[0.4rem] py-[0.4rem] flex items-center justify-center text-clamp6 w-full gap-[1rem]"
 						onSubmit={handleSubmit(submitUpdate)}>
 						<input
 							placeholder={`  ${userDetail.username}`}
@@ -623,7 +724,7 @@ export default function LoggedUser({ user }) {
 										"Username must start with letters (digits, -, _ allowed)",
 								},
 							})}
-							className={`border-2 border-appstone rounded-md h-[3.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[74%] ${
+							className={`border-2 border-appstone rounded-md h-[3.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[60%] ${
 								errors.username
 									? "border-appred focus:border-appred"
 									: ""
@@ -632,11 +733,19 @@ export default function LoggedUser({ user }) {
 						<button
 							title="confirm username update"
 							type="submit"
-							disabled={!usrN}
-							onClick={() => setUsrnEffect(true)}
+							aria-disabled={isBtnUsrnDisabled}
+							onClick={(e) => {
+								isBtnUsrnDisabled
+									? e.preventDefault()
+									: setUsrnEffect(true);
+							}}
 							onAnimationEnd={() => setUsrnEffect(false)}
-							className={`bg-appstone text-white w-fit rounded-2xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40 py-[0.4rem] px-[1rem] ${
+							className={`bg-appstone dark:bg-appmauvedark text-white w-fit mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-2xl mt-[0.8rem] mb-[0.8rem] bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] py-[0.4rem] px-[1rem] mob88:p-[0.2rem] shadow-neatcard ${
 								usrnEffect && "animate-bgSize"
+							} ${
+								isBtnUsrnDisabled
+									? "opacity-40 cursor-not-allowed"
+									: "transition-all duration-300 ease-in-out hover:bg-apppastgreen hover:text-appblck hover:translate-y-[5px] hover:shadow-btnpastgreen"
 							}`}>
 							<FontAwesomeIcon icon={faPenFancy} />
 						</button>
@@ -650,7 +759,7 @@ export default function LoggedUser({ user }) {
 
 				<div className="flex flex-col items-center">
 					<form
-						className="mb-[0.4rem] py-[0.4rem] flex items-center justify-evenly text-clamp6 w-[80%]"
+						className="mb-[0.4rem] py-[0.4rem] flex items-center justify-center text-clamp6 w-full gap-[1rem]"
 						onSubmit={handleSubmit(submitUpdate)}>
 						<input
 							type="email"
@@ -661,7 +770,7 @@ export default function LoggedUser({ user }) {
 									message: "Email must have a valid format",
 								},
 							})}
-							className={`border-2 border-appstone rounded-md h-[3.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[74%] ${
+							className={`border-2 border-appstone rounded-md h-[3.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[60%] ${
 								errors.email
 									? "border-appred focus:border-appred"
 									: ""
@@ -670,11 +779,19 @@ export default function LoggedUser({ user }) {
 						<button
 							title="confirm email update"
 							type="submit"
-							disabled={!eml}
-							onClick={() => setEmailEffect(true)}
+							aria-disabled={isBtnEmlDisabled}
+							onClick={(e) => {
+								isBtnEmlDisabled
+									? e.preventDefault()
+									: setEmailEffect(true);
+							}}
 							onAnimationEnd={() => setEmailEffect(false)}
-							className={`bg-appstone text-white w-fit rounded-2xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40 py-[0.4rem] px-[1rem] ${
+							className={`bg-appstone dark:bg-appmauvedark text-white w-fit mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-2xl mt-[0.8rem] mb-[0.8rem] bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] py-[0.4rem] px-[1rem] mob88:p-[0.2rem] shadow-neatcard ${
 								emailEffect && "animate-bgSize"
+							} ${
+								isBtnEmlDisabled
+									? "opacity-40 cursor-not-allowed"
+									: "transition-all duration-300 ease-in-out hover:bg-apppastgreen hover:text-appblck hover:translate-y-[5px] hover:shadow-btnpastgreen"
 							}`}>
 							<FontAwesomeIcon icon={faPenFancy} />
 						</button>
@@ -690,7 +807,7 @@ export default function LoggedUser({ user }) {
 					<form
 						className="mb-[0.4rem] py-[0.4rem] flex flex-col items-center text-clamp6"
 						onSubmit={handleSubmit(submitUpdate)}>
-						<div className="flex items-center justify-evenly w-[80%]">
+						<div className="flex items-center justify-center w-full gap-[1rem]">
 							<input
 								type="password"
 								autoComplete="off"
@@ -698,19 +815,26 @@ export default function LoggedUser({ user }) {
 								{...register("currpsw", {
 									// required: 'This field is required'
 								})}
-								className={`border-2 border-appstone rounded-md h-[3.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[74%] ${
+								className={`border-2 border-appstone rounded-md h-[3.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[60%] ${
 									errors.currpsw
 										? "border-appred focus:border-appred"
 										: ""
 								}`}
 							/>
 							<button
-								type="button"
-								className={`bg-appstone text-white w-fit rounded-2xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40 py-[0.4rem] px-[1rem] opacity-0`}>
+								aria-hidden
+								tabIndex={-1}
+								className="cursor-default w-fit mob88:w-[2.8rem] mob88:h-[2.8rem] mob88:p-[0.2rem] rounded-2xl mt-[0.8rem] mb-[0.8rem] py-[0.4rem] px-[1rem] opacity-0">
 								<FontAwesomeIcon icon={faPenFancy} />
 							</button>
 						</div>
-						<div className="flex items-center justify-evenly w-[80%]">
+						{errors.currpsw && (
+							<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md">
+								{errors.currpsw.message}
+							</span>
+						)}
+
+						<div className="flex items-center justify-center w-full gap-[1rem]">
 							<input
 								type="password"
 								autoComplete="new-password"
@@ -730,30 +854,47 @@ export default function LoggedUser({ user }) {
 											"Password must have at least 1 digit and 1 letter",
 									},
 								})}
-								className={`border-2 border-appstone rounded-md h-[3.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[74%] ${
+								className={`border-2 border-appstone rounded-md h-[3.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[60%] ${
 									errors.password
 										? "border-appred focus:border-appred"
 										: ""
 								}`}
 							/>
-							<button
-								title="confirm password update"
-								type="submit"
-								disabled={!curpsw || !psw || !confpasw}
-								onClick={() => setPwdEffect(true)}
-								onAnimationEnd={() => setPwdEffect(false)}
-								className={`bg-appstone text-white w-fit rounded-2xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40 py-[0.4rem] px-[1rem] ${
-									pwdEffect && "animate-bgSize"
-								}`}>
-								<FontAwesomeIcon icon={faPenFancy} />
-							</button>
+							{passwordUpdated ? (
+								<button
+									type="button"
+									aria-hidden
+									tabIndex={-1}
+									className="cursor-default w-fit mob88:w-[2.8rem] mob88:h-[2.8rem] mob88:p-[0.2rem] rounded-2xl mt-[0.8rem] mb-[0.8rem] py-[0.4rem] px-[1rem]">
+									<FontAwesomeIcon
+										icon={faCheckDouble}
+										size={"lg"}
+										style={{ color: "#84CC16" }}
+										className={` ${
+											pswUpdatedEffect &&
+											"animate-reversePing"
+										}`}
+										onAnimationEnd={() =>
+											setPswUpdatedEffect(false)
+										}
+									/>
+								</button>
+							) : (
+								<button
+									type="button"
+									aria-hidden
+									tabIndex={-1}
+									className="cursor-default w-fit mob88:w-[2.8rem] mob88:h-[2.8rem] mob88:p-[0.2rem] rounded-2xl mt-[0.8rem] mb-[0.8rem] py-[0.4rem] px-[1rem] opacity-0">
+									<FontAwesomeIcon icon={faPenFancy} />
+								</button>
+							)}
 						</div>
 						{errors.password && (
-							<span className="text-red-600  bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md">
+							<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md">
 								{errors.password.message}
 							</span>
 						)}
-						<div className="flex justify-evenly items-center w-[80%]">
+						<div className="flex justify-center items-center w-full gap-[1rem]">
 							<input
 								type="password"
 								autoComplete="off"
@@ -763,33 +904,31 @@ export default function LoggedUser({ user }) {
 										value === password.current ||
 										"Passwords do not match",
 								})}
-								className={`border-2 border-appstone rounded-md h-[3.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[74%] ${
+								className={`border-2 border-appstone rounded-md h-[3.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[60%] ${
 									errors.confirm_password
 										? "border-appred focus:border-appred"
 										: ""
 								}`}
 							/>
-							{passwordUpdated ? (
-								<FontAwesomeIcon
-									icon={faCheckDouble}
-									size={"xl"}
-									style={{ color: "#84CC16" }}
-									className={`my-[0.8rem] py-[0.4rem] px-[0.75rem] ${
-										pswUpdatedEffect &&
-										"animate-reversePing"
-									}`}
-									onAnimationEnd={() =>
-										setPswUpdatedEffect(false)
-									}
-								/>
-							) : (
-								<FontAwesomeIcon
-									icon={faCheckDouble}
-									size={"xl"}
-									style={{ color: "#84CC16" }}
-									className="my-[0.8rem] py-[0.4rem] px-[1rem] opacity-0"
-								/>
-							)}
+							<button
+								title="confirm password update"
+								type="submit"
+								aria-disabled={isBtnPswDisabled}
+								onClick={() => setPwdEffect(true)}
+								onAnimationEnd={(e) => {
+									isBtnPswDisabled
+										? e.preventDefault()
+										: setPwdEffect(false);
+								}}
+								className={`bg-appstone dark:bg-appmauvedark text-white w-fit mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-2xl mt-[0.8rem] mb-[0.8rem] bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] py-[0.4rem] px-[1rem] mob88:p-[0.2rem] shadow-neatcard ${
+									pwdEffect && "animate-bgSize"
+								} ${
+									isBtnPswDisabled
+										? "opacity-40 cursor-not-allowed"
+										: "transition-all duration-300 ease-in-out hover:bg-apppastgreen hover:text-appblck hover:translate-y-[5px] hover:shadow-btnpastgreen"
+								}`}>
+								<FontAwesomeIcon icon={faPenFancy} />
+							</button>
 						</div>
 						{errors.confirm_password && (
 							<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md">
@@ -799,55 +938,70 @@ export default function LoggedUser({ user }) {
 					</form>
 				</div>
 
-				<div className="flex flex-col items-center">
+				<div className="flex flex-col items-center justify-center">
 					<form
-						className="py-[0.4rem] flex justify-evenly items-center text-clamp6 w-[80%] mb-[0.9rem]"
+						className="py-[0.4rem] w-full flex justify-center items-center text-clamp6 mb-[0.9rem] gap-[1rem]"
 						onSubmit={handleSubmit(submitUpdate)}>
 						<textarea
 							type="text"
 							placeholder={
 								userDetail.motto == "" ||
 								userDetail.motto == null
-									? "  Type a nice motto here..."
+									? "  Add your motto..."
 									: `  ${userDetail.motto}`
 							}
 							{...register("motto")}
-							className="border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred h-[9.6rem] resize w-[74%] max-w-[98%]"
+							className="border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred resize h-[9.6rem] max-[376px]:h-[7.6rem] w-[60%] min-w-[22rem] max-[376px]:min-w-[9rem] max-w-[85%] min-h-[2.7rem] max-h-[16rem] max-[376px]:max-h-[11rem] lg:max-[90%]"
 						/>
 						<div className="flex flex-col items-center">
 							<BsEmojiSmileFill
-								className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+								tabIndex={0}
+								title={
+									showEmojiPicker
+										? "hide emoji picker"
+										: "show emoji picker"
+								}
+								className={`text-[2.3rem] mob88:text-[1.8rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
 									emojiBtnClickEffect && "animate-pressed"
 								}`}
-								onClick={() => {
-									setEmojiBtnClickEffect(true);
-									handleEmojiPickerHideShow();
+								onClick={() => handleShowEmoji()}
+								onKeyUp={(e) => {
+									if (e.key === "Enter") handleShowEmoji();
 								}}
 								onAnimationEnd={() =>
 									setEmojiBtnClickEffect(false)
 								}
 							/>
-							{showEmojiPicker && (
-								<div className="absolute top-[54%] left-[calc(50vw-(350px/2))] z-20">
-									<Picker
-										onEmojiClick={handleEmojiClick}
-										className="bg-appmauvedark"
-									/>
-								</div>
-							)}
 							<button
 								title="confirm motto update"
 								type="submit"
-								disabled={!mt}
-								onClick={() => setMottoEffect(true)}
+								aria-disabled={isBtnMtDisabled}
+								onClick={(e) => {
+									isBtnMtDisabled
+										? e.preventDefault()
+										: setMottoEffect(true);
+								}}
 								onAnimationEnd={() => setMottoEffect(false)}
-								className={`bg-appstone text-white w-fit rounded-2xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40 py-[0.4rem] px-[1rem] ${
+								className={`bg-appstone dark:bg-appmauvedark text-white w-fit mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-2xl mt-[0.8rem] mb-[0.8rem] bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] py-[0.4rem] px-[1rem] mob88:p-[0.2rem] shadow-neatcard ${
 									mottoEffect && "animate-bgSize"
+								} ${
+									isBtnMtDisabled
+										? "opacity-40 cursor-not-allowed"
+										: "transition-all duration-300 ease-in-out hover:bg-apppastgreen hover:text-appblck hover:translate-y-[5px] hover:shadow-btnpastgreen"
 								}`}>
 								<FontAwesomeIcon icon={faPenFancy} />
 							</button>
 						</div>
 					</form>
+					{/* emoji picker */}
+					{showEmojiPicker && (
+						<div className="">
+							<Picker
+								onEmojiClick={handleEmojiClick}
+								className="bg-appmauvedark"
+							/>
+						</div>
+					)}
 				</div>
 
 				<div className="flex flex-col items-center">
@@ -855,24 +1009,28 @@ export default function LoggedUser({ user }) {
 						className=" py-[0.4rem] flex flex-col items-center text-clamp6 w-full"
 						onSubmit={handleSubmit(submitPicUpdate)}>
 						<div className="flex w-[60%] items-center justify-evenly">
-							<div
-								className={`relative hover:opacity-70 ml-[16%] ${
+							<button
+								title="select picture"
+								onClick={() => {
+									setFileWiggle(true);
+									document.getElementById("picture").click();
+								}}
+								className={`relative hover:opacity-70 ml-[16%] rounded-md my-[0.4rem] w-[5.3rem] h-[3.6rem] ${
 									fileWiggle && "animate-wiggle"
 								}`}
 								onAnimationEnd={() => setFileWiggle(false)}>
 								<input
+									id="picture"
 									type="file"
-									onClick={() => setFileWiggle(true)}
 									name="picture"
 									placeholder="  Update Profile Picture"
 									{...register("picture")}
-									className="border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[5.3rem] h-[2.9rem] opacity-0 file:cursor-pointer"
+									className="hidden"
 								/>
 								<FontAwesomeIcon
 									icon={faPhotoFilm}
 									size="2xl"
-									style={{ color: "#4E5166" }}
-									className="absolute left-[0px] top-[0.3rem] -z-20"
+									className="text-appstone dark:text-appmauvedark absolute left-[0px] top-[0.3rem] -z-20"
 								/>
 								<FontAwesomeIcon
 									icon={faImagePortrait}
@@ -884,24 +1042,30 @@ export default function LoggedUser({ user }) {
 									}
 									className="absolute left-[3.45rem] top-[1rem] -z-10"
 								/>
-							</div>
+							</button>
 							<button
-								title="confirm picture update"
 								type="submit"
-								disabled={
-									filewatch === null || !filewatch?.[0]?.name
-								}
-								onClick={() => setPicEffect(true)}
+								title="confirm picture update"
+								aria-disabled={isBtnImgDisabled}
+								onClick={(e) => {
+									isBtnImgDisabled
+										? e.preventDefault()
+										: setPicEffect(true);
+								}}
 								onAnimationEnd={() => setPicEffect(false)}
-								className={`bg-appstone text-white w-fit rounded-2xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40 py-[0.4rem] px-[1rem] ml-[24%] mr-[14%] ${
+								className={`bg-appstone dark:bg-appmauvedark text-white w-fit mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-2xl mt-[0.8rem] mb-[0.8rem] bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] py-[0.4rem] px-[1rem] mob88:p-[0.2rem] ml-[24%] mr-[14%] shadow-neatcard ${
 									picEffect && "animate-bgSize"
+								} ${
+									isBtnImgDisabled
+										? "opacity-40 cursor-not-allowed"
+										: "transition-all duration-300 ease-in-out hover:bg-apppastgreen hover:text-appblck hover:translate-y-[5px] hover:shadow-btnpastgreen"
 								}`}>
 								<FontAwesomeIcon icon={faPenFancy} />
 							</button>
 						</div>
 						{filewatch && filewatch[0] ? (
 							<p
-								className={`max-w-[32.5rem] mx-[0.8rem] line-clamp-1 hover:line-clamp-none hover:text-ellipsis hover:overflow-hidden active:line-clamp-none active:text-ellipsis active:overflow-hidden 
+								className={`max-w-[90%] mx-[0.8rem] text-ellipsis overflow-hidden 
                                 ${
 									errors.picture
 										? "text-red-600 underline underline-offset-2 font-semibold"
@@ -930,27 +1094,31 @@ export default function LoggedUser({ user }) {
 						</div>
 					</form>
 					<button
-						disabled={
-							user.picture ===
-							"http://localhost:8000/profile/defaultUser.png"
-						}
 						type="button"
 						title="reset picture to default"
-						onClick={() => restoreDefault()}
+						aria-disabled={isBtnPicDisabled}
+						onClick={(e) => {
+							isBtnPicDisabled
+								? e.preventDefault()
+								: restoreDefault();
+						}}
 						onAnimationEnd={() => setDefaultPicEffect(false)}
-						className={`relative self-end mr-[20%] hover:enabled:opacity-70 transition-all duration-300 ease-in-out hover:enabled:translate-y-[5px] disabled:opacity-40 ${
+						className={`relative rounded-md self-end mr-[20%] w-[2.9rem] h-[3.2rem] ${
 							defaultPicEffect && "animate-btnFlat"
+						} ${
+							isBtnPicDisabled
+								? "opacity-40 cursor-not-allowed"
+								: "hover:opacity-70 transition-all duration-300 ease-in-out hover:translate-y-[5px]"
 						}`}>
 						<FontAwesomeIcon
 							icon={faImagePortrait}
-							style={{ color: "#4E5166" }}
-							className="absolute left-[0px] top-[0px] text-[2.5rem]"
+							className="text-appstone dark:text-appmauvedark absolute left-[5px] top-[5px] text-[2.5rem]"
 						/>
 						<FontAwesomeIcon
 							icon={faArrowRotateLeft}
 							size="lg"
 							style={{ color: "#FF7900" }}
-							className="absolute left-[1.1rem] top-[0rem]"
+							className="absolute left-[1.6rem] top-[0rem]"
 						/>
 					</button>
 				</div>
@@ -961,15 +1129,42 @@ export default function LoggedUser({ user }) {
 						onClick={() => {
 							setResetBtnEffect(true);
 							reset();
+							setErrMsg("");
+							setErrMsgDel("");
 						}}
 						onAnimationEnd={() => setResetBtnEffect(false)}
-						className={`bg-[#FF7900] text-appblck w-[3.6rem] h-[3.6rem] rounded-xl mt-[1.2rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px]
-                    hover:shadow-btnorange bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] ${
+						className={`bg-[#FF7900] text-appblck w-[3.6rem] h-[3.6rem] mob88:w-[2.8rem] mob88:h-[2.8rem] mob88:text-[0.8rem] rounded-xl mt-[1.2rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px]
+                    hover:shadow-btnorange bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] shadow-neatcard ${
 						resetBtnEffect && "animate-bgSize"
 					}`}>
 						<FontAwesomeIcon icon={faEraser} size="2xl" />
 					</button>
 				</div>
+				<AnimatePresence>
+					{errMsg && (
+						<motion.p
+							initial={{
+								x: 70,
+								opacity: 0,
+							}}
+							animate={{
+								x: 0,
+								opacity: 1,
+							}}
+							exit={{
+								x: 70,
+								opacity: 0,
+							}}
+							transition={{
+								type: "popLayout",
+							}}
+							className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 my-[1.2rem]"
+							role="alert"
+							aria-live="assertive">
+							{errMsg}
+						</motion.p>
+					)}
+				</AnimatePresence>
 			</motion.section>
 
 			{/* account suppression */}
@@ -977,24 +1172,50 @@ export default function LoggedUser({ user }) {
 				<motion.div
 					animate={{ opacity: [0, 1], y: [50, 0] }}
 					transition={{ duration: 0.6, delay: 0.6 }}
-					className="flex flex-col text-clamp5 items-center justify-center mt-[3.2rem] mb-[3.2rem]">
-					<hr className="w-[80%] text-center mb-[3.2rem] border-t-solid border-t-[4px] rounded-md border-t-gray-300"></hr>
-					<h3 className="text-clamp3 text-center mb-[2rem] font-semibold">
+					className="flex flex-col text-clamp5 mob88:text-clamp1 items-center justify-center mt-[3.2rem] mb-[3.2rem]">
+					<hr className="w-[80%] text-center mb-[3.2rem] border-t-solid border-t-[4px] rounded-md border-t-gray-300 dark:border-t-gray-500"></hr>
+					<h3 className="text-clamp3 mob48:text-clamp5 text-center mb-[2rem] font-semibold">
 						DELETE USER ACCOUNT
 					</h3>
-					<p>You can permanently deactivate your account.</p>
-					<p className="uppercase font-medium text-red-600 drop-shadow-light">
-						{" "}
+					<p className="text-center mx-[1.8rem] mb-[1.2rem]">
+						You can permanently deactivate your account.
+					</p>
+					<p className="uppercase font-medium text-red-600 dark:text-appred drop-shadow-light text-balance mx-[1.6rem]">
 						This cannot be undone!
 					</p>
 					<button
 						onClick={() => handleDelete()}
 						onAnimationEnd={() => setDeleteEffect(false)}
-						className={`border-none bg-appred text-white hover:bg-red-700 hover:shadow-btndred uppercase my-[2.4rem] w-[20.8rem] h-[3.2rem] rounded-2xl transition-all ease hover:translate-y-[5px] bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] ${
+						className={`border-none bg-appred text-white hover:bg-red-700 hover:shadow-btndred uppercase my-[2.4rem] w-[20.8rem] h-[3.2rem] sm:w-fit sm:h-fit sm:p-[0.5rem] rounded-2xl transition-all ease hover:translate-y-[5px] bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] shadow-neatcard ${
 							deleteEffect && "animate-bgSize"
 						}`}>
 						Delete account
 					</button>
+					<AnimatePresence>
+						{errMsgDel && (
+							<motion.p
+								initial={{
+									x: 70,
+									opacity: 0,
+								}}
+								animate={{
+									x: 0,
+									opacity: 1,
+								}}
+								exit={{
+									x: 70,
+									opacity: 0,
+								}}
+								transition={{
+									type: "popLayout",
+								}}
+								className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 my-[1.2rem]"
+								role="alert"
+								aria-live="assertive">
+								{errMsgDel}
+							</motion.p>
+						)}
+					</AnimatePresence>
 				</motion.div>
 			) : (
 				<div></div>

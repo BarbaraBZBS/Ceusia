@@ -7,11 +7,20 @@ import { getStored } from "@/app/actions";
 export const useRefreshToken = () => {
 	const { data: session, status } = useSession();
 	const [secToken, setSecToken] = useState();
-	//const secRefresh = getStored();
+	const [hasMounted, setHasMounted] = useState(false);
+
+	useEffect(() => {
+		setHasMounted(true);
+	}, []);
+
 	useEffect(() => {
 		const secRefresh = getStored();
 		setSecToken(secRefresh);
 	}, []);
+
+	if (!hasMounted) {
+		return null;
+	}
 
 	const refreshedToken = async () => {
 		let res;

@@ -53,6 +53,8 @@ export default function RegisterPage({ props }) {
 	const [eyeCPEffect, setEyeCPEffect] = useState(false);
 	const [showPassword, setShowPassword] = useState(false);
 	const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+	const isDisabled = !usrn || !eml || !psw || !password;
+	const [isSent, setIsSent] = useState(false);
 
 	useEffect(() => {
 		load && setSignupState("Signing up");
@@ -69,6 +71,7 @@ export default function RegisterPage({ props }) {
 	const submitForm = async (data, e) => {
 		e.preventDefault();
 		setErrMsg("");
+		setIsSent(false);
 		data = {
 			username: getValues("username"),
 			email: getValues("email"),
@@ -86,11 +89,9 @@ export default function RegisterPage({ props }) {
 					}
 				);
 				console.log(response?.data);
+				setIsSent(true);
 				setSignupState("Signed up");
 				setLoad(false);
-				if (isSubmitSuccessful) {
-					reset();
-				}
 			} catch (err) {
 				setLoad(false);
 				setSignupState();
@@ -116,6 +117,12 @@ export default function RegisterPage({ props }) {
 			}
 		}, 700);
 	};
+
+	useEffect(() => {
+		if (isSubmitSuccessful && isSent) {
+			reset();
+		}
+	}, [isSubmitSuccessful, isSent, reset]);
 
 	return (
 		<PageWrap>
@@ -152,7 +159,7 @@ export default function RegisterPage({ props }) {
 									</a>
 								</p>
 
-								<div className="border-2 border-apppastgreen rounded-xl bg-apppastgreen shadow-md m-[2rem] h-fit">
+								<div className="border-2 border-apppastgreen dark:border-appstone rounded-xl bg-apppastgreen dark:bg-appstone shadow-md m-[2rem] h-fit lg:w-[60%] lg:mx-auto lg:my-[3rem]">
 									<h1 className="text-clamp5 text-center mb-[1.6rem] mt-[0.8rem] uppercase">
 										Sign up
 									</h1>
@@ -166,6 +173,7 @@ export default function RegisterPage({ props }) {
 													type: "popLayout",
 												}}
 												className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6"
+												role="alert"
 												aria-live="assertive">
 												{errMsg}
 											</motion.p>
@@ -196,7 +204,7 @@ export default function RegisterPage({ props }) {
 														"Username must start with letters (digits, -, _ allowed)",
 												},
 											})}
-											className={`border-2 border-appstone rounded-md h-[4rem] w-[26rem] my-[1.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc focus:border-appturq focus:outline-none focus:invalid:border-appred ${
+											className={`border-2 border-appstone rounded-md h-[4rem] w-[26rem] mob20:w-[92%] lg:w-[50%] my-[1.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc focus:border-appturq focus:outline-none focus:invalid:border-appred ${
 												errors.username
 													? "border-appred focus:border-appred"
 													: ""
@@ -220,7 +228,7 @@ export default function RegisterPage({ props }) {
 														"Email must have a valid format",
 												},
 											})}
-											className={`border-2 border-appstone rounded-md h-[4rem] w-[26rem] my-[1.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc focus:border-appturq focus:outline-none focus:invalid:border-appred ${
+											className={`border-2 border-appstone rounded-md h-[4rem] w-[26rem] mob20:w-[92%] lg:w-[50%] my-[1.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc focus:border-appturq focus:outline-none focus:invalid:border-appred ${
 												errors.email
 													? "border-appred focus:border-appred"
 													: ""
@@ -232,7 +240,7 @@ export default function RegisterPage({ props }) {
 											</span>
 										)}
 
-										<div className="relative">
+										<div className="relative mob20:flex mob20:justify-center mob20:w-full lg:w-full lg:justify-center lg:flex">
 											<input
 												type={
 													showPassword
@@ -260,13 +268,35 @@ export default function RegisterPage({ props }) {
 															"Password must have at least 1 digit and 1 letter",
 													},
 												})}
-												className={`border-2 border-appstone rounded-md h-[4rem] w-[26rem] my-[1.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc focus:border-appturq focus:outline-none focus:invalid:border-appred ${
+												className={`border-2 border-appstone rounded-md h-[4rem] w-[26rem] mob20:w-[92%] lg:w-[50%] my-[1.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc focus:border-appturq focus:outline-none focus:invalid:border-appred ${
 													errors.password
 														? "border-appred focus:border-appred"
 														: ""
 												}`}
 											/>
-											<button type="button">
+											<button
+												type="button"
+												title="show password"
+												aria-roledescription="click and hold or hold enter or numpad / to show"
+												className="absolute top-[2rem] right-[0.5rem] mob20:right-[6%] lg:right-[26%]"
+												onKeyDown={(e) => {
+													if (
+														e.key === "/" ||
+														e.key === "Enter"
+													) {
+														setEyePEffect(true);
+														setShowPassword(true);
+													}
+												}}
+												onKeyUp={(e) => {
+													if (
+														e.key === "/" ||
+														e.key === "Enter"
+													) {
+														setEyePEffect(false);
+														setShowPassword(false);
+													}
+												}}>
 												<FontAwesomeIcon
 													icon={faEye}
 													onTouchStart={() => {
@@ -286,12 +316,12 @@ export default function RegisterPage({ props }) {
 													onAnimationEnd={() =>
 														setEyePEffect(false)
 													}
-													className={`absolute top-[2.3rem] right-[0.5rem] hover:text-appmauvelight ${
+													className={`hover:text-appmauvelight dark:hover:text-appmauvedark active:text-appmauvedark dark:active:text-appgreenlight ${
 														eyePEffect &&
 														"animate-btnFlat"
 													} ${
 														showPassword &&
-														"text-appmauvedark"
+														"text-appmauvedark dark:text-appgreenlight"
 													}`}
 												/>
 											</button>
@@ -302,7 +332,7 @@ export default function RegisterPage({ props }) {
 											</span>
 										)}
 
-										<div className="relative">
+										<div className="relative mob20:flex mob20:justify-center mob20:w-full lg:flex lg:w-full lg:justify-center">
 											<input
 												type={
 													showConfirmPassword
@@ -322,13 +352,39 @@ export default function RegisterPage({ props }) {
 															"Passwords do not match",
 													}
 												)}
-												className={`border-2 border-appstone rounded-md h-[4rem] w-[26rem] my-[1.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc focus:border-appturq focus:outline-none focus:invalid:border-appred ${
+												className={`border-2 border-appstone rounded-md h-[4rem] w-[26rem] mob20:w-[92%] lg:w-[50%] my-[1.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc focus:border-appturq focus:outline-none focus:invalid:border-appred ${
 													errors.confirm_password
 														? "border-appred focus:border-appred"
 														: ""
 												}`}
 											/>
-											<button type="button">
+											<button
+												type="button"
+												title="show confirm password"
+												aria-roledescription="click and hold or hold enter or numpad / to show"
+												className="absolute top-[2rem] right-[0.5rem] mob20:right-[6%] lg:right-[26%]"
+												onKeyDown={(e) => {
+													if (
+														e.key === "/" ||
+														e.key === "Enter"
+													) {
+														setEyeCPEffect(true);
+														setShowConfirmPassword(
+															true
+														);
+													}
+												}}
+												onKeyUp={(e) => {
+													if (
+														e.key === "/" ||
+														e.key === "Enter"
+													) {
+														setEyeCPEffect(false);
+														setShowConfirmPassword(
+															false
+														);
+													}
+												}}>
 												<FontAwesomeIcon
 													icon={faEye}
 													onTouchStart={() => {
@@ -356,12 +412,12 @@ export default function RegisterPage({ props }) {
 													onAnimationEnd={() =>
 														setEyeCPEffect(false)
 													}
-													className={`absolute top-[2.3rem] right-[0.5rem] hover:text-appmauvelight ${
+													className={`hover:text-appmauvelight dark:hover:text-appmauvedark active:text-appmauvedark dark:active:text-appgreenlight ${
 														eyeCPEffect &&
 														"animate-btnFlat"
 													} ${
 														showConfirmPassword &&
-														"text-appmauvedark"
+														"text-appmauvedark dark:text-appgreenlight"
 													}`}
 												/>
 											</button>
@@ -377,21 +433,22 @@ export default function RegisterPage({ props }) {
 
 										<button
 											type="submit"
-											disabled={
-												!usrn ||
-												!eml ||
-												!psw ||
-												!password
-											}
-											onClick={() =>
-												setSubmitBtnEffect(true)
-											}
+											aria-disabled={isDisabled}
+											onClick={(e) => {
+												isDisabled
+													? e.preventDefault()
+													: setSubmitBtnEffect(true);
+											}}
 											onAnimationEnd={() =>
 												setSubmitBtnEffect(false)
 											}
-											className={`bg-appstone text-white uppercase w-fit rounded-xl px-[1.2rem] py-[0.3rem] mt-[3.2rem] mb-[1.6rem] transition-all duration-300 ease-in-out hover:enabled:bg-[#ffcec9] hover:enabled:text-appblck hover:enabled:translate-y-[-7px] hover:enabled:shadow-btnpink disabled:opacity-50 shadow-neatcard ${
+											className={`bg-appstone text-white uppercase w-fit rounded-xl px-[1.2rem] py-[0.3rem] mt-[3.2rem] mb-[1.6rem] shadow-neatcard ${
 												submitBtnEffect &&
 												"animate-btnFlat bg-apppastgreen text-appblck"
+											} ${
+												isDisabled
+													? "opacity-50 cursor-not-allowed"
+													: "transition-all duration-300 ease-in-out hover:bg-[#ffcec9] hover:text-appblck hover:translate-y-[-7px] hover:shadow-btnpink "
 											}`}>
 											Submit
 										</button>

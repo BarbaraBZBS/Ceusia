@@ -106,13 +106,17 @@ export default function PostLiking({ post, session }) {
 	};
 
 	const likeBtn = () => {
-		like();
 		setLikeEffect(true);
+		setTimeout(() => {
+			like();
+		}, 400);
 	};
 
 	const dislikeBtn = () => {
-		dislike();
 		setDislikeEffect(true);
+		setTimeout(() => {
+			dislike();
+		}, 400);
 	};
 
 	useEffect(() => {
@@ -137,101 +141,98 @@ export default function PostLiking({ post, session }) {
 	}, [axiosAuth, post, liked, disliked, router, pathname]);
 
 	return (
-		<>
-			<div className="flex flex-col">
-				<div className="flex justify-end mx-[0.8rem] text-clamp2">
-					{liked ? (
-						<>
-							<span className="ml-[0.8rem]">{likes}</span>
-							<button
-								title="unlike"
-								onClick={() => likeBtn()}
-								onAnimationEnd={() => setLikeEffect(false)}
-								className={`cursor-pointer mx-[0.3rem] opacity-50 ${
-									likeEffect && "animate-fill"
-								}`}>
-								<FontAwesomeIcon
-									icon={thumbupfull}
-									className="text-appgreenlight hover:text-appred hover:opacity-60"
-								/>
-							</button>
-						</>
-					) : (
-						<>
-							<span className="ml-[0.8rem]">{likes}</span>
-							<button
-								title="like"
-								onClick={() => likeBtn()}
-								onAnimationEnd={() => setLikeEffect(false)}
-								className={`cursor-pointer mx-[0.3rem] ${
-									likeEffect && "animate-scale"
-								}`}>
-								<FontAwesomeIcon
-									icon={thumbupempty}
-									className="text-appgreenlight hover:text-green-400"
-								/>
-							</button>
-						</>
-					)}
-					{disliked ? (
-						<>
-							<span className="ml-[0.5rem]">{dislikes}</span>
-							<button
-								title="remove dislike"
-								onClick={() => dislikeBtn()}
-								onAnimationEnd={() => setDislikeEffect(false)}
-								className={`mx-[0.3rem] cursor-pointer opacity-50 ${
-									dislikeEffect && "animate-scale"
-								}`}>
-								<FontAwesomeIcon
-									icon={thumbdownfull}
-									className="text-appred hover:text-appgreenlight"
-								/>
-							</button>
-						</>
-					) : (
-						<>
-							<span className="ml-[0.5rem]">{dislikes}</span>
-							<button
-								title="dislike"
-								onClick={() => dislikeBtn()}
-								onAnimationEnd={() => setDislikeEffect(false)}
-								className={`mx-[0.3rem] cursor-pointer ${
-									dislikeEffect && "animate-fill"
-								}`}>
-								<FontAwesomeIcon
-									icon={thumbdownempty}
-									className="text-appred hover:text-red-400"
-								/>
-							</button>
-						</>
-					)}
-				</div>
-				<AnimatePresence>
-					{errMsg && (
-						<motion.p
-							initial={{
-								x: 70,
-								opacity: 0,
-							}}
-							animate={{
-								x: 0,
-								opacity: 1,
-							}}
-							exit={{
-								x: 70,
-								opacity: 0,
-							}}
-							transition={{
-								type: "popLayout",
-							}}
-							className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 my-[1.2rem]"
-							aria-live="assertive">
-							{errMsg}
-						</motion.p>
-					)}
-				</AnimatePresence>
+		<div className="flex flex-col">
+			<div className="flex justify-end mx-[0.8rem] text-clamp2">
+				{/* likes */}
+				<>
+					<span
+						aria-label={`${likes} likes`}
+						className="sr-only"></span>
+					<span aria-hidden className="ml-[0.8rem]">
+						{likes}
+					</span>
+					<button
+						type="button"
+						title={liked ? "unlike" : "like"}
+						aria-labelledby={liked ? "unlike" : "like"}
+						onClick={() => likeBtn()}
+						onAnimationEnd={() => setLikeEffect(false)}
+						className={
+							liked
+								? `cursor-pointer mx-[0.3rem] opacity-50 ${
+										likeEffect && "animate-fill"
+								  }`
+								: `cursor-pointer mx-[0.3rem] ${
+										likeEffect && "animate-scale"
+								  }`
+						}>
+						<FontAwesomeIcon
+							icon={liked ? thumbupfull : thumbupempty}
+							className={
+								liked
+									? "text-appgreenlight dark:text-green-500 hover:text-appred dark:hover:text-appred hover:opacity-80"
+									: "text-appgreenlight dark:text-green-400 hover:text-green-400 dark:hover:text-green-600"
+							}
+						/>
+					</button>
+				</>
+				{/* dislikes */}
+				<>
+					<span
+						aria-label={`${dislikes} dislikes`}
+						className="sr-only"></span>
+					<span aria-hidden className="ml-[0.5rem]">
+						{dislikes}
+					</span>
+					<button
+						title={disliked ? "remove dislike" : "dislike"}
+						onClick={() => dislikeBtn()}
+						onAnimationEnd={() => setDislikeEffect(false)}
+						className={
+							disliked
+								? `mx-[0.3rem] cursor-pointer opacity-50 ${
+										dislikeEffect && "animate-scale"
+								  }`
+								: `mx-[0.3rem] cursor-pointer ${
+										dislikeEffect && "animate-fill"
+								  }`
+						}>
+						<FontAwesomeIcon
+							icon={disliked ? thumbdownfull : thumbdownempty}
+							className={
+								disliked
+									? "text-appred hover:text-appgreenlight"
+									: "text-appred hover:text-red-400 dark:hover:text-red-700"
+							}
+						/>
+					</button>
+				</>
 			</div>
-		</>
+			<AnimatePresence>
+				{errMsg && (
+					<motion.p
+						initial={{
+							x: 70,
+							opacity: 0,
+						}}
+						animate={{
+							x: 0,
+							opacity: 1,
+						}}
+						exit={{
+							x: 70,
+							opacity: 0,
+						}}
+						transition={{
+							type: "popLayout",
+						}}
+						className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 my-[1.2rem]"
+						role="alert"
+						aria-live="assertive">
+						{errMsg}
+					</motion.p>
+				)}
+			</AnimatePresence>
+		</div>
 	);
 }

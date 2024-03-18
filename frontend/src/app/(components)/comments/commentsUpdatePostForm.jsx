@@ -5,14 +5,16 @@ import {
 	faPenFancy,
 	faPhotoFilm,
 	faEraser,
-	faLeftLong,
 	faFileCircleXmark,
+	faXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { motion, AnimatePresence } from "framer-motion";
 import useAxiosAuth from "@/app/(utils)/hooks/useAxiosAuth";
 import { useForm } from "react-hook-form";
 import Picker from "emoji-picker-react";
 import { BsEmojiSmileFill } from "react-icons/bs";
+import { FocusOn } from "react-focus-on";
+import { isBrowser } from "framer-motion";
 
 export default function CommentsUpdatePostForm({
 	postDetail,
@@ -33,6 +35,7 @@ export default function CommentsUpdatePostForm({
 	const [showCEmojiPicker, setShowCEmojiPicker] = useState(false);
 	const [emojiTBtnClickEffect, setEmojiTBtnClickEffect] = useState(false);
 	const [emojiCBtnClickEffect, setEmojiCBtnClickEffect] = useState(false);
+	const [isSent, setIsSent] = useState(false);
 
 	const {
 		register,
@@ -58,6 +61,11 @@ export default function CommentsUpdatePostForm({
 	const ttl = watch("title");
 	const ctt = watch("content");
 	const lnk = watch("link");
+	const isDisabled =
+		ttl == postDetail.title &&
+		ctt == postDetail.content &&
+		!filewatch?.[0]?.name &&
+		lnk == postDetail.link;
 
 	useEffect(() => {
 		if (errors?.content) {
@@ -90,6 +98,7 @@ export default function CommentsUpdatePostForm({
 	const submitUpdateForm = async (data, e) => {
 		e.preventDefault();
 		setErrMsg("");
+		setIsSent(false);
 		let headers;
 		if (data.fileUrl <= 0 || data.fileUrl == null) {
 			data = {
@@ -120,6 +129,7 @@ export default function CommentsUpdatePostForm({
 				}).then(async (response) => {
 					if (response) {
 						const reload = await refreshPost();
+						setIsSent(true);
 						setPostDetail(reload);
 						hideFormOverlay();
 					}
@@ -210,7 +220,7 @@ export default function CommentsUpdatePostForm({
 
 	useEffect(() => {
 		const resetForm = () => {
-			if (isSubmitSuccessful) {
+			if (isSubmitSuccessful && isSent) {
 				setTimeout(async () => {
 					setErrMsg("");
 					const resp = await axiosAuth.get(`/posts/${postDetail.id}`);
@@ -219,7 +229,7 @@ export default function CommentsUpdatePostForm({
 			}
 		};
 		resetForm();
-	});
+	}, [isSubmitSuccessful, isSent, axiosAuth, setPostDetail, postDetail.id]);
 
 	const handleTEmojiPickerHideShow = () => {
 		setShowTEmojiPicker(!showTEmojiPicker);
@@ -243,269 +253,334 @@ export default function CommentsUpdatePostForm({
 		setValue("content", message);
 	};
 
+	const handleShowEmojiT = () => {
+		setEmojiTBtnClickEffect(true);
+		setTimeout(() => {
+			handleTEmojiPickerHideShow();
+		}, 400);
+	};
+
+	const handleShowEmojiC = () => {
+		setEmojiCBtnClickEffect(true);
+		setTimeout(() => {
+			handleCEmojiPickerHideShow();
+		}, 400);
+	};
+
 	return (
 		<motion.section
 			initial={{ x: -100, opacity: 0 }}
 			animate={{ x: 0, opacity: 1 }}
 			exit={{ x: -100, opacity: 0 }}
-			transition={{}}
-			className={`fixed overflow-y-scroll left-0 right-0 top-0 bottom-0 w-full h-full z-[998] block py-[1.2rem] ${
+			transition={{
+				duration: 0.4,
+				delay: 0.25,
+			}}
+			className={`fixed left-0 top-0 w-screen h-full z-[998] ${
 				blur && "animate-pop"
 			}`}>
-			<div className="flex flex-col mx-auto bg-appsand border-2 border-appsand w-[90%] items-center mt-[5.6rem] rounded-xl shadow-elevated">
-				<form
-					className="flex flex-col z-[999] mx-auto h-auto items-center text-clamp6 mt-[2.4rem] mb-[1.2rem] py-[2.4rem] gap-[1rem]"
-					onSubmit={handleSubmit(submitUpdateForm)}>
-					<h1 className="text-clamp4 mb-[2.4rem] uppercase font-semibold">
-						Update your post
-					</h1>
-					<div className="flex gap-[1rem]">
-						{/* title emoji */}
-						<div className="flex items-center">
-							<div className="">
-								<BsEmojiSmileFill
-									className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
-										emojiTBtnClickEffect &&
-										"animate-pressed"
-									}`}
-									onClick={() => {
-										setEmojiTBtnClickEffect(true);
-										handleTEmojiPickerHideShow();
-									}}
-									onAnimationEnd={() =>
-										setEmojiTBtnClickEffect(false)
-									}
-								/>
-								{showTEmojiPicker && (
-									<div className="absolute top-[31%] left-[calc(50vw-(350px/2))] z-20">
-										<Picker
-											onEmojiClick={handleTEmojiClick}
-											className="bg-appmauvedark"
-										/>
-									</div>
-								)}
+			<FocusOn
+				onClickOutside={() => cancelbackBtn()}
+				onEscapeKey={() => cancelbackBtn()}>
+				<div
+					role="dialog"
+					aria-labelledby="upd-ttl"
+					className="absolute bg-appsand dark:bg-applightdark border-2 border-appsand dark:border-applightdark top-[0.05rem] left-[calc(50vw-(94vw/2))] p-3 w-[94%] lg:w-[60%] lg:left-[calc(50vw-(60vw/2))] rounded-xl shadow-elevated">
+					<div className="flex justify-end">
+						<button
+							onClick={() => cancelbackBtn()}
+							aria-label="close update"
+							className="w-fit">
+							<FontAwesomeIcon
+								icon={faXmark}
+								size="2xl"
+								onAnimationEnd={() =>
+									setCancelUpdBtnEffect(false)
+								}
+								className={`cursor-pointer hover:text-appred ${
+									cancelUpdBtnEffect &&
+									"animate-pressed opacity-60"
+								}`}
+							/>
+						</button>
+					</div>
+
+					<form
+						className="flex flex-col z-[999] mx-auto h-auto items-center text-clamp6 py-[2.4rem] gap-[1rem]"
+						onSubmit={handleSubmit(submitUpdateForm)}>
+						<h1
+							id="upd-ttl"
+							className="text-clamp5 mob00:text-clamp7 mb-[2.4rem] uppercase font-semibold">
+							Update your post
+						</h1>
+						<div className="flex gap-[1rem]">
+							<input
+								type="text"
+								placeholder={"A title..."}
+								{...register("title")}
+								className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] lg:w-[45vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred ${
+									errors.title
+										? "border-appred focus:border-appred"
+										: ""
+								}`}
+							/>
+							{/* title emoji */}
+							<div className="flex items-center">
+								<div className="">
+									<BsEmojiSmileFill
+										tabIndex={0}
+										title={
+											showTEmojiPicker
+												? "hide title emoji picker"
+												: "show title emoji picker"
+										}
+										className={`text-[2.3rem] mob88:text-[1.8rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+											emojiTBtnClickEffect &&
+											"animate-pressed"
+										}`}
+										onClick={() => handleShowEmojiT()}
+										onKeyUp={(e) => {
+											if (e.key === "Enter")
+												handleShowEmojiT();
+										}}
+										onAnimationEnd={() =>
+											setEmojiTBtnClickEffect(false)
+										}
+									/>
+								</div>
 							</div>
 						</div>
-						<input
-							type="text"
-							placeholder={"A title..."}
-							{...register("title")}
-							className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred ${
-								errors.title
-									? "border-appred focus:border-appred"
-									: ""
-							}`}
-						/>
-					</div>
-					{errors.title && (
-						<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md">
-							{errors.title.message}
-						</span>
-					)}
-					<div className="flex justify-center gap-[1rem] w-[100%]">
-						{/* content emoji */}
-						<div className="flex items-center">
-							<div className="">
-								<BsEmojiSmileFill
-									className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
-										emojiCBtnClickEffect &&
-										"animate-pressed"
-									}`}
-									onClick={() => {
-										setEmojiCBtnClickEffect(true);
-										handleCEmojiPickerHideShow();
-									}}
-									onAnimationEnd={() =>
-										setEmojiCBtnClickEffect(false)
-									}
-								/>
-								{showCEmojiPicker && (
-									<div className="absolute top-[31%] left-[calc(50vw-(350px/2))] z-20">
-										<Picker
-											onEmojiClick={handleCEmojiClick}
-											className="bg-appmauvedark"
-										/>
-									</div>
-								)}
+						{errors.title && (
+							<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md">
+								{errors.title.message}
+							</span>
+						)}
+						<div className="flex justify-center gap-[1rem] w-[100%]">
+							<textarea
+								type="text"
+								placeholder="Your message..."
+								{...register("content", {
+									required: "This field is required",
+								})}
+								className={`border-2 border-appstone rounded-md my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-full h-[5.6rem] resize max-w-[80%] lg:max-w-[90%] min-w-[11rem] min-h-[2.6rem] max-h-[22.8rem] mob88:max-w-[20.7rem] mob88:max-h-[11.6rem] ${
+									errors.content
+										? "border-appred focus:border-appred"
+										: ""
+								}`}
+							/>
+							{/* content emoji */}
+							<div className="flex items-center">
+								<div className="">
+									<BsEmojiSmileFill
+										tabIndex={0}
+										title={
+											showCEmojiPicker
+												? "hide content emoji picker"
+												: "show content emoji picker"
+										}
+										className={`text-[2.3rem] mob88:text-[1.8rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+											emojiCBtnClickEffect &&
+											"animate-pressed"
+										}`}
+										onClick={() => handleShowEmojiC()}
+										onKeyUp={(e) => {
+											if (e.key === "Enter")
+												handleShowEmojiC();
+										}}
+										onAnimationEnd={() =>
+											setEmojiCBtnClickEffect(false)
+										}
+									/>
+								</div>
 							</div>
 						</div>
-						<textarea
-							type="text"
-							placeholder="Your message..."
-							{...register("content", {
-								required: "This field is required",
-							})}
-							className={`border-2 border-appstone rounded-md my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-full h-[5.6rem] resize max-w-[31rem] ${
-								errors.content
-									? "border-appred focus:border-appred"
-									: ""
+						{errors.content && (
+							<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md mb-[2rem]">
+								{errors.content.message}
+							</span>
+						)}
+
+						{/* emoji pickers */}
+						{showTEmojiPicker && (
+							<div className="">
+								<Picker
+									onEmojiClick={handleTEmojiClick}
+									className="bg-appmauvedark"
+								/>
+							</div>
+						)}
+						{showCEmojiPicker && (
+							<div className="">
+								<Picker
+									onEmojiClick={handleCEmojiClick}
+									className="bg-appmauvedark"
+								/>
+							</div>
+						)}
+
+						<button
+							type="button"
+							title="select file"
+							className={`relative my-[0.4rem] w-[5.1rem] h-[3.7rem] mob88:w-[4rem] mob88:h-[3rem] rounded-xl cursor-pointer hover:opacity-70 ${
+								fileWiggle && "animate-wiggle"
 							}`}
-						/>
-					</div>
-					{errors.content && (
-						<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md mb-[2rem]">
-							{errors.content.message}
-						</span>
-					)}
-					<div
-						className={`relative hover:opacity-70 ${
-							fileWiggle && "animate-wiggle"
-						}`}
-						onAnimationEnd={() => setFileWiggle(false)}>
-						<input
-							onClick={() => setFileWiggle(true)}
-							type="file"
-							name="fileUrl"
-							placeholder="A video, image, or audio file..."
-							{...register("fileUrl")}
-							className="border-2 border-appstone rounded-md my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-[5.1rem] h-[2.9rem] mb-[0.4rem] opacity-0 file:cursor-pointer"
-						/>
-						<FontAwesomeIcon
-							icon={faPhotoFilm}
-							size="2x"
-							style={{ color: "#4E5166" }}
-							className="absolute left-[0px] top-[0.3rem] -z-20"
-						/>
-						<FontAwesomeIcon
-							icon={faMusic}
-							size="2x"
-							style={
-								errors.fileUrl
-									? { color: "#FD2D01" }
-									: { color: "#b1ae99" }
-							}
-							className="absolute left-[1.8rem] top-[0.3rem] -z-10"
-						/>
-					</div>
-					{filewatch?.[0]?.name && (
-						<p
-							className={`max-w-[30rem] mx-[0.8rem] line-clamp-1 hover:line-clamp-none hover:text-ellipsis hover:overflow-hidden active:line-clamp-none active:text-ellipsis active:overflow-hidden 
+							onClick={() => {
+								setFileWiggle(true);
+								document.getElementById("fileUrl").click();
+							}}
+							onAnimationEnd={() => setFileWiggle(false)}>
+							<input
+								id="fileUrl"
+								type="file"
+								name="fileUrl"
+								placeholder="A video, image, or audio file..."
+								{...register("fileUrl")}
+								className="hidden"
+							/>
+							<FontAwesomeIcon
+								icon={faPhotoFilm}
+								size="2x"
+								className="mob88:max-w-[2.8rem] mob88:max-h-[2.8rem] text-appstone dark:text-appmauvedark absolute left-[0px] top-[0.3rem]"
+							/>
+							<FontAwesomeIcon
+								icon={faMusic}
+								size="2x"
+								style={
+									errors.fileUrl
+										? { color: "#FD2D01" }
+										: { color: "#b1ae99" }
+								}
+								className="absolute left-[1.8rem] mob88:left-[1.3rem] top-[0.3rem] mob88:max-w-[2.6rem] mob88:max-h-[2.6rem]"
+							/>
+						</button>
+						{filewatch?.[0]?.name && (
+							<p
+								className={`max-w-[90%] mx-[0.8rem] line-clamp-1 hover:line-clamp-none hover:text-ellipsis hover:overflow-hidden active:line-clamp-none active:text-ellipsis active:overflow-hidden 
                         ${
 							errors.fileUrl
 								? "text-red-600 mt-[0.4rem] mb-[0.8rem] bg-white underline underline-offset-2 font-semibold"
 								: "mb-[1.2rem]"
 						}`}>
-							{filewatch[0].name}
-						</p>
-					)}
-					{!filewatch?.[0]?.name && postDetail.fileUrl && (
-						<>
-							<p className="mx-[1.2rem]">No file selected</p>
-							<p className="max-w-[32.5rem] mx-[1.2rem] text-ellipsis overflow-hidden">
-								Post file: {postFile}
-							</p>{" "}
-						</>
-					)}
-					{!filewatch && !postDetail?.fileUrl ? (
-						<p className="mx-[1.2rem]">No file selected</p>
-					) : (
-						filewatch &&
-						!filewatch?.[0]?.name &&
-						!postDetail.fileUrl && (
-							<p className="mx-[1.2rem]">No file selected</p>
-						)
-					)}
-					{postDetail.fileUrl && (
-						<button
-							type="button"
-							title="delete file"
-							onClick={() => handleFileDelete()}
-							onAnimationEnd={() => setFileDeleteEffect(false)}
-							className={`mb-[1.2rem] hover:opacity-60 ${
-								fileDeleteEffect && "animate-reversePing"
-							}`}>
-							<FontAwesomeIcon
-								icon={faFileCircleXmark}
-								style={{ color: "#F43F5E" }}
-								size="lg"
-							/>
-						</button>
-					)}
-					{errors.fileUrl && (
-						<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md mb-[1.6rem]">
-							{errors.fileUrl.message}
-						</span>
-					)}
-					<input
-						type="text"
-						placeholder="A link..."
-						{...register("link")}
-						className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred ${
-							errors.link
-								? "border-appred focus:border-appred"
-								: ""
-						}`}
-					/>
-					{errors.link && (
-						<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md">
-							{errors.link.message}
-						</span>
-					)}
-					<div className="flex w-full justify-around">
-						<button
-							type="button"
-							title="reset"
-							onClick={() => resetBtn()}
-							onAnimationEnd={() => setResetUpdEffect(false)}
-							className={`bg-[#FF7900] text-appblck w-[3.6rem] h-[3.6rem] rounded-xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px] hover:shadow-btnorange shadow-neatcard ${
-								resetUpdEffect && "animate-pressDown"
-							}`}>
-							<FontAwesomeIcon icon={faEraser} size="lg" />
-						</button>
-						<button
-							type="submit"
-							title="confirm update"
-							disabled={
-								ttl == postDetail.title &&
-								ctt == postDetail.content &&
-								!filewatch?.[0]?.name &&
-								lnk == postDetail.link
-							}
-							onClick={() => setPostUpdEffect(true)}
-							onAnimationEnd={() => setPostUpdEffect(false)}
-							className={`bg-appstone text-white w-[3.6rem] h-[3.6rem] rounded-xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-appopred hover:enabled:text-appblck hover:enabled:translate-y-[7px] hover:enabled:shadow-btnblue disabled:opacity-50 shadow-neatcard ${
-								postUpdEffect && "animate-pressDown"
-							}`}>
-							<FontAwesomeIcon icon={faPenFancy} size="lg" />
-						</button>
-					</div>
-					<AnimatePresence>
-						{errMsg && (
-							<motion.p
-								initial={{
-									x: 70,
-									opacity: 0,
-								}}
-								animate={{
-									x: 0,
-									opacity: 1,
-								}}
-								exit={{
-									x: 70,
-									opacity: 0,
-								}}
-								transition={{
-									type: "popLayout",
-								}}
-								className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 my-[1.2rem]"
-								aria-live="assertive">
-								{errMsg}
-							</motion.p>
+								{filewatch[0].name}
+							</p>
 						)}
-					</AnimatePresence>
-				</form>
-				<div className="flex justify-center">
-					<button
-						title="back to post"
-						onClick={() => cancelbackBtn()}
-						onAnimationEnd={() => setCancelUpdBtnEffect(false)}
-						className={`bg-[#FF7900] text-appblck w-[3.6rem] h-[3.6rem] rounded-xl mt-[0.8rem] mb-[1.6rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px] hover:shadow-btnorange shadow-neatcard ${
-							cancelUpdBtnEffect && "animate-pressDown"
-						}`}>
-						<FontAwesomeIcon icon={faLeftLong} size="2xl" />
-					</button>
+						{!filewatch?.[0]?.name && postDetail.fileUrl && (
+							<>
+								<p className="mx-[1.2rem]">No file selected</p>
+								<p className="max-w-[90%] mx-[1.2rem] text-ellipsis overflow-hidden">
+									Post file: {postFile}
+								</p>{" "}
+							</>
+						)}
+						{!filewatch && !postDetail?.fileUrl ? (
+							<p className="mx-[1.2rem]">No file selected</p>
+						) : (
+							filewatch &&
+							!filewatch?.[0]?.name &&
+							!postDetail.fileUrl && (
+								<p className="mx-[1.2rem]">No file selected</p>
+							)
+						)}
+						{postDetail.fileUrl && (
+							<button
+								type="button"
+								title="delete file"
+								onClick={() => handleFileDelete()}
+								onAnimationEnd={() =>
+									setFileDeleteEffect(false)
+								}
+								className={`mb-[1.2rem] hover:opacity-60 ${
+									fileDeleteEffect && "animate-reversePing"
+								}`}>
+								<FontAwesomeIcon
+									icon={faFileCircleXmark}
+									style={{ color: "#F43F5E" }}
+									size="lg"
+								/>
+							</button>
+						)}
+						{errors.fileUrl && (
+							<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md mb-[1.6rem]">
+								{errors.fileUrl.message}
+							</span>
+						)}
+						<input
+							type="text"
+							placeholder="A link..."
+							{...register("link")}
+							className={`border-2 border-appstone rounded-md h-[2.4rem] my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc w-[70vw] lg:w-[45vw] text-center focus:border-apppink focus:outline-none focus:invalid:border-appred ${
+								errors.link
+									? "border-appred focus:border-appred"
+									: ""
+							}`}
+						/>
+						{errors.link && (
+							<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md">
+								{errors.link.message}
+							</span>
+						)}
+						<div className="flex w-full justify-around">
+							<button
+								type="button"
+								title="reset"
+								onClick={() => resetBtn()}
+								onAnimationEnd={() => setResetUpdEffect(false)}
+								className={`bg-[#FF7900] text-appblck w-[3.6rem] h-[3.6rem] mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px] hover:shadow-btnorange shadow-neatcard ${
+									resetUpdEffect && "animate-pressDown"
+								}`}>
+								<FontAwesomeIcon icon={faEraser} size="lg" />
+							</button>
+							<button
+								type="submit"
+								title="confirm update"
+								aria-disabled={isDisabled}
+								onClick={(e) => {
+									isDisabled
+										? e.preventDefault()
+										: setPostUpdEffect(true);
+								}}
+								onAnimationEnd={() => setPostUpdEffect(false)}
+								className={`flex justify-center items-center bg-appstone dark:bg-appmauvedark text-white w-[3.6rem] h-[3.6rem] mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-xl mt-[0.8rem] mb-[0.8rem] shadow-neatcard ${
+									postUpdEffect && "animate-pressDown"
+								} ${
+									isDisabled
+										? "opacity-50 cursor-not-allowed"
+										: "transition-all duration-300 ease-in-out hover:bg-appopred dark:hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue "
+								}`}>
+								<FontAwesomeIcon
+									icon={faPenFancy}
+									className="text-[2.2rem] mob88:text-[1.6rem]"
+								/>
+							</button>
+						</div>
+						<AnimatePresence>
+							{errMsg && (
+								<motion.p
+									initial={{
+										x: 70,
+										opacity: 0,
+									}}
+									animate={{
+										x: 0,
+										opacity: 1,
+									}}
+									exit={{
+										x: 70,
+										opacity: 0,
+									}}
+									transition={{
+										type: "popLayout",
+									}}
+									className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 my-[1.2rem]"
+									role="alert"
+									aria-live="assertive">
+									{errMsg}
+								</motion.p>
+							)}
+						</AnimatePresence>
+					</form>
 				</div>
-			</div>
+			</FocusOn>
 		</motion.section>
 	);
 }

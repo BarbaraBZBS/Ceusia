@@ -12,6 +12,7 @@ module.exports = {
 		"./src/app/**/*.{js,ts,jsx,tsx,mdx}",
 		"./public/**/*.{js,ts,jsx,tsx,mdx}",
 	],
+	darkMode: "class",
 	theme: {
 		extend: {
 			backgroundImage: {
@@ -20,15 +21,15 @@ module.exports = {
 					"conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))",
 			},
 			fontSize: {
-				clamp1: "clamp(1.6rem, 2.3vw, 1.92rem)",
+				clamp1: "clamp(1.6rem, 2.3vw, 1.82rem)",
 				clamp2: "clamp(1.408rem, 2.3vw, 1.6rem)",
-				clamp3: "clamp(2.24rem, 4vw, 3.52rem)",
-				clamp4: "clamp(1.6rem, 2.5vw, 2.4rem)",
-				clamp5: "clamp(1.92rem, 3.5vw, 2.4rem)",
-				clamp6: "clamp(1.6rem, 2.3vw, 1.84rem)",
+				clamp3: "clamp(2.24rem, 2.5vw, 2.52rem)",
+				clamp4: "clamp(1.6rem, 2.5vw, 2rem)",
+				clamp5: "clamp(1.92rem, 2.3vw, 2.1rem)",
+				clamp6: "clamp(1.5rem, 2.3vw, 1.74rem)",
 				clamp7: "clamp(1.808rem, 2.3vw, 2rem)",
-				clamp8: "clamp(2.16rem, 4vw, 3.2rem)",
-				clamp9: "clamp(2.7rem, 4vw, 3.3rem)",
+				clamp8: "clamp(2.16rem, 2.3vw, 2.36rem)",
+				clamp9: "clamp(2.72rem, 2.5vw, 3rem)",
 			},
 			dropShadow: {
 				"3xl": "0 35px 35px rgba(0, 0, 0, 0.25)",
@@ -148,6 +149,14 @@ module.exports = {
 						transform: "scale(1)",
 					},
 				},
+				clicked: {
+					"0%": {
+						transform: "scale(0.95)",
+					},
+					"40%, 100%": {
+						transform: "scale(1)",
+					},
+				},
 				wiggle: {
 					"0%, 100%": { transform: "rotate(-3deg)" },
 					"50%": { transform: "rotate(3deg)" },
@@ -223,6 +232,7 @@ module.exports = {
 				zoom: "zoom ease-out .2s forwards",
 				rotateZoom: "rotatezoom 2s linear",
 				pressDown: "pressdown .4s ease-in",
+				clicked: "clicked .4s ease-out",
 				wiggle: "wiggle 200ms ease-in-out",
 				reversePing: "reverseping .3s ease-out forwards",
 				btnFlat: "btnflat .6s ease-in-out both",
@@ -235,6 +245,29 @@ module.exports = {
 				slideRight: "slideright .4s ease-out",
 				pressed: "pressed .4s ease-in-out",
 				pop: "pop 1s forwards",
+			},
+			screens: {
+				small: {
+					raw: "((min-width: 450px) and (max-width: 639px) and (max-height: 720px))",
+				},
+				smallLandscape: {
+					raw: "((min-width: 700px) and (max-width: 800px) and (max-height: 600px))",
+				},
+				mob90: {
+					raw: "((max-width: 290px))",
+				},
+				mob00: {
+					raw: "((max-width: 300px))",
+				},
+				mob20: {
+					raw: "((max-width: 320px))",
+				},
+				mob48: {
+					raw: "((max-width: 348px))",
+				},
+				mob88: {
+					raw: "((max-width: 388px))",
+				},
 			},
 		},
 		colors: {
@@ -256,7 +289,7 @@ module.exports = {
 			green: colors.lime,
 			teal: colors.teal,
 			emerald: colors.emerald,
-			appblck: "#00070A",
+			appblck: "#121212",
 			appred: "#FD2D01",
 			apppink: "#FFC4D8",
 			apppinklight: "#F0D7DB",
@@ -273,6 +306,8 @@ module.exports = {
 			appopred: "#02d2fe",
 			appoppink: "#003b27",
 			appopstone: "#b1ae99",
+			appmauvedarker: "#3f2869",
+			applightdark: "#424242",
 		},
 	},
 	plugins: [

@@ -14,6 +14,7 @@ import {
 import CeusianDetailsModifier from "./ceusianDetailsModifier";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChatContext } from "../ChatContext";
+import { FocusOn } from "react-focus-on";
 
 export default function UserProfileCard({ user }) {
 	const { data: session } = useSession();
@@ -200,9 +201,9 @@ export default function UserProfileCard({ user }) {
 				<Loading />
 			) : (
 				<>
-					<div className=" relative flex flex-col justify-center items-center pt-[3.2rem] pb-[4rem] mt-[4rem] mb-[5.6rem] min-h-[40rem] border-gray-900 bg-apppastgreen bg-opacity-30 rounded-lg shadow-lg w-[90%] mx-auto">
+					<div className="relative flex flex-col justify-center items-center pt-[3.2rem] pb-[4rem] lg:pt-[5rem] lg:pb-[6rem] mt-[4rem] lg:mt-[7rem] mb-[5.6rem] min-h-[40rem] border-2 border-gray-900/10 dark:border-applightdark bg-apppastgreen dark:bg-applightdark bg-opacity-30 rounded-lg shadow-lg w-[90%] lg:w-[60%] mx-auto">
 						<div>
-							<h1 className="text-clamp3 text-center uppercase pb-[1.6rem] font-semibold">
+							<h1 className="max-w-[96%] text-balance text-clamp3 mob88:text-clamp5 text-center uppercase pb-[1.6rem] lg:pb-[4rem] font-semibold">
 								Viewing {usr.username} profile
 							</h1>
 						</div>
@@ -213,72 +214,86 @@ export default function UserProfileCard({ user }) {
 									{usr.username} has no motto
 								</p>
 							) : (
-								<p className="text-clamp5 mb-[1.2rem]">{`"${usr.motto}"`}</p>
+								<p className="text-clamp5 mob88:text-clamp7 mb-[1.2rem] mx-[1.2rem] text-center">{` ${usr.motto} `}</p>
 							)}
 						</div>
 						{followed && followingUsr && (
 							<div
-								className={`inline-block h-[2.2rem] w-[2.2rem] rounded-[50%] absolute z-[2] top-[14rem] left-[9rem]
+								className={`inline-block h-[2.2rem] w-[2.2rem] rounded-[50%] absolute z-[2] top-[16.5rem] left-[9.6rem] mob88:left-[19%] mob88:top-[31%] sm:left-[32%] lg:top-[22.5rem] lg:left-[32%]
 							${isOnline ? "bg-[#0CDA0B]" : "bg-gray-500"}
 							`}></div>
 						)}
 
-						<div
-							className="flex justify-center items-center w-[14rem] h-[14rem] rounded-full relative mb-[2rem] transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light"
-							onClick={() => showUsrPicZoomOverlay()}>
+						<button
+							title="click or press enter to zoom in"
+							className="flex justify-center items-center w-[14rem] h-[14rem] rounded-full relative mb-[2rem] transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light focus-visible:outline-offset-[0.4rem]"
+							onClick={() => showUsrPicZoomOverlay()}
+							onKeyUp={(e) => {
+								if (e.key === "Enter") showUsrPicZoomOverlay();
+							}}>
 							<Image
-								title={`zoom ${usr.username} picture`}
+								aria-description="click or press enter to zoom in"
+								title={`${usr.username} picture`}
 								width={0}
 								height={0}
 								priority={true}
 								src={usr.picture}
 								alt={`${usr.username} picture`}
 								placeholder="empty"
-								className="rounded-full object-cover w-full h-full cursor-pointer shadow-strip"
+								className="rounded-full object-cover w-full h-full cursor-pointer shadow-strip focus-visible:outline-8"
 							/>
-						</div>
-						<div
-							className={
-								isPicZoomed
-									? "fixed overflow-y-scroll left-0 right-0 top-0 bottom-0 w-full h-full bg-appblck z-[998] flex"
-									: "hidden"
-							}
-							onClick={() => hideUsrPicZoomOverlay()}>
-							{isPicZoomed && (
-								<Image
-									width={0}
-									height={0}
-									priority={true}
-									placeholder="empty"
-									src={usr.picture}
-									alt={`${usr.username} picture`}
-									className="block m-auto w-[96%] aspect-square object-cover rounded-full animate-resizeZoom"
-								/>
-							)}
-						</div>
+						</button>
+						{isPicZoomed && (
+							<FocusOn
+								onEscapeKey={() => {
+									hideUsrPicZoomOverlay();
+								}}>
+								<div
+									className={
+										isPicZoomed
+											? "fixed overflow-y-auto left-0 right-0 top-0 bottom-0 w-screen h-full bg-white dark:bg-appblck z-[998] flex"
+											: "hidden"
+									}
+									onClick={() => hideUsrPicZoomOverlay()}>
+									{isPicZoomed && (
+										<Image
+											tabIndex={0}
+											title="click or press escape to zoom out"
+											width={0}
+											height={0}
+											priority={true}
+											placeholder="empty"
+											src={usr.picture}
+											alt={`zoomed in ${usr.username} picture`}
+											className="block m-auto w-[96%] border-4 aspect-square object-cover rounded-full animate-resizeZoom"
+										/>
+									)}
+								</div>
+							</FocusOn>
+						)}
 
 						{followed ? (
 							<div>
-								<p className="text-clamp8 pt-[0.4rem] text-appmauvedark">
+								<p className="text-clamp8 pt-[0.4rem] text-appmauvedark dark:text-apppastgreen">
 									{" "}
 									You follow {usr.username}.
 								</p>
 							</div>
 						) : (
-							<div className="text-clamp8 pt-[0.4rem] text-gray-400">
+							<div className="text-clamp8 pt-[0.4rem] text-gray-400 dark:text-appopstone">
 								{" "}
 								You don&apos;t follow {usr.username}.
 							</div>
 						)}
 						{followingUsr ? (
 							<div>
-								<p className="text-clamp8 pb-[1.2rem] text-appmagenta">
+								<p className="text-clamp8 pb-[1.2rem] text-appmagenta dark:text-appopred">
 									{" "}
 									{usr.username} follows you.
 								</p>
 							</div>
 						) : (
-							<div className="text-clamp8 pb-[1.2rem] text-gray-400">
+							<div className="text-clamp8 pb-[1.2rem] text-gray-400 dark:text-appopstone">
 								{usr.username} does not follow you.
 							</div>
 						)}
@@ -299,7 +314,7 @@ export default function UserProfileCard({ user }) {
 
 						<div className="flex w-[80%] items-center justify-evenly">
 							<nav
-								className={`flex cursor-pointer items-center justify-center bg-[#FF7900] text-appblck rounded-xl w-[3.6rem] h-[3.6rem] my-[0.8rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px] hover:shadow-btnorange shadow-neatcard ${
+								className={`flex cursor-pointer items-center justify-center bg-[#FF7900] text-appblck rounded-xl my-[0.8rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px] hover:shadow-btnorange shadow-neatcard ${
 									backBtnEffect &&
 									"animate-pressDown bg-apppastgreen"
 								}`}
@@ -316,7 +331,7 @@ export default function UserProfileCard({ user }) {
 											? `/thread?page=${pg}&per_page=6#${postId}`
 											: "#"
 									}
-									className="">
+									className="flex w-[3.6rem] h-[3.6rem] mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-xl text-center justify-center items-center">
 									<FontAwesomeIcon
 										icon={faLeftLong}
 										size="2xl"
@@ -331,7 +346,7 @@ export default function UserProfileCard({ user }) {
 										onAnimationEnd={() =>
 											setUnfollowEffect(false)
 										}
-										className={`bg-appstone text-clamp6 text-white w-[3.6rem] h-[3.6rem] rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue shadow-neatcard ${
+										className={`bg-appstone dark:bg-appmauvedark text-clamp6 mob88:text-[1.4rem] text-white w-[3.6rem] h-[3.6rem] mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue shadow-neatcard ${
 											unfollowEffect &&
 											"animate-btnFlat text-appblck bg-apppastgreen"
 										}`}>
@@ -346,7 +361,7 @@ export default function UserProfileCard({ user }) {
 										onAnimationEnd={() =>
 											setFollowEffect(false)
 										}
-										className={`bg-appstone text-clamp6 text-white w-[3.6rem] h-[3.6rem] rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue shadow-neatcard ${
+										className={`bg-appstone dark:bg-appmauvedark text-clamp6  mob88:text-[1.4rem] text-white w-[3.6rem] h-[3.6rem] mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue shadow-neatcard ${
 											followEffect &&
 											"animate-btnFlat text-appblck bg-apppastgreen"
 										}`}>
@@ -374,6 +389,7 @@ export default function UserProfileCard({ user }) {
 										type: "popLayout",
 									}}
 									className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 my-[1.2rem]"
+									role="alert"
 									aria-live="assertive">
 									{errMsg}
 								</motion.p>

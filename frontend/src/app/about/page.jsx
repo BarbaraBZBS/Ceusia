@@ -5,11 +5,11 @@ import { PageWrap } from "../(components)/motions/pageWrap";
 export default function About() {
 	return (
 		<PageWrap>
-			<article className="m-[3.2rem]">
-				<h1 className="text-clamp3 m-[1.2rem] font-semibold uppercase">
+			<article className="m-[3.2rem] md:m-[5.2rem]">
+				<h1 className="text-clamp3 mob88:text-clamp8 m-[1.2rem] font-semibold uppercase">
 					About us...
 				</h1>
-				<p className="text-clamp4 mb-[1.2rem]">
+				<p className="text-clamp4 mob88:text-clamp2 mb-[1.2rem]">
 					Lorem ipsum odor amet, consectetuer adipiscing elit.
 					Tristique amet sapien pulvinar dis netus proin sollicitudin.
 					Facilisis odio ligula rhoncus magna sem dapibus aliquam sit.
@@ -21,7 +21,7 @@ export default function About() {
 					egestas velit sodales natoque erat sociosqu bibendum.
 				</p>
 
-				<p className="text-clamp4 mb-[1.2rem]">
+				<p className="text-clamp4 mb-[1.2rem] mob88:text-clamp2">
 					Per dignissim enim velit enim convallis fames. Faucibus
 					rhoncus malesuada dolor morbi; est integer. Adipiscing
 					litora montes porta eu nascetur luctus lacus turpis.
@@ -34,7 +34,7 @@ export default function About() {
 					ante fames.
 				</p>
 
-				<p className="text-clamp4 mb-[1.2rem]">
+				<p className="text-clamp4 mb-[1.2rem] mob88:text-clamp2">
 					Nunc curae augue nulla ultricies nunc nisi lacus suscipit
 					bibendum. Finibus penatibus sapien euismod fames lobortis
 					habitasse. Varius amet praesent malesuada hendrerit elit
@@ -48,7 +48,7 @@ export default function About() {
 					massa.
 				</p>
 
-				<p className="text-clamp4 mb-[1.2rem] pb-[1.6rem]">
+				<p className="text-clamp4 mb-[1.2rem] pb-[1.6rem] mob88:text-clamp2">
 					Platea malesuada conubia natoque viverra; vestibulum
 					conubia. Vitae maximus litora ut duis sociosqu nibh.
 					Scelerisque fusce lacinia sit convallis magnis scelerisque.

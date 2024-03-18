@@ -20,6 +20,7 @@ export const ChatContextProvider = ({ children }) => {
 	const [onlineUsers, setOnlineUsers] = useState([]);
 	const [notifications, setNotifications] = useState([]);
 	const [isDesiredChat, setIsDesiredChat] = useState(undefined);
+	const [newN, setNewN] = useState(false);
 
 	console.log("online users : ", onlineUsers);
 	console.log("notifications ??? : ", notifications);
@@ -58,9 +59,11 @@ export const ChatContextProvider = ({ children }) => {
 							...prev,
 						]);
 					} else {
+						setNewN(true);
 						setNotifications((prev) => [res, ...prev]);
 					}
 				} else {
+					setNewN(true);
 					setNotifications((prev) => [res, ...prev]);
 				}
 			});
@@ -151,6 +154,8 @@ export const ChatContextProvider = ({ children }) => {
 				markPostNotifAsRead,
 				markUserAllAsRead,
 				isDesiredChat,
+				newN,
+				setNewN,
 			}}>
 			{children}
 		</ChatContext.Provider>

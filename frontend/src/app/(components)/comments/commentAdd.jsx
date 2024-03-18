@@ -18,7 +18,6 @@ import { BsEmojiSmileFill } from "react-icons/bs";
 export default function CommentAdd({
 	post,
 	setPost,
-	allComms,
 	setAllComms,
 	setAddComm,
 	session,
@@ -28,6 +27,7 @@ export default function CommentAdd({
 	const [resetCommentBtnEffect, setResetCommentBtnEffect] = useState(false);
 	const [backCommentBtnEffect, setBackCommentBtnEffect] = useState(false);
 	const [fileWiggle, setFileWiggle] = useState(false);
+	const [isSent, setIsSent] = useState(false);
 	const [errMsg, setErrMsg] = useState("");
 	const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 	const [emojiBtnClickEffect, setEmojiBtnClickEffect] = useState(false);
@@ -52,6 +52,7 @@ export default function CommentAdd({
 	const msg = watch("message");
 	const imgwatch = watch("image");
 	const { socket } = useContext(ChatContext);
+	const isDisabled = !msg;
 
 	const refreshPost = async () => {
 		const resp = await axiosAuth.get(`/posts/${post.id}`);
@@ -68,6 +69,7 @@ export default function CommentAdd({
 	const submitAddComment = async (data, e) => {
 		e.preventDefault();
 		setErrMsg("");
+		setIsSent(false);
 		let headers;
 		const msg = getValues("message");
 		if (data.image <= 0) {
@@ -83,20 +85,25 @@ export default function CommentAdd({
 			headers = { "Content-Type": "multipart/form-data" };
 		}
 		setTimeout(async () => {
+			const abortSignal = AbortSignal.timeout(4000);
 			try {
 				await axiosAuth({
 					method: "post",
 					url: `/posts/${post.id}/comment`,
 					data: data,
 					headers: headers,
+					signal: abortSignal,
 				}).then(async (response) => {
-					console.log(response);
+					//console.log("new comment response", response);
 					await refreshPost();
+					setIsSent(true);
 					const resp = await axiosAuth.get(
 						`/posts/${post.id}/comments`
 					);
+					const res = await axiosAuth.get(`/posts/${post.id}`);
 					setAllComms(resp.data);
 					setAddComm(false);
+					setPost(res.data);
 					const findCommId = resp.data.find((comm) => {
 						return comm.message === msg;
 					});
@@ -108,7 +115,12 @@ export default function CommentAdd({
 					});
 				});
 			} catch (err) {
-				if (!err?.response) {
+				console.log("error new comment", err);
+				if (err.code === "ERR_CANCELED" && abortSignal.aborted) {
+					setErrMsg(
+						"Request timed out, please try again or chose another file."
+					);
+				} else if (!err?.response) {
 					setErrMsg(
 						"Server unresponsive, please try again or come back later."
 					);
@@ -146,11 +158,11 @@ export default function CommentAdd({
 	};
 
 	useEffect(() => {
-		if (isSubmitSuccessful) {
+		if (isSubmitSuccessful && isSent) {
 			setErrMsg("");
 			reset();
 		}
-	}, [isSubmitSuccessful, reset]);
+	}, [isSubmitSuccessful, isSent, reset]);
 
 	const handleEmojiPickerHideShow = () => {
 		setShowEmojiPicker(!showEmojiPicker);
@@ -160,6 +172,13 @@ export default function CommentAdd({
 		let message = getValues("message");
 		message += emoji.emoji;
 		setValue("message", message);
+	};
+
+	const handleShowEmoji = () => {
+		setEmojiBtnClickEffect(true);
+		setTimeout(() => {
+			handleEmojiPickerHideShow();
+		}, 400);
 	};
 
 	return (
@@ -178,7 +197,7 @@ export default function CommentAdd({
 					{...register("message", {
 						required: "This field is required",
 					})}
-					className={`border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-[80%] max-w-[98%] h-[5.6rem] resize mt-0 mb-[0.8rem] ${
+					className={`border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-[80%] max-w-[98%] h-[5.6rem] max-h-[20rem] resize mt-0 mb-[0.8rem] min-w-[11rem] min-h-[2.6rem] ${
 						errors.message
 							? "border-appred focus:border-appred"
 							: ""
@@ -189,24 +208,39 @@ export default function CommentAdd({
 						{errors.message.message}
 					</span>
 				)}
-				<div
-					className={`relative hover:opacity-70 ${
+				{/* emoji picker */}
+				{showEmojiPicker && (
+					<div className="">
+						<Picker
+							onEmojiClick={handleEmojiClick}
+							className="bg-appmauvedark"
+						/>
+					</div>
+				)}
+
+				<button
+					type="button"
+					title="select image"
+					className={`relative rounded-xl my-[0.4rem] w-[4.5rem] h-[2.9rem] hover:opacity-70 ${
 						fileWiggle && "animate-wiggle"
 					}`}
+					onClick={() => {
+						setFileWiggle(true);
+						document.getElementById("image").click();
+					}}
 					onAnimationEnd={() => setFileWiggle(false)}>
 					<input
-						onClick={() => setFileWiggle(true)}
+						id="image"
 						type="file"
 						name="image"
 						placeholder="A video, image, or audio file..."
 						{...register("image")}
-						className="border-2 border-appstone rounded-md my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-[4.5rem] h-[2.5rem] opacity-0 file:cursor-pointer"
+						className="hidden"
 					/>
 					<FontAwesomeIcon
 						icon={faPhotoFilm}
 						size="xl"
-						style={{ color: "#4E5166" }}
-						className="absolute left-[0px] top-[0.3rem] -z-20"
+						className="text-appstone dark:text-appmauvedark absolute left-[0px] top-[0.3rem]"
 					/>
 					<FontAwesomeIcon
 						icon={faMusic}
@@ -216,12 +250,12 @@ export default function CommentAdd({
 								? { color: "#FD2D01" }
 								: { color: "#b1ae99" }
 						}
-						className="absolute left-[1.8rem] top-[0.3rem] -z-10"
+						className="absolute left-[1.8rem] top-[0.3rem]"
 					/>
-				</div>
+				</button>
 				{imgwatch?.[0]?.name ? (
 					<p
-						className={`max-w-[32.5rem] mx-[0.8rem] line-clamp-1 hover:line-clamp-none hover:text-ellipsis hover:overflow-hidden active:line-clamp-none active:text-ellipsis active:overflow-hidden 
+						className={`max-w-[90%] mx-[0.8rem] text-ellipsis overflow-hidden 
                                 ${
 									errors.image
 										? "text-red-600 underline underline-offset-2 font-semibold"
@@ -240,13 +274,13 @@ export default function CommentAdd({
 				<div className="flex w-full justify-around">
 					<div className="flex w-[30%] justify-evenly">
 						<button
-							title="cancel"
+							title="cancel comment creation"
 							type="button"
 							onClick={() => commentbackBtn()}
 							onAnimationEnd={() =>
 								setBackCommentBtnEffect(false)
 							}
-							className={`h-[3.6rem] w-[3.6rem] bg-appred text-appblck rounded-xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:bg-opacity-60 hover:translate-y-[5px] hover:shadow-btnlred shadow-neatcard ${
+							className={`h-[3.6rem] w-[3.6rem] mob88:h-[2.8rem] mob88:w-[2.8rem] bg-appred text-appblck rounded-xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:bg-opacity-60 dark:hover:text-white hover:translate-y-[5px] hover:shadow-btnlred shadow-neatcard ${
 								backCommentBtnEffect &&
 								"animate-pressDown bg-apppastgreen"
 							}`}>
@@ -259,7 +293,7 @@ export default function CommentAdd({
 							onAnimationEnd={() =>
 								setResetCommentBtnEffect(false)
 							}
-							className={`h-[3.6rem] w-[3.6rem] bg-[#FF7900] text-appblck rounded-xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[5px] hover:shadow-btnorange shadow-neatcard ${
+							className={`h-[3.6rem] w-[3.6rem] mob88:h-[2.8rem] mob88:w-[2.8rem] bg-[#FF7900] text-appblck rounded-xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[5px] hover:shadow-btnorange shadow-neatcard ${
 								resetCommentBtnEffect &&
 								"animate-pressDown bg-apppastgreen"
 							}`}>
@@ -267,37 +301,43 @@ export default function CommentAdd({
 						</button>
 					</div>
 					<div className="flex justify-evenly w-[30%] items-center">
-						<div className="">
+						<div className="relative">
 							<BsEmojiSmileFill
-								className={`text-[2.3rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
+								tabIndex={0}
+								title={
+									showEmojiPicker
+										? "hide emoji picker"
+										: "show emoji picker"
+								}
+								className={`text-[2.3rem] mob88:text-[2rem] text-yellow-300 bg-black rounded-full cursor-pointer drop-shadow-linkTxt ${
 									emojiBtnClickEffect && "animate-pressed"
 								}`}
-								onClick={() => {
-									setEmojiBtnClickEffect(true);
-									handleEmojiPickerHideShow();
+								onClick={() => handleShowEmoji()}
+								onKeyUp={(e) => {
+									if (e.key === "Enter") handleShowEmoji();
 								}}
 								onAnimationEnd={() =>
 									setEmojiBtnClickEffect(false)
 								}
 							/>
-							{showEmojiPicker && (
-								<div className="absolute top-[58%] left-[calc(50vw-(350px/2))] z-20">
-									<Picker
-										onEmojiClick={handleEmojiClick}
-										className="bg-appmauvedark"
-									/>
-								</div>
-							)}
 						</div>
 						<button
 							title="send new comment"
 							type="submit"
-							disabled={!msg}
-							onClick={() => setAddCommentBtnEffect(true)}
+							aria-disabled={isDisabled}
+							onClick={(e) => {
+								isDisabled
+									? e.preventDefault()
+									: setAddCommentBtnEffect(true);
+							}}
 							onAnimationEnd={() => setAddCommentBtnEffect(false)}
-							className={`h-[3.6rem] w-[3.6rem] bg-appstone text-white rounded-xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-appopred hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnblue disabled:opacity-50 shadow-neatcard ${
+							className={`h-[3.6rem] w-[3.6rem] mob88:h-[2.8rem] mob88:w-[2.8rem] bg-appstone dark:bg-appmauvedark text-white rounded-xl mt-[0.8rem] mb-[0.8rem] shadow-neatcard ${
 								addCommentBtnEffect &&
 								"animate-pressDown bg-apppastgreen"
+							} ${
+								isDisabled
+									? "opacity-50 cursor-not-allowed"
+									: "transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[5px] hover:shadow-btnblue"
 							}`}>
 							<FontAwesomeIcon icon={faPlus} />
 						</button>
@@ -321,7 +361,8 @@ export default function CommentAdd({
 							transition={{
 								type: "popLayout",
 							}}
-							className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 my-[1.2rem]"
+							className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit max-[300px]:mx-0 max-[300px]:w-[90%] px-[0.8rem] text-clamp6 my-[1.2rem]"
+							role="alert"
 							aria-live="assertive">
 							{errMsg}
 						</motion.p>

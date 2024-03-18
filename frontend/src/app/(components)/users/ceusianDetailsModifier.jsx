@@ -1,10 +1,9 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import useAxiosAuth from "@/app/(utils)/hooks/useAxiosAuth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-	faPhotoFilm,
 	faCheckDouble,
 	faPenFancy,
 	faEraser,
@@ -41,14 +40,18 @@ export default function CeusianDetailsModifier(props) {
 	const [pictureUpdated, setPictureUpdated] = useState(false);
 	const [usrnEffect, setUsrnEffect] = useState(false);
 	const [mottoEffect, setMottoEffect] = useState(false);
-	const [fileWiggle, setFileWiggle] = useState(false);
-	const [picEffect, setPicEffect] = useState(false);
 	const [resetBtnEffect, setResetBtnEffect] = useState(false);
 	const [defaultPicEffect, setDefaultPicEffect] = useState(false);
+	const [isSent, setIsSent] = useState(false);
+	const isUsrnDisabled = !usrN;
+	const isMtDisabled = !mt;
+	const isResetDisabled =
+		props.user.picture === "http://localhost:8000/profile/defaultUser.png";
 
 	const submitUpdate = async (data) => {
 		setPictureUpdated(false);
-		props.seterr();
+		setIsSent(false);
+		props.seterr("");
 		data = {
 			username: getValues("username"),
 			motto: getValues("motto"),
@@ -60,6 +63,7 @@ export default function CeusianDetailsModifier(props) {
 				data: data,
 			}).then(async () => {
 				const resp = await axiosAuth.get(`/auth/user/${props.user.id}`);
+				setIsSent(true);
 				props.setuser(resp.data);
 			});
 		} catch (err) {
@@ -106,6 +110,7 @@ export default function CeusianDetailsModifier(props) {
 					const resp = await axiosAuth.get(
 						`/auth/user/${props.user.id}`
 					);
+					setIsSent(true);
 					props.setuser(resp.data);
 					setPictureUpdated(true);
 				}
@@ -174,17 +179,18 @@ export default function CeusianDetailsModifier(props) {
 	};
 
 	useEffect(() => {
-		if (isSubmitSuccessful) {
+		if (isSubmitSuccessful && isSent) {
+			props.seterr("");
 			reset();
 		}
-	}, [isSubmitSuccessful, reset]);
+	}, [isSubmitSuccessful, isSent, reset, props]);
 
 	return (
 		<>
 			<div className="flex flex-col items-center">
-				<hr className="w-[80vw] mb-[3.2rem] border-t-solid border-t-[4px] rounded-md border-t-gray-300" />
-				<h2 className="m-[1.2rem] mb-[2rem] text-center uppercase text-appred font-medium text-clamp3">
-					Admin monitoring - if inappropriate user details
+				<hr className="w-[80vw] mb-[3.2rem] border-t-solid border-t-[4px] rounded-md border-t-gray-300 dark:border-t-gray-500" />
+				<h2 className="m-[1.2rem] mb-[2rem] text-center uppercase text-appred font-medium text-clamp3  mob88:text-clamp5 ">
+					Admin monitoring
 				</h2>
 			</div>
 
@@ -218,12 +224,20 @@ export default function CeusianDetailsModifier(props) {
 					<button
 						title="confirm username update"
 						type="submit"
-						disabled={!usrN}
-						onClick={() => setUsrnEffect(true)}
+						aria-disabled={isUsrnDisabled}
+						onClick={(e) => {
+							isUsrnDisabled
+								? e.preventDefault
+								: setUsrnEffect(true);
+						}}
 						onAnimationEnd={() => setUsrnEffect(false)}
-						className={`bg-appstone text-white w-[3.6rem] h-[3.6rem] rounded-2xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen
-                        bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40 ${
+						className={`bg-appstone dark:bg-appmauvedark text-white w-[3.6rem] h-[3.6rem] mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-2xl mt-[0.8rem] mb-[0.8rem]
+                        bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] ${
 							usrnEffect && "animate-bgSize"
+						} ${
+							isUsrnDisabled
+								? "opacity-40 cursor-not-allowed"
+								: "transition-all duration-300 ease-in-out hover:bg-apppastgreen hover:text-appblck hover:translate-y-[5px] hover:shadow-btnpastgreen"
 						}`}>
 						<FontAwesomeIcon icon={faPenFancy} />
 					</button>
@@ -254,12 +268,20 @@ export default function CeusianDetailsModifier(props) {
 						<button
 							title="confirm motto update"
 							type="submit"
-							disabled={!mt}
-							onClick={() => setMottoEffect(true)}
+							aria-disabled={isMtDisabled}
+							onClick={(e) => {
+								isMtDisabled
+									? e.preventDefault
+									: setMottoEffect(true);
+							}}
 							onAnimationEnd={() => setMottoEffect(false)}
-							className={`bg-appstone text-white w-[3.6rem] h-[3.6rem] rounded-2xl mt-[0.8rem] mb-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen
-                            bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40 ${
+							className={`bg-appstone dark:bg-appmauvedark text-white w-[3.6rem] h-[3.6rem] mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-2xl mt-[0.8rem] mb-[0.8rem] 
+                            bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] ${
 								mottoEffect && "animate-bgSize"
+							} ${
+								isMtDisabled
+									? "opacity-40 cursor-not-allowed"
+									: "transition-all duration-300 ease-in-out hover:bg-apppastgreen hover:text-appblck hover:translate-y-[5px] hover:shadow-btnpastgreen"
 							}`}>
 							<FontAwesomeIcon icon={faPenFancy} />
 						</button>
@@ -267,71 +289,7 @@ export default function CeusianDetailsModifier(props) {
 				</form>
 			</div>
 			<div className="flex flex-col items-center">
-				<form
-					className="py-[0.4rem] flex flex-col items-center text-clamp6 w-full"
-					onSubmit={handleSubmit(submitPicUpdate)}>
-					<div className="flex w-[60%] items-center justify-evenly">
-						<div
-							className={`relative hover:opacity-70 ml-[16%] ${
-								fileWiggle && "animate-wiggle"
-							}`}
-							onAnimationEnd={() => setFileWiggle(false)}>
-							<input
-								type="file"
-								onClick={() => setFileWiggle(true)}
-								name="picture"
-								placeholder="  Update Profile Picture"
-								{...register("picture")}
-								className="border-2 border-appstone rounded-md shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[5.9rem] h-[4rem] opacity-0 file:cursor-pointer file:h-[4rem]"
-							/>
-							<FontAwesomeIcon
-								icon={faPhotoFilm}
-								size="2xl"
-								style={{ color: "#4E5166" }}
-								className="absolute left-[0rem] top-[0.3rem] -z-20"
-							/>
-							<FontAwesomeIcon
-								icon={faImagePortrait}
-								size="2xl"
-								style={
-									errors.picture
-										? { color: "#FD2D01" }
-										: { color: "#b1ae99" }
-								}
-								className="absolute left-[3.45rem] top-[1rem] -z-10"
-							/>
-						</div>
-						<button
-							title="confirm picture update"
-							type="submit"
-							disabled={filewatch === null || !filewatch[0]?.name}
-							onClick={() => setPicEffect(true)}
-							onAnimationEnd={() => setPicEffect(false)}
-							className={`bg-appstone text-white w-[3.6rem] h-[3.6rem] rounded-2xl my-[0.8rem] transition-all duration-300 ease-in-out hover:enabled:bg-apppastgreen hover:enabled:text-appblck hover:enabled:translate-y-[5px] hover:enabled:shadow-btnpastgreen
-                            bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] disabled:opacity-40 ml-[24%] mr-[14%] ${
-								picEffect && "animate-bgSize"
-							}`}>
-							<FontAwesomeIcon icon={faPenFancy} />
-						</button>
-					</div>
-					{filewatch && filewatch[0] ? (
-						<p
-							className={`max-w-[32.5rem] mx-[0.8rem] my-[0.8rem] line-clamp-1 hover:line-clamp-none hover:text-ellipsis hover:overflow-hidden active:line-clamp-none active:text-ellipsis active:overflow-hidden 
-                                ${
-									errors.picture
-										? "text-red-600 underline underline-offset-2 font-semibold"
-										: ""
-								}`}>
-							{filewatch[0].name}
-						</p>
-					) : (
-						<p className="ml-[1.2rem] mr-[6%]">No file selected</p>
-					)}
-					{errors.picture && (
-						<span className="text-red-600 bg-white font-semibold drop-shadow-light px-[0.8rem] rounded-md mt-[0.4rem] mb-[0.8rem]">
-							{errors.picture.message}
-						</span>
-					)}
+				<div className="py-[0.4rem] flex flex-col items-center text-clamp6 w-full">
 					<div className="flex w-[45vw] justify-around items-center mt-[0.4rem] mb-[0.8rem]">
 						{pictureUpdated && (
 							<FontAwesomeIcon
@@ -342,22 +300,26 @@ export default function CeusianDetailsModifier(props) {
 						)}
 					</div>
 					<button
-						disabled={
-							props.user.picture ===
-							"http://localhost:8000/profile/defaultUser.png"
-						}
-						type="button"
 						title="reset picture to default"
-						onClick={() => restoreDefault()}
+						type="button"
+						aria-disabled={isResetDisabled}
+						onClick={(e) => {
+							isResetDisabled
+								? e.preventDefault
+								: restoreDefault();
+						}}
 						onAnimationEnd={() => setDefaultPicEffect(false)}
-						className={`relative self-end mr-[20%] hover:enabled:opacity-70 transition-all duration-300 ease-in-out hover:enabled:translate-y-[5px] disabled:opacity-40 ${
+						className={`relative self-end mr-[20%] ${
 							defaultPicEffect && "animate-btnFlat"
+						} ${
+							isResetDisabled
+								? "opacity-40"
+								: "hover:opacity-70 transition-all duration-300 ease-in-out hover:translate-y-[5px]"
 						}`}>
 						<FontAwesomeIcon
 							icon={faImagePortrait}
 							size="xl"
-							style={{ color: "#4E5166" }}
-							className="absolute left-[0rem] top-[0rem]"
+							className="text-appstone dark:text-appmauvedark absolute left-[0rem] top-[0rem]"
 						/>
 						<FontAwesomeIcon
 							icon={faArrowRotateLeft}
@@ -365,7 +327,7 @@ export default function CeusianDetailsModifier(props) {
 							className="absolute left-[1.1rem] top-[0rem]"
 						/>
 					</button>
-				</form>
+				</div>
 			</div>
 			<div className="flex justify-center">
 				<button
@@ -376,7 +338,7 @@ export default function CeusianDetailsModifier(props) {
 						reset();
 					}}
 					onAnimationEnd={() => setResetBtnEffect(false)}
-					className={`bg-[#FF7900] text-appblck w-[3.6rem] h-[3.6rem] rounded-xl mb-[0.8rem] mt-[1.6rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px]
+					className={`bg-[#FF7900] text-appblck w-[3.6rem] h-[3.6rem] mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-xl mb-[0.8rem] mt-[1.6rem] transition-all duration-300 ease-in-out hover:bg-yellow-300 hover:translate-y-[7px]
                     hover:shadow-btnorange bg-[radial-gradient(closest-side,#7953be,#7953be,transparent)] bg-no-repeat bg-[size:0%_0%] bg-[position:50%_50%] shadow-neatcard ${
 						resetBtnEffect && "animate-bgSize"
 					}`}>

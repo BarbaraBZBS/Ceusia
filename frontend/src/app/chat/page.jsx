@@ -28,8 +28,8 @@ export default function Chat() {
 	console.log("chat, session : ", currentChat, session?.user?.user_id);
 	return (
 		<PageWrap>
-			<div className="flex flex-col w-screen h-[90vh] justify-center items-center mb-[2.4rem]">
-				<div className="w-[96%] h-[97%] bg-apppinklighter grid grid-cols-[28%_72%] translate-x-0 shadow-neatcard rounded-xl">
+			<div className="flex flex-col w-screen h-[85vh] sm:h-[87vh] lg:h-[100vh] justify-center items-center mb-[2.4rem]">
+				<div className="w-[96%] h-[97%] bg-apppinklighter dark:bg-applightdark grid grid-rows-[30%_70%] sm:grid-rows-1 sm:grid-cols-[28%_72%] translate-x-0 shadow-neatcard rounded-xl">
 					<Contacts
 						session={session}
 						changeChat={handleChatChange}

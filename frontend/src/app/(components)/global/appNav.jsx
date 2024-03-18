@@ -9,6 +9,10 @@ import { CgFeed } from "react-icons/cg";
 import { BiSolidMessageRounded } from "react-icons/bi";
 import { ChatContext } from "../ChatContext";
 import Notifications from "./notifications";
+import { motion } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
+import { BiPowerOff } from "react-icons/bi";
+import { TiCancel } from "react-icons/ti";
 
 export default function AppNav() {
 	const { data: session, status } = useSession();
@@ -23,7 +27,8 @@ export default function AppNav() {
 	const [cancelLogoutEffect, setCancelLogoutEffect] = useState(false);
 	const [threadLinkEffect, setThreadLinkEffect] = useState(false);
 	const [chatLinkEffect, setChatLinkEffect] = useState(false);
-	const { socket, setCurrentChat, notifications } = useContext(ChatContext);
+	const { socket, setCurrentChat, notifications, newN, setNewN } =
+		useContext(ChatContext);
 	const [unreadAll, setUnreadAll] = useState([]);
 	const [unreadChat, setUnreadChat] = useState([]);
 	const [unreadPostsComments, setUnreadPostsComments] = useState([]);
@@ -102,33 +107,65 @@ export default function AppNav() {
 	//console.log("unread chat msgs : ", unreadChat);
 	//console.log("unread posts and comments msgs : ", unreadPostsComments);
 
+	useEffect(() => {
+		if (newN) {
+			setTimeout(() => {
+				setNewN(false);
+			}, 3000);
+		}
+	}, [newN, setNewN]);
+
 	return (
-		<div className="mb-[0.8rem] text-clamp5 bg-gray-200 bg-opacity-60">
-			<header className="flex flex-row justify-between">
-				<nav>
-					<a href="/" as={"/"}>
+		<div className="mb-[0.8rem] w-screen text-clamp5 bg-gray-200 bg-opacity-60 dark:bg-appblck mob88:text-clamp7 max-[293px]:text-clamp1">
+			<AnimatePresence>
+				{newN && (
+					<motion.div
+						initial={{ opacity: 0, y: -50 }}
+						animate={{ opacity: 1, y: 0 }}
+						exit={{ opacity: 0, y: -50 }}
+						transition={{ duration: 0.4, origin: 1, delay: 0.25 }}
+						role="alert"
+						aria-live="assertive"
+						className="z-[400] absolute top-[6.6rem] left-[15%] w-[70%] bg-blue-300 dark:bg-appstone rounded-lg p-3 shadow-neatcard">
+						<div className="flex justify-center text-center">
+							<p className="text-clamp7 mob88:text-clamp2">
+								You have a new notification <br />
+								{unreadAll.length > 1
+									? `${unreadAll.length} unread
+						notifications`
+									: `${unreadAll.length} unread notification`}
+							</p>
+						</div>
+					</motion.div>
+				)}
+			</AnimatePresence>
+			<header className="flex justify-between h-[6.6rem] mob88:h-[5rem] sm:h-[7.5rem]">
+				<nav title="Go to Ceusia Home Page" className="flex">
+					<a href="/" as={"/"} id="logo-link" className="block">
 						<Image
-							className="w-[17.6rem] h-[6.6rem] inline object-cover rounded-br-2xl"
+							className="w-[17.6rem] h-[6.6rem] mob88:w-[12rem] mob88:h-full inline object-cover rounded-br-2xl sm:w-[21rem] sm:h-full lg:w-[23rem] lg:h-full"
 							src={Logo}
 							alt="ceusia main logo"
+							aria-label="Navigate to Home Page"
 							width={0}
 							height={0}
 							priority={true}
 							placeholder="empty"
-							style={{ width: "17.6rem", height: "6.6rem" }}
+							//style={{ width: "17.6rem", height: "6.6rem" }}
 						/>
 					</a>
 				</nav>
-				<nav className="flex justify-center items-center ">
+				<nav className="flex justify-center items-center mob48:px-[0.3rem]">
 					{session?.user && (
 						<>
 							<div
-								title="Posts"
-								className="ml-[1.5rem] cursor-pointer relative hover:drop-shadow-light"
+								title="Go To Posts"
+								className="ml-[1.5rem] max-[292px]:ml-[0.5rem] sm:ml-[2rem] lg:ml-[4rem] cursor-pointer relative hover:drop-shadow-light"
 								onClick={() => setThreadLinkEffect(true)}>
 								<a href="/thread" as={"/thread"}>
 									<CgFeed
-										className={`w-[2.5rem] h-[2.5rem] text-white drop-shadow-linkTxt ${
+										aria-label="Navigate to Posts"
+										className={`w-[2.5rem] h-[2.5rem] sm:w-[2.8rem] sm:h-[2.8rem] mob88:w-[1.8rem] mob88:h-[1.8rem] text-white drop-shadow-linkTxt dark:hover:opacity-80 transform-gpu ${
 											threadLinkEffect &&
 											"animate-pressed text-apppinklight"
 										} ${
@@ -143,24 +180,32 @@ export default function AppNav() {
 										className={
 											unreadPostsComments?.length === 0
 												? ""
-												: "flex w-[1.8rem] h-[1.8rem] justify-center items-center text-white bg-appred rounded-[50%] p-[0.5rem] text-[1.2rem] font-semibold absolute top-[-0.5rem] right-[-0.5rem]"
+												: "flex w-[1.8rem] h-[1.8rem] mob88:w-[1.5rem] mob88:h-[1.5rem] justify-center items-center text-white bg-appred rounded-[50%] p-[0.5rem] text-[1.2rem] font-semibold absolute top-[-0.5rem] right-[-0.5rem]"
 										}>
 										{unreadPostsComments?.length ===
 										0 ? null : (
-											<span>
-												{unreadPostsComments?.length}
-											</span>
+											<>
+												<span
+													aria-label={`${unreadPostsComments?.length} post notifications`}
+													className="sr-only"></span>
+												<span aria-hidden>
+													{
+														unreadPostsComments?.length
+													}
+												</span>
+											</>
 										)}
 									</div>
 								</a>
 							</div>
 							<div
-								title="Chat"
-								className="ml-[1.5rem] cursor-pointer relative hover:drop-shadow-light"
+								title="Go To Chat"
+								className="ml-[1.5rem] max-[292px]:ml-[0.5rem] sm:ml-[2rem] lg:ml-[4rem] cursor-pointer relative hover:drop-shadow-light"
 								onClick={() => setChatLinkEffect(true)}>
 								<a href="/chat" as={"/chat"}>
 									<BiSolidMessageRounded
-										className={`w-[2.5rem] h-[2.5rem] text-white drop-shadow-linkTxt ${
+										aria-label="Navigate to Chat"
+										className={`w-[2.5rem] h-[2.5rem] sm:w-[2.8rem] sm:h-[2.8rem] mob88:w-[1.8rem] mob88:h-[1.8rem] text-white drop-shadow-linkTxt dark:hover:opacity-80 transform-gpu ${
 											chatLinkEffect &&
 											"animate-pressed text-apppinklight"
 										} ${
@@ -172,13 +217,24 @@ export default function AppNav() {
 										}
 									/>
 									<div
+										role="alert"
+										aria-live="assertive"
 										className={
 											unreadChat.length === 0
 												? ""
-												: "flex w-[1.8rem] h-[1.8rem] justify-center items-center text-white bg-appred rounded-[50%] p-[0.5rem] text-[1.2rem] font-semibold absolute top-[-0.5rem] right-[-0.5rem]"
+												: "flex w-[1.8rem] h-[1.8rem] mob88:w-[1.5rem] mob88:h-[1.5rem] justify-center items-center text-white bg-appred rounded-[50%] p-[0.5rem] text-[1.2rem] font-semibold absolute top-[-0.5rem] right-[-0.5rem]"
 										}>
 										{unreadChat?.length === 0 ? null : (
-											<span>{unreadChat?.length}</span>
+											<>
+												<span
+													//role="alert"
+													//aria-live="assertive"
+													aria-label={`${unreadChat?.length} chat notifications`}
+													className="sr-only"></span>
+												<span aria-hidden>
+													{unreadChat?.length}
+												</span>
+											</>
 										)}
 									</div>
 								</a>
@@ -187,13 +243,18 @@ export default function AppNav() {
 						</>
 					)}
 				</nav>
-				<nav className="flex flex-col justify-center mx-[1rem] text-center">
+				<nav className="flex flex-col justify-center mx-[1rem] mob48:mx-0 text-center">
 					{session?.user ? (
 						<div className="flex flex-col">
 							<div>
 								{session?.user.role === "admin" ? (
 									<div
-										className={`${
+										title={
+											currentRoute === "/profile"
+												? ""
+												: "My Profile Page"
+										}
+										className={`m-[0.1rem] sm:mb-[0.5rem] text-ellipsis overflow-hidden ${
 											profileEffect && "animate-pressed"
 										} ${
 											currentRoute !== "/profile" &&
@@ -204,19 +265,30 @@ export default function AppNav() {
 											setProfileEffect(false)
 										}>
 										<a
+											aria-label={
+												currentRoute === "/profile"
+													? `${session?.user?.username}`
+													: `Go To ${session?.user?.username} Profile Page`
+											}
 											href="/profile"
 											as={"/profile"}
-											className={
-												currentRoute === "/profile"
-													? "text-red-700 drop-shadow-lighter underline"
-													: "text-appred drop-shadow-lighter hover:text-appmauvelight active:text-appturq"
-											}>
+											className={`block text-ellipsis overflow-hidden m-[0.2rem] px-[0.3rem] max-w-[10rem] mob48:max-w-[90%] sm:max-w-[100%]
+												${
+													currentRoute === "/profile"
+														? "text-red-700 drop-shadow-lighter underline mob88:mb-[0.5rem]"
+														: "text-appred drop-shadow-lighter hover:text-appmauvelight active:text-appturq"
+												}`}>
 											{session?.user.username}
 										</a>
 									</div>
 								) : (
 									<div
-										className={`${
+										title={
+											currentRoute === "/profile"
+												? ""
+												: "My Profile Page"
+										}
+										className={`m-[0.1rem] sm:mb-0 text-ellipsis overflow-hidden ${
 											profileEffect && "animate-pressed"
 										} ${
 											currentRoute !== "/profile" &&
@@ -229,11 +301,12 @@ export default function AppNav() {
 										<a
 											href="/profile"
 											as={"/profile"}
-											className={
-												currentRoute === "/profile"
-													? "text-appmagenta drop-shadow-lighter underline"
-													: "text-appmauvedark drop-shadow-lighter hover:text-appmauvelight active:text-appturq"
-											}>
+											className={`block text-ellipsis overflow-hidden m-[0.2rem] px-[0.3rem] max-w-[10rem] mob48:max-w-[90%] sm:max-w-[100%]
+												${
+													currentRoute === "/profile"
+														? "text-appmagenta dark:text-apppink drop-shadow-lighter underline"
+														: "text-appmauvedark dark:text-apppastgreen drop-shadow-lighter hover:text-appmauvelight active:text-appturq dark:hover:text-appopred"
+												}`}>
 											{session?.user.username}
 										</a>
 									</div>
@@ -241,7 +314,8 @@ export default function AppNav() {
 							</div>
 							{currentRoute === "/auth/signOut" ? (
 								<button
-									className={`hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out ${
+									title="cancel sign out"
+									className={`flex justify-center items-center m-[0.2rem] text-appred hover:text-yellow-500 hover:translate-y-1 focus:text-appturq transition-all duration-200 ease-in-out ${
 										cancelLogoutEffect && "animate-pressed"
 									}`}
 									onClick={() => {
@@ -250,11 +324,11 @@ export default function AppNav() {
 									onAnimationEnd={() =>
 										setCancelLogoutEffect(false)
 									}>
-									Cancel
+									<TiCancel className="text-[2.5rem] mob88:text-[2.1rem]" />
 								</button>
 							) : (
 								<div
-									className={`hover:translate-y-1 transition-all duration-200 ease-in-out ${
+									className={`w-fit m-auto hover:translate-y-1 transition-all duration-200 ease-in-out ${
 										logoutEffect && "animate-pressed"
 									}`}
 									onClick={() => {
@@ -264,9 +338,10 @@ export default function AppNav() {
 										setLogoutEffect(false)
 									}>
 									<a
+										title="sign out"
 										href={"/auth/signOut"}
-										className="hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out">
-										Sign Out
+										className="flex justify-center py-[0.2rem] mob48:max-w-[90%] items-center text-appred hover:text-yellow-500 hover:translate-y-1 active:text-appturq focus:text-appturq transition-all duration-200 ease-in-out">
+										<BiPowerOff className="text-[2.2rem] mob88:text-[1.8rem]" />
 									</a>
 								</div>
 							)}

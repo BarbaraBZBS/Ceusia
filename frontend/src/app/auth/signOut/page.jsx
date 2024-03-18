@@ -24,7 +24,7 @@ export default function SignOut() {
 				<Loading />
 			) : (
 				<section className=" w-full h-[22.5rem] flex flex-col justify-center items-center">
-					<h1 className="text-clamp8 my-[3rem]">
+					<h1 className="text-clamp8 my-[3rem] text-center mx-[0.9rem]">
 						Are you sure you want to sign out?
 					</h1>
 					<nav>

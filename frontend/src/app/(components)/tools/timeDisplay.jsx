@@ -15,8 +15,8 @@ export default function TimeDisplay() {
 
 	return (
 		<div className="flex flex-col gap-[0.8rem] justify-center items-center font-medium">
-			<p className="text-clamp3">{date}</p>
-			<p className="text-clamp3">{time}</p>
+			<p className="text-clamp3 mob88:text-clamp5">{date}</p>
+			<p className="text-clamp3 mob88:text-clamp5">{time}</p>
 		</div>
 	);
 }

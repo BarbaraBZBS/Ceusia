@@ -37,6 +37,7 @@ export default function LogInPage() {
 	});
 	const eml = watch("email");
 	const psw = watch("password");
+	const isDisabled = !eml || !psw;
 
 	useEffect(() => {
 		load && setLogState("Logging in");
@@ -76,6 +77,7 @@ export default function LogInPage() {
 				exit={{ x: 70, opacity: 0 }}
 				transition={{ type: "popLayout" }}
 				className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-6 rounded-md w-fit px-2 text-clamp6 text-center"
+				role="alert"
 				aria-live="assertive">
 				{errorMessage}
 			</motion.p>
@@ -113,7 +115,7 @@ export default function LogInPage() {
 									Sign up
 								</a>
 							</p>
-							<div className="flex flex-col border-2 border-apppink rounded-xl bg-apppink shadow-md m-[2rem] h-fit">
+							<div className="flex flex-col border-2 border-apppink dark:border-appstone rounded-xl bg-apppink dark:bg-appstone shadow-md m-[2rem] h-fit lg:w-[60%] lg:mx-auto lg:my-[3rem]">
 								<h1 className="text-clamp5 text-center mb-[1.6rem] mt-[0.8rem] uppercase">
 									Sign In
 								</h1>
@@ -130,7 +132,7 @@ export default function LogInPage() {
 										{...register("email", {
 											required: "This field is required",
 										})}
-										className={`border-2 border-appstone rounded-md h-[4rem] w-[26rem] my-[1.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc focus:border-appturq focus:outline-none focus:invalid:border-appred ${
+										className={`border-2 border-appstone rounded-md h-[4rem] w-[26rem] mob20:w-[92%] lg:w-[50%] my-[1.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc focus:border-appturq focus:outline-none focus:invalid:border-appred ${
 											errors.email
 												? "border-appred focus:border-appred"
 												: ""
@@ -142,7 +144,7 @@ export default function LogInPage() {
 										</span>
 									)}
 
-									<div className="relative">
+									<div className="relative mob20:flex mob20:justify-center mob20:w-full lg:w-full lg:justify-center lg:flex">
 										<input
 											type={
 												showPassword
@@ -155,13 +157,35 @@ export default function LogInPage() {
 												required:
 													"This field is required",
 											})}
-											className={`border-2 border-appstone rounded-md h-[4rem] w-[26rem] my-[1.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc focus:border-appturq focus:outline-none focus:invalid:border-appred ${
+											className={`border-2 border-appstone rounded-md h-[4rem] w-[26rem] mob20:w-[92%] lg:w-[50%] my-[1.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc focus:border-appturq focus:outline-none focus:invalid:border-appred ${
 												errors.password
 													? "border-appred focus:border-appred"
 													: ""
 											}`}
 										/>
-										<button type="button">
+										<button
+											type="button"
+											title="show password"
+											aria-roledescription="click and hold or hold enter or numpad / to show password"
+											className="absolute top-[2rem] right-[0.5rem] mob20:right-[6%] lg:right-[26%]"
+											onKeyDown={(e) => {
+												if (
+													e.key === "/" ||
+													e.key === "Enter"
+												) {
+													setEyePEffect(true);
+													setShowPassword(true);
+												}
+											}}
+											onKeyUp={(e) => {
+												if (
+													e.key === "/" ||
+													e.key === "Enter"
+												) {
+													setEyePEffect(false);
+													setShowPassword(false);
+												}
+											}}>
 											<FontAwesomeIcon
 												icon={faEye}
 												onTouchStart={() => {
@@ -181,12 +205,12 @@ export default function LogInPage() {
 												onAnimationEnd={() =>
 													setEyePEffect(false)
 												}
-												className={`absolute top-[2.3rem] right-[0.5rem] hover:text-appmauvelight ${
+												className={`hover:text-appmauvelight dark:hover:text-appmauvedark active:text-appmauvedark dark:active:text-appgreenlight ${
 													eyePEffect &&
 													"animate-btnFlat"
 												} ${
 													showPassword &&
-													"text-appmauvedark"
+													"text-appmauvedark dark:text-appgreenlight"
 												}`}
 											/>
 										</button>
@@ -199,14 +223,22 @@ export default function LogInPage() {
 
 									<button
 										type="submit"
-										disabled={!eml || !psw}
-										onClick={() => setSubmitBtnEffect(true)}
+										aria-disabled={isDisabled}
+										onClick={(e) => {
+											isDisabled
+												? e.preventDefault
+												: setSubmitBtnEffect(true);
+										}}
 										onAnimationEnd={() =>
 											setSubmitBtnEffect(false)
 										}
-										className={`bg-appstone text-white uppercase w-fit rounded-xl px-[1.2rem] py-[0.3rem] mt-[3.2rem] mb-[1.6rem] transition-all duration-300 ease-in-out hover:enabled:bg-[#D9FFC5] hover:enabled:text-appblck hover:enabled:translate-y-[-7px] hover:enabled:shadow-btngreen disabled:opacity-50 shadow-neatcard ${
+										className={`bg-appstone dark:bg-appmauvedark text-white uppercase w-fit rounded-xl px-[1.2rem] py-[0.3rem] mt-[3.2rem] mb-[1.6rem] shadow-neatcard ${
 											submitBtnEffect &&
 											"animate-btnFlat bg-apppastgreen text-appblck"
+										} ${
+											isDisabled
+												? "opacity-50 cursor-not-allowed"
+												: "transition-all duration-300 ease-in-out hover:bg-[#D9FFC5] hover:text-appblck hover:translate-y-[-7px] hover:shadow-btngreen"
 										}`}>
 										Submit
 									</button>

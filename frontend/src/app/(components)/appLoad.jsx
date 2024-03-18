@@ -16,9 +16,10 @@ export default function AppLoad() {
 	return (
 		<div
 			ref={loadRef}
+			aria-label="loading"
 			className={
 				loader
-					? "w-full h-full min-w-screen z-[1000] fixed bg-white pt-[8rem]"
+					? "w-full h-full min-w-screen z-[1000] fixed bg-white dark:bg-appblck pt-[8rem]"
 					: "hidden"
 			}>
 			<Loading />

@@ -37,7 +37,9 @@ export default function LinkVideo({ postLink, postid, postFocus }) {
 			) : (
 				// allowfullscreen></iframe>
 				<nav className="my-[0.4rem] mx-[0.8rem] flex justify-center text-clamp1">
-					<a className=" text-[blue]" href={postLink}>
+					<a
+						className="block px-[0.5rem] text-[blue]"
+						href={postLink}>
 						{postLink}
 					</a>
 				</nav>

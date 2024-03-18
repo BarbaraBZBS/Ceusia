@@ -9,8 +9,8 @@ export default async function PostUpdate({ params: { id } }) {
 	return (
 		<>
 			<PageWrap>
-				<main className="flex flex-col py-[2rem] my-[3.2rem] min-h-[47rem]">
-					<h1 className="text-clamp5 text-center uppercase font-semibold">
+				<main className="flex flex-col py-[2rem] my-[3.2rem] mob00:my-0 min-h-[47rem]">
+					<h1 className="text-clamp5 mob88:text-clamp7 text-center uppercase font-semibold">
 						Modify your post
 					</h1>
 					<ModifyPost post={post} />

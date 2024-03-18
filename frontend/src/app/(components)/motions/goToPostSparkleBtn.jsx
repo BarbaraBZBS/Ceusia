@@ -95,7 +95,7 @@ export default function GoToPostSparkleBtn({
 	return (
 		<div
 			ref={scope}
-			className={`flex justify-end mx-[1.2rem] my-[0.8rem] text-clamp5`}>
+			className={`flex justify-end mx-[1.2rem] my-[0.8rem] text-clamp5 mob88:text-clamp7`}>
 			<span
 				aria-hidden
 				className="absolute inset-0 block pointer-events-none"></span>
@@ -107,7 +107,7 @@ export default function GoToPostSparkleBtn({
 					width="10"
 					height="10">
 					<path
-						className="fill-indigo-600"
+						className="fill-indigo-600 dark:fill-appopred"
 						d="M64.39,2,80.11,38.76,120,42.33a3.2,3.2,0,0,1,1.83,5.59h0L91.64,74.25l8.92,39a3.2,3.2,0,0,1-4.87,3.4L61.44,96.19,27.09,116.73a3.2,3.2,0,0,1-4.76-3.46h0l8.92-39L1.09,47.92A3.2,3.2,0,0,1,3,42.32l39.74-3.56L58.49,2a3.2,3.2,0,0,1,5.9,0Z"
 					/>
 				</svg>
@@ -116,10 +116,12 @@ export default function GoToPostSparkleBtn({
 				onClick={() => {
 					goToPost();
 				}}
-				className={`btn relative z-[695] rounded-full border-2 border-indigo-600 px-[1rem] py-[0.3rem] text-[1.8rem] text-violet-700 transition-colors hover:bg-indigo-100 ${
-					isBlueBg && "bg-indigo-100"
+				className={`btn relative z-[695] rounded-full border-2 border-indigo-600 dark:border-appopred text-[1.8rem] mob88:text-[1.2rem] text-violet-700 dark:text-appopred transition-colors dark:hover:text-indigo-600 dark:hover:border-indigo-600 hover:bg-indigo-100 dark:active:border-indigo-600 dark:active:text-indigo-600 dark:focus-visible:text-indigo-600 ${
+					isBlueBg && "bg-indigo-100 dark:bg-gray-600"
 				}`}>
-				<a href={`/coms/${[post.id]}`}>
+				<a
+					href={`/coms/${[post.id]}`}
+					className="block rounded-full px-[1rem] py-[0.3rem] mob88:py-0 focus-visible:outline-offset-[0.3rem]">
 					<span className="sr-only">Read more...</span>
 					<span
 						aria-hidden

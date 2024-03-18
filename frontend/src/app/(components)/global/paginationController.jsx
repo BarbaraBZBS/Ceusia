@@ -23,7 +23,7 @@ export default function PaginationController({
 	//console.log("per_page", per_page);
 
 	return (
-		<div className="flex gap-2 justify-center items-center my-[0.8rem] text-clamp2">
+		<div className="flex gap-2 justify-center items-center my-[2rem] text-clamp2">
 			{hasPrevPage ? (
 				<>
 					<nav
@@ -31,10 +31,13 @@ export default function PaginationController({
 							setFirstPageEffect(true);
 						}}
 						onAnimationEnd={() => setFirstPageEffect(false)}
-						className={`bg-indigo-500 text-white p-[0.4rem] rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[3px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] shadow-neatcard ${
+						className={`bg-indigo-500 dark:bg-[#0f12a5] text-white rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred dark:hover:bg-appopred hover:text-appblck hover:translate-y-[3px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] shadow-neatcard ${
 							firstPageEffect && "animate-bgSize"
 						}`}>
-						<a href={`?page=1&per_page=${per_page}`}>
+						<a
+							aria-label="Go to First page"
+							href={`?page=1&per_page=${per_page}`}
+							className="block p-[0.4rem] rounded-xl">
 							<FontAwesomeIcon icon={faAnglesLeft} /> First
 						</a>
 					</nav>
@@ -43,30 +46,41 @@ export default function PaginationController({
 							setPrevPageEffect(true);
 						}}
 						onAnimationEnd={() => setPrevPageEffect(false)}
-						className={`bg-indigo-500 text-white p-[0.4rem] mr-[0.4rem] ml-[0.2rem] rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[3px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] shadow-neatcard ${
+						className={`bg-indigo-500 dark:bg-[#0f12a5] text-white mr-[0.4rem] ml-[0.2rem] rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred dark:hover:bg-appopred hover:text-appblck hover:translate-y-[3px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] shadow-neatcard ${
 							prevPageEffect && "animate-bgSize"
 						}`}>
 						<a
+							aria-label="Go to Previous Page"
 							href={`?page=${
 								Number(page) - 1
-							}&per_page=${per_page}`}>
+							}&per_page=${per_page}`}
+							className="block p-[0.4rem] rounded-xl">
 							<FontAwesomeIcon icon={faAngleLeft} /> Prev
 						</a>
 					</nav>
 				</>
 			) : (
 				<>
-					<p className="cursor-pointer bg-indigo-500 text-white p-[0.4rem] opacity-50 rounded-xl">
+					<button
+						aria-disabled
+						aria-label="Go to First Page"
+						className="bg-indigo-500 dark:bg-[#0f12a5] text-white p-[0.4rem] opacity-50 rounded-xl">
 						<FontAwesomeIcon icon={faAnglesLeft} /> First
-					</p>
-					<p className="cursor-pointer bg-indigo-500 text-white p-[0.4rem] mr-[0.4rem] ml-[0.2rem] opacity-50 rounded-xl">
+					</button>
+					<button
+						aria-disabled
+						aria-label="Go to Previous Page"
+						className="bg-indigo-500 dark:bg-[#0f12a5] text-white p-[0.4rem] mr-[0.4rem] ml-[0.2rem] opacity-50 rounded-xl">
 						<FontAwesomeIcon icon={faAngleLeft} /> Prev
-					</p>
+					</button>
 				</>
 			)}
-			<div>
+			<div aria-hidden>
 				{page} / {totalPages}
 			</div>
+			<div
+				className="sr-only"
+				aria-label={`page ${page} out of ${totalPages}`}></div>
 
 			{hasNextPage ? (
 				<>
@@ -75,13 +89,15 @@ export default function PaginationController({
 							setNextPageEffect(true);
 						}}
 						onAnimationEnd={() => setNextPageEffect(false)}
-						className={`bg-indigo-500 text-white p-[0.4rem] mr-[0.2rem] ml-[0.4rem] rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[3px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] shadow-neatcard ${
+						className={`bg-indigo-500 dark:bg-[#0f12a5] text-white mr-[0.2rem] ml-[0.4rem] rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred dark:hover:bg-appopred hover:text-appblck hover:translate-y-[3px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] shadow-neatcard ${
 							nextPageEffect && "animate-bgSize"
 						}`}>
 						<a
+							aria-label="Go to Next Page"
 							href={`?page=${
 								Number(page) + 1
-							}&per_page=${per_page}`}>
+							}&per_page=${per_page}`}
+							className="block p-[0.4rem] rounded-xl">
 							Next <FontAwesomeIcon icon={faAngleRight} />
 						</a>
 					</nav>
@@ -90,22 +106,31 @@ export default function PaginationController({
 							setLastPageEffect(true);
 						}}
 						onAnimationEnd={() => setLastPageEffect(false)}
-						className={`bg-indigo-500 text-white p-[0.4rem] rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[3px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] shadow-neatcard ${
+						className={`bg-indigo-500 dark:bg-[#0f12a5] text-white rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred dark:hover:bg-appopred hover:text-appblck hover:translate-y-[3px] hover:shadow-btnblue bg-[linear-gradient(#01b3d9,#01b3d9)] bg-[position:50%_50%] bg-no-repeat bg-[size:0%_0%] shadow-neatcard ${
 							lastPageEffect && "animate-bgSize"
 						}`}>
-						<a href={`?page=${totalPages}&per_page=${per_page}`}>
+						<a
+							aria-label="Go to Last Page"
+							href={`?page=${totalPages}&per_page=${per_page}`}
+							className="block p-[0.4rem] rounded-xl">
 							Last <FontAwesomeIcon icon={faAnglesRight} />
 						</a>
 					</nav>
 				</>
 			) : (
 				<>
-					<p className="cursor-pointer bg-indigo-500 text-white p-[0.4rem] mr-[0.2rem] ml-[0.4rem] opacity-50 rounded-xl">
+					<button
+						aria-disabled
+						aria-label="Go to Next Page"
+						className="cursor-pointer bg-indigo-500 dark:bg-[#0f12a5] text-white p-[0.4rem] mr-[0.2rem] ml-[0.4rem] opacity-50 rounded-xl">
 						<FontAwesomeIcon icon={faAngleRight} /> Next
-					</p>
-					<p className="cursor-pointer bg-indigo-500 text-white p-[0.4rem] opacity-50 rounded-xl">
+					</button>
+					<button
+						aria-disabled
+						aria-label="Go to Last Page"
+						className="cursor-pointer bg-indigo-500 dark:bg-[#0f12a5] text-white p-[0.4rem] opacity-50 rounded-xl">
 						<FontAwesomeIcon icon={faAnglesRight} /> Last
-					</p>
+					</button>
 				</>
 			)}
 		</div>
