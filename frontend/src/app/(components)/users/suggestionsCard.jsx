@@ -212,9 +212,7 @@ export default function SuggestionsCard(props) {
 																	height={0}
 																	placeholder="empty"
 																	className="rounded-full object-cover w-full h-full"
-																	src={
-																		usr.picture
-																	}
+																	src={`${process.env.NEXT_PUBLIC_API}${usr.picture}`}
 																	alt={`${usr.username} picture`}
 																/>
 															</div>
@@ -316,7 +314,7 @@ export default function SuggestionsCard(props) {
 												height={0}
 												placeholder="empty"
 												className="rounded-full object-cover w-full h-full"
-												src={usr.picture}
+												src={`${process.env.NEXT_PUBLIC_API}${usr.picture}`}
 												alt={`${usr.username} picture`}
 											/>
 										</div>

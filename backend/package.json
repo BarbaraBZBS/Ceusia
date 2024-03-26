@@ -19,6 +19,7 @@
         "jsonwebtoken": "^9.0.1",
         "multer": "^2.0.0-rc.4",
         "mysql2": "^3.9.2",
+        "reverse_proxy_pathmapper": "^2.0.0",
         "sequelize": "^6.37.1",
         "socket.io": "^4.7.5"
     },

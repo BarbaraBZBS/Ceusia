@@ -101,7 +101,7 @@ export default function GoToPostSparkleBtn({
 				className="absolute inset-0 block pointer-events-none"></span>
 			{Array.from({ length: 20 }).map((_, index) => (
 				<svg
-					className={`absolute z-[2] opacity-0 left-[80%] bottom-[10%] sparkle-${index}`}
+					className={`absolute z-[2] opacity-0 left-[80%] sm:left-[90%] lg:left-[80%] bottom-[10%] sparkle-${index}`}
 					key={index}
 					viewBox="0 0 122 117"
 					width="10"

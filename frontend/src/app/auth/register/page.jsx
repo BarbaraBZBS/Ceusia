@@ -57,6 +57,14 @@ export default function RegisterPage({ props }) {
 	const [isSent, setIsSent] = useState(false);
 
 	useEffect(() => {
+		setTimeout(() => {
+			if (!usrn) {
+				setFocus("username");
+			}
+		}, 100);
+	}, [setFocus, usrn]);
+
+	useEffect(() => {
 		load && setSignupState("Signing up");
 	}, [load]);
 
@@ -118,12 +126,6 @@ export default function RegisterPage({ props }) {
 		}, 700);
 	};
 
-	useEffect(() => {
-		if (isSubmitSuccessful && isSent) {
-			reset();
-		}
-	}, [isSubmitSuccessful, isSent, reset]);
-
 	return (
 		<PageWrap>
 			<section className="">
@@ -139,8 +141,20 @@ export default function RegisterPage({ props }) {
 								exit={{ x: 70, opacity: 0 }}
 								transition={{ type: "popLayout" }}
 								className="text-center text-clamp5 h-[32rem] mt-[11.2rem]">
-								{" "}
-								Registered ! You can now sign in.
+								<p className="mb-[2.5rem]">
+									Registered ! You can now sign in.
+								</p>
+								<a
+									className="text-appmauvedark hover:text-appturq hover:translate-y-1 active:text-appturq focus:text-appturq active:underline transition-all duration-200 ease-in-out uppercase"
+									href={
+										cbu
+											? `/auth/signIn?callbackUrl=${cbu}`
+											: "/auth/signIn"
+									}
+									as={"/auth/signIn"}>
+									{" "}
+									Sign in
+								</a>
 							</motion.p>
 						) : (
 							<div>

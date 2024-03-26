@@ -15,11 +15,11 @@ export default function Error({ error, reset }) {
 		router.push("/");
 		logout();
 		signOut({
-			callbackUrl: "/api/auth/signIn",
+			callbackUrl: "/auth/signIn",
 		});
 	};
 	const sign = () => {
-		router.push("/api/auth/signIn");
+		router.push("/auth/signIn");
 	};
 
 	return (

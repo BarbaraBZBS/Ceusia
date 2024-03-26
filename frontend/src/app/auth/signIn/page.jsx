@@ -40,6 +40,14 @@ export default function LogInPage() {
 	const isDisabled = !eml || !psw;
 
 	useEffect(() => {
+		setTimeout(() => {
+			if (!eml) {
+				setFocus("email");
+			}
+		}, 100);
+	}, [setFocus, eml]);
+
+	useEffect(() => {
 		load && setLogState("Logging in");
 	}, [load]);
 
@@ -86,7 +94,7 @@ export default function LogInPage() {
 
 	useEffect(() => {
 		if (error) {
-			const newcbu = cbu?.split("3000")[1] ?? "/thread";
+			const newcbu = cbu?.split("/")[2] ?? "/thread";
 			setTimeout(() => {
 				router.replace(`/auth/signIn?callbackUrl=${newcbu}`);
 			}, 5000);

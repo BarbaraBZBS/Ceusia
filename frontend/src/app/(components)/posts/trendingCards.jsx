@@ -239,9 +239,7 @@ export default function TrendingCards(props) {
 																		}
 																		placeholder="empty"
 																		className="rounded-xl object-cover object-top w-full h-full"
-																		src={
-																			post.fileUrl
-																		}
+																		src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																		alt="post image"
 																	/>
 																</div>
@@ -305,11 +303,7 @@ export default function TrendingCards(props) {
 																		}
 																		placeholder="empty"
 																		className="rounded-xl object-cover object-top w-full h-full"
-																		src={
-																			post
-																				.user
-																				.picture
-																		}
+																		src={`${process.env.NEXT_PUBLIC_API}${post.user.picture}`}
 																		alt={`${post.user.username} picture`}
 																	/>
 																</div>
@@ -322,11 +316,7 @@ export default function TrendingCards(props) {
 																	height={0}
 																	placeholder="empty"
 																	className="rounded-xl object-cover object-top w-full h-full"
-																	src={
-																		post
-																			.user
-																			.picture
-																	}
+																	src={`${process.env.NEXT_PUBLIC_API}${post.user.picture}`}
 																	alt={`${post.user.username} picture`}
 																/>
 															</div>
@@ -426,7 +416,7 @@ export default function TrendingCards(props) {
 														height={0}
 														placeholder="empty"
 														className="rounded-xl object-cover object-top w-full h-full"
-														src={post.fileUrl}
+														src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 														alt="post image"
 													/>
 												</div>
@@ -470,7 +460,7 @@ export default function TrendingCards(props) {
 														height={0}
 														placeholder="empty"
 														className="rounded-xl object-cover object-top w-full h-full"
-														src={post.user.picture}
+														src={`${process.env.NEXT_PUBLIC_API}${post.user.picture}`}
 														alt={`${post.user.username} picture`}
 													/>
 												</div>
@@ -482,7 +472,7 @@ export default function TrendingCards(props) {
 													height={0}
 													placeholder="empty"
 													className="rounded-xl object-cover object-top w-full h-full"
-													src={post.user.picture}
+													src={`${process.env.NEXT_PUBLIC_API}${post.user.picture}`}
 													alt={`${post.user.username} picture`}
 												/>
 											</div>

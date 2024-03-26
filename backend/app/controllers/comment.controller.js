@@ -40,9 +40,10 @@ const createComment = async (req, res, next) => {
 							`${newD}` +
 							req.file.detectedFileExtension;
 						console.log("filen: ", fileName);
-						const filePath = `${req.protocol}://${req.get(
-							"host"
-						)}/image/${fileName}`;
+						const filePath = `/image/${fileName}`;
+						//const filePath = `${req.protocol}://${req.get(
+						//	"host"
+						//)}/image/${fileName}`;
 						console.log("image: ", filePath);
 						await pipeline(
 							req.file.stream,
@@ -208,13 +209,15 @@ const updateComment = (req, res, next) => {
 								const oldImg =
 									comment.image.split("/image/")[1];
 								console.log("old image file: ", oldImg);
-								fs.unlinkSync(
-									`app/public/files/comment/${oldImg}`
+								fs.unlink(
+									`app/public/files/comment/${oldImg}`,
+									() => {}
 								);
 							}
-							const filePath = `${req.protocol}://${req.get(
-								"host"
-							)}/image/${fileName}`;
+							const filePath = `/image/${fileName}`;
+							//const filePath = `${req.protocol}://${req.get(
+							//	"host"
+							//)}/image/${fileName}`;
 							await pipeline(
 								req.file.stream,
 								fs.createWriteStream(
@@ -274,7 +277,10 @@ const updateComment = (req, res, next) => {
 						if (req.body.image == "") {
 							const oldImg = comment.image.split("/image/")[1];
 							console.log("old image: ", oldImg);
-							fs.unlinkSync(`app/public/files/comment/${oldImg}`);
+							fs.unlink(
+								`app/public/files/comment/${oldImg}`,
+								() => {}
+							);
 							if (req.auth.role === "admin") {
 								comment.update({
 									image: null,

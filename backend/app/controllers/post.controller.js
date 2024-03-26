@@ -18,8 +18,8 @@ const createPost = async (req, res, next) => {
 		let filePath = "";
 		if (req.file) {
 			const nameToFormat = req.file.originalName.split(" ");
-			const splittedName = nameToFormat.join("_");
-			const fileOriginName = splittedName.split(".")[0];
+			const splitName = nameToFormat.join("_");
+			const fileOriginName = splitName.split(".")[0];
 
 			if (req.file.detectedMimeType == null) {
 				return res.status(403).json({ message: "Bad file type" });
@@ -39,19 +39,22 @@ const createPost = async (req, res, next) => {
 					req.file.detectedFileExtension;
 				console.log("filen: ", fileName);
 				if (req.file.detectedMimeType.startsWith("image")) {
-					filePath = `${req.protocol}://${req.get(
-						"host"
-					)}/image/${fileName}`;
+					filePath = `/image/${fileName}`;
+					//filePath = `${req.protocol}://${req.get(
+					//	"host"
+					//)}/image/${fileName}`;
 					console.log("image: ", filePath);
 				} else if (req.file.detectedMimeType.startsWith("video")) {
-					filePath = `${req.protocol}://${req.get(
-						"host"
-					)}/video/${fileName}`;
+					filePath = `/video/${fileName}`;
+					//filePath = `${req.protocol}://${req.get(
+					//	"host"
+					//)}/video/${fileName}`;
 					console.log("video: ", filePath);
 				} else if (req.file.detectedMimeType.startsWith("audio")) {
-					filePath = `${req.protocol}://${req.get(
-						"host"
-					)}/audio/${fileName}`;
+					filePath = `/audio/${fileName}`;
+					//filePath = `${req.protocol}://${req.get(
+					//	"host"
+					//)}/audio/${fileName}`;
 					console.log("audio: ", filePath);
 				}
 
@@ -211,8 +214,8 @@ const updatePost = (req, res, next) => {
 				}
 				if (req.file) {
 					const nameToFormat = req.file.originalName.split(" ");
-					const splittedName = nameToFormat.join("_");
-					const fileOriginName = splittedName.split(".")[0];
+					const splitName = nameToFormat.join("_");
+					const fileOriginName = splitName.split(".")[0];
 
 					if (req.file.detectedMimeType === null) {
 						return res
@@ -242,24 +245,31 @@ const updatePost = (req, res, next) => {
 								post.fileUrl.split("/video/")[1] ||
 								post.fileUrl.split("/audio/")[1];
 							console.log("old image file: ", oldFile);
-							fs.unlinkSync(`app/public/files/post/${oldFile}`);
+							//fs.unlinkSync(`app/public/files/post/${oldFile}`);
+							fs.unlink(
+								`app/public/files/post/${oldFile}`,
+								() => {}
+							);
 						}
 						if (req.file.detectedMimeType.startsWith("image")) {
-							filePath = `${req.protocol}://${req.get(
-								"host"
-							)}/image/${fileName}`;
+							filePath = `/image/${fileName}`;
+							//filePath = `${req.protocol}://${req.get(
+							//	"host"
+							//)}/image/${fileName}`;
 						} else if (
 							req.file.detectedMimeType.startsWith("video")
 						) {
-							filePath = `${req.protocol}://${req.get(
-								"host"
-							)}/video/${fileName}`;
+							filePath = `/video/${fileName}`;
+							//filePath = `${req.protocol}://${req.get(
+							//	"host"
+							//)}/video/${fileName}`;
 						} else if (
 							req.file.detectedMimeType.startsWith("audio")
 						) {
-							filePath = `${req.protocol}://${req.get(
-								"host"
-							)}/audio/${fileName}`;
+							filePath = `/audio/${fileName}`;
+							//filePath = `${req.protocol}://${req.get(
+							//	"host"
+							//)}/audio/${fileName}`;
 						}
 						await pipeline(
 							req.file.stream,
@@ -321,7 +331,7 @@ const updatePost = (req, res, next) => {
 							post.fileUrl.split("/video/")[1] ||
 							post.fileUrl.split("/audio/")[1];
 						console.log("old image file: ", oldFile);
-						fs.unlinkSync(`app/public/files/post/${oldFile}`);
+						fs.unlink(`app/public/files/post/${oldFile}`, () => {});
 						if (req.auth.role === "admin") {
 							post.update({
 								fileUrl: null,

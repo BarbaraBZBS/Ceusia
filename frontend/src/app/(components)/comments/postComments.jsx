@@ -252,7 +252,7 @@ export default function PostComments({ post, comments }) {
 									width={0}
 									height={0}
 									priority={true}
-									src={postDetail.user.picture}
+									src={`${process.env.NEXT_PUBLIC_API}${postDetail.user.picture}`}
 									alt={`${postDetail.user.username} picture`}
 									placeholder="empty"
 									className="block m-auto w-[96%] h-auto object-cover rounded-lg animate-rotateZoom"
@@ -274,7 +274,7 @@ export default function PostComments({ post, comments }) {
 									width={0}
 									height={0}
 									priority={true}
-									src={postDetail.fileUrl}
+									src={`${process.env.NEXT_PUBLIC_API}${postDetail.fileUrl}`}
 									alt="post image"
 									placeholder="empty"
 									className="block m-auto w-[96%] h-auto object-cover rounded-lg animate-rotateZoom"
@@ -310,7 +310,7 @@ export default function PostComments({ post, comments }) {
 							}}>
 							<Image
 								aria-description="click or press enter to zoom in"
-								src={postDetail?.user?.picture}
+								src={`${process.env.NEXT_PUBLIC_API}${postDetail?.user?.picture}`}
 								width={0}
 								height={0}
 								placeholder="empty"
@@ -402,7 +402,7 @@ export default function PostComments({ post, comments }) {
 								height={0}
 								placeholder="empty"
 								className="object-cover rounded-xl min-w-full w-full h-full"
-								src={postDetail.fileUrl}
+								src={`${process.env.NEXT_PUBLIC_API}${postDetail.fileUrl}`}
 								alt="post image"
 								priority={true}
 							/>
@@ -574,319 +574,351 @@ export default function PostComments({ post, comments }) {
 						: "py-[0.4rem]"
 				}>
 				{commentsDetail.length > 0 ? (
-					commentsDetail?.map((comment, index) => (
-						<article
-							key={comment.id}
-							id={comment.id}
-							className="flex flex-col border-2 w-[94%] mx-auto my-[0.4rem] rounded-xl px-[1.2rem] py-[0.4rem] bg-white dark:bg-appmauvedarker dark:border-appmauvedarker">
-							{/* comment user pic zoom overlay */}
-							{clickedBtn === index && userComPicZoom ? (
-								<FocusOn
-									onEscapeKey={() =>
-										hideUsrPicComZoomOverlay()
-									}>
-									<div
-										className="fixed overflow-y-auto left-0 right-0 top-0 bottom-0 w-screen h-full bg-white dark:bg-appblck z-[998] block"
-										onClick={() =>
-											hideUsrPicComZoomOverlay()
-										}>
-										<div className="flex w-full h-full justify-center items-center">
-											<Image
-												tabIndex={0}
-												title="click or press enter to zoom out"
-												width={0}
-												height={0}
-												priority={true}
-												src={comment.user.picture}
-												alt={
-													session?.user?.user_id ===
-													comment.user_id
-														? "Your user picture"
-														: `${comment.user.username} user picture`
-												}
-												placeholder="empty"
-												className="block m-auto w-[96%] h-auto object-cover rounded-lg animate-rotateZoom"
-											/>
-										</div>
-									</div>
-								</FocusOn>
-							) : (
-								<div></div>
-							)}
-							{clickedBtn === index && commentImgZoom ? (
-								<FocusOn
-									onEscapeKey={() =>
-										hideCommImgZoomOverlay()
-									}>
-									<div
-										className="fixed overflow-y-auto left-0 right-0 top-0 bottom-0 w-screen h-full bg-white dark:bg-appblck z-[998] block focus-visible:outline-offset-[0.4rem]"
-										onClick={() =>
-											hideCommImgZoomOverlay()
-										}>
-										<div className="flex w-full h-full justify-center items-center">
-											<Image
-												tabIndex={0}
-												title="click or press enter to zoom out"
-												width={0}
-												height={0}
-												priority={true}
-												src={comment.image}
-												alt={`${comment.user.username}'s zoomed comment image`}
-												placeholder="empty"
-												className="block m-auto w-[96%] h-auto object-cover rounded-lg animate-resizeZoom"
-											/>
-										</div>
-									</div>
-								</FocusOn>
-							) : (
-								<div></div>
-							)}
+					<>
+						{commentsDetail?.map((comment, index) => {
+							return (
+								<article
+									key={comment.id}
+									id={comment.id}
+									className="flex flex-col border-2 w-[94%] mx-auto my-[0.4rem] rounded-xl px-[1.2rem] py-[0.4rem] bg-white dark:bg-appmauvedarker dark:border-appmauvedarker">
+									{/* comment user pic zoom overlay */}
+									{clickedBtn === index && userComPicZoom ? (
+										<FocusOn
+											onEscapeKey={() =>
+												hideUsrPicComZoomOverlay()
+											}>
+											<div
+												className="fixed overflow-y-auto left-0 right-0 top-0 bottom-0 w-screen h-full bg-white dark:bg-appblck z-[998] block"
+												onClick={() =>
+													hideUsrPicComZoomOverlay()
+												}>
+												<div className="flex w-full h-full justify-center items-center">
+													<Image
+														tabIndex={0}
+														title="click or press enter to zoom out"
+														width={0}
+														height={0}
+														priority={true}
+														src={`${process.env.NEXT_PUBLIC_API}${comment.user.picture}`}
+														alt={
+															session?.user
+																?.user_id ===
+															comment.user_id
+																? "Your user picture"
+																: `${comment.user.username} user picture`
+														}
+														placeholder="empty"
+														className="block m-auto w-[96%] h-auto object-cover rounded-lg animate-rotateZoom"
+													/>
+												</div>
+											</div>
+										</FocusOn>
+									) : (
+										<div></div>
+									)}
+									{clickedBtn === index && commentImgZoom ? (
+										<FocusOn
+											onEscapeKey={() =>
+												hideCommImgZoomOverlay()
+											}>
+											<div
+												className="fixed overflow-y-auto left-0 right-0 top-0 bottom-0 w-screen h-full bg-white dark:bg-appblck z-[998] block focus-visible:outline-offset-[0.4rem]"
+												onClick={() =>
+													hideCommImgZoomOverlay()
+												}>
+												<div className="flex w-full h-full justify-center items-center">
+													<Image
+														tabIndex={0}
+														title="click or press enter to zoom out"
+														width={0}
+														height={0}
+														priority={true}
+														src={`${process.env.NEXT_PUBLIC_API}${comment.image}`}
+														alt={`${comment.user.username}'s zoomed comment image`}
+														placeholder="empty"
+														className="block m-auto w-[96%] h-auto object-cover rounded-lg animate-resizeZoom"
+													/>
+												</div>
+											</div>
+										</FocusOn>
+									) : (
+										<div></div>
+									)}
 
-							<div className="flex justify-between">
-								<div className="flex justify-start">
-									<button
-										title="click or press enter to zoom in"
-										className="rounded-full mr-[0.4rem] border-[1px] border-gray-300 focus-visible:outline-offset-[0.4rem] transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light w-[2.4rem] h-[2.4rem]"
-										onClick={() => {
-											setClickedBtn(index);
-											showUsrPicComZoomOverlay();
-										}}
-										onKeyUp={(e) => {
-											if (e.key === "Enter") {
+									<div className="flex justify-between">
+										<div className="flex justify-start">
+											<button
+												title="click or press enter to zoom in"
+												className="rounded-full mr-[0.4rem] border-[1px] border-gray-300 focus-visible:outline-offset-[0.4rem] transition-all duration-300 ease-in-out delay-75 hover:scale-105 hover:bg-apppink hover:drop-shadow-light w-[2.4rem] h-[2.4rem]"
+												onClick={() => {
+													setClickedBtn(index);
+													showUsrPicComZoomOverlay();
+												}}
+												onKeyUp={(e) => {
+													if (e.key === "Enter") {
+														setClickedBtn(index);
+														showUsrPicComZoomOverlay();
+													}
+												}}>
+												<Image
+													aria-description="click or press enter to zoom in"
+													width={0}
+													height={0}
+													placeholder="empty"
+													className="rounded-full object-cover w-full h-full cursor-pointer"
+													src={`${process.env.NEXT_PUBLIC_API}${comment.user.picture}`}
+													alt={
+														session?.user
+															?.user_id ===
+														comment.user_id
+															? "Your user picture"
+															: `${comment.user.username} user picture`
+													}
+												/>
+											</button>
+											{session?.user.user_id ===
+											comment.user_id ? (
+												<div>
+													<p
+														aria-hidden
+														className="text-clamp2">
+														You
+													</p>
+												</div>
+											) : (
+												<nav
+													aria-label="go to user profile"
+													className={`text-clamp2 hover:text-appturq active:text-appturq focus:text-appturq ${
+														clickedBtn === index &&
+														usrLinkEffect &&
+														"animate-resizeBtn"
+													}`}
+													onClick={() => {
+														setClickedBtn(index);
+														setUsrLinkEffect(true);
+														setUpdCommentCard(
+															false
+														);
+													}}
+													onAnimationEnd={() =>
+														setUsrLinkEffect(false)
+													}>
+													<a
+														href={`/csian/${[
+															postDetail.user_id,
+														]}?page=${pg}`}
+														as={`/csian/${[
+															postDetail.user_id,
+														]}`}
+														className="block px-[0.5rem]">
+														{comment.user.username}
+													</a>
+												</nav>
+											)}
+										</div>
+										<div className="flex justify-around">
+											<CommentLiking
+												post={post}
+												session={session}
+												comment={comment}
+												errorMsg={setErrMsg}
+											/>
+										</div>
+									</div>
+									<div
+										tabIndex={0}
+										aria-label={`comment ${
+											comment.id
+										} message from ${
+											comment.user.username ===
+											session?.user?.username
+												? "you"
+												: comment.user.username
+										}`}
+										aria-description={comment.message}
+										className="text-clamp6 mt-[0.8rem] mb-[0.4rem] px-[0.3rem]">
+										<p>{comment.message}</p>
+									</div>
+
+									{comment.image ? (
+										<div
+											tabIndex={0}
+											title="click or press enter to zoom in"
+											className="flex items-center justify-end w-[54%] h-[11.2rem] self-center my-[0.8rem] focus-visible:outline-offset-[0.4rem] rounded-lg shadow-card"
+											onClick={() => {
 												setClickedBtn(index);
-												showUsrPicComZoomOverlay();
-											}
-										}}>
-										<Image
-											aria-description="click or press enter to zoom in"
-											width={0}
-											height={0}
-											placeholder="empty"
-											className="rounded-full object-cover w-full h-full cursor-pointer"
-											src={comment.user.picture}
-											alt={
-												session?.user?.user_id ===
-												comment.user_id
-													? "Your user picture"
-													: `${comment.user.username} user picture`
-											}
-										/>
-									</button>
-									{session?.user.user_id ===
-									comment.user_id ? (
-										<div>
-											<p
-												aria-hidden
-												className="text-clamp2">
-												You
-											</p>
+												showCommImgZoomOverlay();
+											}}
+											onKeyUp={(e) => {
+												if (e.key === "Enter") {
+													setClickedBtn(index);
+													showCommImgZoomOverlay();
+												}
+											}}>
+											<Image
+												aria-description="click or press enter to zoom in"
+												width={0}
+												height={0}
+												src={`${process.env.NEXT_PUBLIC_API}${comment.image}`}
+												alt="comment image"
+												priority={true}
+												placeholder="empty"
+												className="rounded-lg object-cover w-full h-full cursor-pointer"
+											/>
 										</div>
 									) : (
-										<nav
-											aria-label="go to user profile"
-											className={`text-clamp2 hover:text-appturq active:text-appturq focus:text-appturq ${
-												clickedBtn === index &&
-												usrLinkEffect &&
-												"animate-resizeBtn"
-											}`}
-											onClick={() => {
-												setClickedBtn(index);
-												setUsrLinkEffect(true);
-												setUpdCommentCard(false);
-											}}
-											onAnimationEnd={() =>
-												setUsrLinkEffect(false)
-											}>
-											<a
-												href={`/csian/${[
-													postDetail.user_id,
-												]}?page=${pg}`}
-												as={`/csian/${[
-													postDetail.user_id,
-												]}`}
-												className="block px-[0.5rem]">
-												{comment.user.username}
-											</a>
-										</nav>
+										<div></div>
 									)}
-								</div>
-								<div className="flex justify-around">
-									<CommentLiking
-										post={post}
-										session={session}
-										comment={comment}
-										errorMsg={setErrMsg}
-									/>
-								</div>
-							</div>
-							<div
-								tabIndex={0}
-								aria-label={`comment ${
-									comment.id
-								} message from ${
-									comment.user.username ===
-									session?.user?.username
-										? "you"
-										: comment.user.username
-								}`}
-								aria-description={comment.message}
-								className="text-clamp6 mt-[0.8rem] mb-[0.4rem] px-[0.3rem]">
-								<p>{comment.message}</p>
-							</div>
 
-							{comment.image ? (
-								<div
-									tabIndex={0}
-									title="click or press enter to zoom in"
-									className="flex items-center justify-end w-[54%] h-[11.2rem] self-center my-[0.8rem] focus-visible:outline-offset-[0.4rem] rounded-lg shadow-card"
-									onClick={() => {
-										setClickedBtn(index);
-										showCommImgZoomOverlay();
-									}}
-									onKeyUp={(e) => {
-										if (e.key === "Enter") {
-											setClickedBtn(index);
-											showCommImgZoomOverlay();
-										}
-									}}>
-									<Image
-										aria-description="click or press enter to zoom in"
-										width={0}
-										height={0}
-										src={comment.image}
-										alt="comment image"
-										priority={true}
-										placeholder="empty"
-										className="rounded-lg object-cover w-full h-full cursor-pointer"
-									/>
-								</div>
-							) : (
-								<div></div>
-							)}
-
-							<div className="flex text-clamp2 font-extralight justify-between mt-[0.8rem]">
-								{session?.user.user_id === comment.user_id ||
-								session?.user.role === "admin" ? (
-									<div className="flex">
-										<button
-											title={
-												clickedBtn === index &&
-												updCommentCard
-													? "cancel comment update"
-													: "edit comment"
-											}
-											onClick={() => {
-												setClickedBtn(index);
-												commentUpdBtn();
-											}}
-											onAnimationEnd={() =>
-												setUpdCommentBtnEffect(false)
-											}
-											className={`mx-[1.2rem] hover:opacity-60 ${
-												clickedBtn === index &&
-												updCommentBtnEffect &&
-												"animate-resizeBtn"
-											}`}>
-											{clickedBtn === index &&
-											updCommentCard ? (
-												<FontAwesomeIcon
-													icon={faXmark}
-													style={{ color: "#F43F5E" }}
-													size="lg"
-												/>
+									<div className="flex text-clamp2 font-extralight justify-between mt-[0.8rem]">
+										{session?.user.user_id ===
+											comment.user_id ||
+										session?.user.role === "admin" ? (
+											<div className="flex">
+												<button
+													title={
+														clickedBtn === index &&
+														updCommentCard
+															? "cancel comment update"
+															: "edit comment"
+													}
+													onClick={() => {
+														setClickedBtn(index);
+														commentUpdBtn();
+													}}
+													onAnimationEnd={() =>
+														setUpdCommentBtnEffect(
+															false
+														)
+													}
+													className={`mx-[1.2rem] hover:opacity-60 ${
+														clickedBtn === index &&
+														updCommentBtnEffect &&
+														"animate-resizeBtn"
+													}`}>
+													{clickedBtn === index &&
+													updCommentCard ? (
+														<FontAwesomeIcon
+															icon={faXmark}
+															style={{
+																color: "#F43F5E",
+															}}
+															size="lg"
+														/>
+													) : (
+														<FontAwesomeIcon
+															icon={faPenFancy}
+															style={{
+																color: "#65A30D",
+															}}
+														/>
+													)}
+												</button>
+												<button
+													title="delete comment"
+													onClick={() => {
+														setClickedBtn(index);
+														handleDeleteComment(
+															comment.id
+														);
+													}}
+													onAnimationEnd={() =>
+														setDelCommentBtnEffect(
+															false
+														)
+													}
+													className={`mx-[1.2rem] hover:opacity-60 ${
+														clickedBtn === index &&
+														delCommentBtnEffect &&
+														"animate-resizeBtn"
+													}`}>
+													<FontAwesomeIcon
+														icon={faTrashCan}
+														style={{
+															color: "#F43F5E",
+														}}
+													/>
+												</button>
+												<ShareLink comment={comment} />
+											</div>
+										) : (
+											<ShareLink comment={comment} />
+										)}
+										<div className="mob48:text-[1.2rem]">
+											{comment.editedAt ? (
+												comment.editedByAdmin ? (
+													<p>
+														Edited{" "}
+														<span className="font-medium text-indigo-500">
+															{" "}
+															BY ADMIN
+														</span>{" "}
+														{dateParser2(
+															comment.editedAt
+														)}
+													</p>
+												) : (
+													<p>
+														Edited{" "}
+														{dateParser2(
+															comment.editedAt
+														)}
+													</p>
+												)
 											) : (
-												<FontAwesomeIcon
-													icon={faPenFancy}
-													style={{ color: "#65A30D" }}
+												<p>
+													Added{" "}
+													{dateParser2(
+														comment.createdAt
+													)}
+												</p>
+											)}
+										</div>
+									</div>
+									<AnimatePresence>
+										{clickedBtn === index && errMsg && (
+											<motion.p
+												initial={{
+													x: 70,
+													opacity: 0,
+												}}
+												animate={{
+													x: 0,
+													opacity: 1,
+												}}
+												exit={{
+													x: 70,
+													opacity: 0,
+												}}
+												transition={{
+													type: "popLayout",
+												}}
+												className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 my-[1.2rem]"
+												role="alert"
+												aria-live="assertive">
+												{errMsg}
+											</motion.p>
+										)}
+									</AnimatePresence>
+									<AnimatePresence>
+										{clickedBtn === index &&
+											updCommentCard && (
+												<CommentUpdate
+													post={post}
+													comment={comment}
+													setupdcomcard={
+														setUpdCommentCard
+													}
+													setcomments={
+														setCommentsDetail
+													}
 												/>
 											)}
-										</button>
-										<button
-											title="delete comment"
-											onClick={() => {
-												setClickedBtn(index);
-												handleDeleteComment(comment.id);
-											}}
-											onAnimationEnd={() =>
-												setDelCommentBtnEffect(false)
-											}
-											className={`mx-[1.2rem] hover:opacity-60 ${
-												clickedBtn === index &&
-												delCommentBtnEffect &&
-												"animate-resizeBtn"
-											}`}>
-											<FontAwesomeIcon
-												icon={faTrashCan}
-												style={{ color: "#F43F5E" }}
-											/>
-										</button>
-										<ShareLink comment={comment} />
-									</div>
-								) : (
-									<ShareLink comment={comment} />
-								)}
-								<div className="mob48:text-[1.2rem]">
-									{comment.editedAt ? (
-										comment.editedByAdmin ? (
-											<p>
-												Edited{" "}
-												<span className="font-medium text-indigo-500">
-													{" "}
-													BY ADMIN
-												</span>{" "}
-												{dateParser2(comment.editedAt)}
-											</p>
-										) : (
-											<p>
-												Edited{" "}
-												{dateParser2(comment.editedAt)}
-											</p>
-										)
-									) : (
-										<p>
-											Added{" "}
-											{dateParser2(comment.createdAt)}
-										</p>
-									)}
-								</div>
-							</div>
-							<AnimatePresence>
-								{clickedBtn === index && errMsg && (
-									<motion.p
-										initial={{
-											x: 70,
-											opacity: 0,
-										}}
-										animate={{
-											x: 0,
-											opacity: 1,
-										}}
-										exit={{
-											x: 70,
-											opacity: 0,
-										}}
-										transition={{
-											type: "popLayout",
-										}}
-										className="self-center text-red-600 bg-white font-semibold drop-shadow-light mx-[2.4rem] rounded-md w-fit px-[0.8rem] text-clamp6 my-[1.2rem]"
-										role="alert"
-										aria-live="assertive">
-										{errMsg}
-									</motion.p>
-								)}
-							</AnimatePresence>
-							<AnimatePresence>
-								{clickedBtn === index && updCommentCard && (
-									<CommentUpdate
-										post={post}
-										comment={comment}
-										setupdcomcard={setUpdCommentCard}
-										setcomments={setCommentsDetail}
-									/>
-								)}
-							</AnimatePresence>
-						</article>
-					))
+									</AnimatePresence>
+								</article>
+							);
+						})}
+					</>
 				) : (
 					<section>
 						<p className="text-clamp6 text-center py-[2rem]">

@@ -14,7 +14,6 @@ import { useForm } from "react-hook-form";
 import Picker from "emoji-picker-react";
 import { BsEmojiSmileFill } from "react-icons/bs";
 import { FocusOn } from "react-focus-on";
-import { isBrowser } from "framer-motion";
 
 export default function CommentsUpdatePostForm({
 	postDetail,
@@ -195,23 +194,11 @@ export default function CommentsUpdatePostForm({
 		const handleFile = () => {
 			if (postDetail?.fileUrl) {
 				if (postDetail.fileUrl.includes("/image/")) {
-					setPostFile(
-						postDetail.fileUrl.split(
-							"http://localhost:8000/image/"
-						)[1]
-					);
+					setPostFile(postDetail.fileUrl.split("/image/")[1]);
 				} else if (postDetail.fileUrl.includes("/video/")) {
-					setPostFile(
-						postDetail.fileUrl.split(
-							"http://localhost:8000/video/"
-						)[1]
-					);
+					setPostFile(postDetail.fileUrl.split("/video/")[1]);
 				} else if (postDetail.fileUrl.includes("/audio/")) {
-					setPostFile(
-						postDetail.fileUrl.split(
-							"http://localhost:8000/audio/"
-						)[1]
-					);
+					setPostFile(postDetail.fileUrl.split("/audio/")[1]);
 				}
 			}
 		};

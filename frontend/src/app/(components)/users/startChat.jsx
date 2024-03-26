@@ -7,7 +7,7 @@ export default function StartChat({ session }) {
 	const [currentUser, setCurrentUser] = useState();
 	useEffect(() => {
 		if (session && session?.user) {
-			setCurrentUser(session.user.username);
+			setCurrentUser(session?.user.username);
 		}
 	}, [session]);
 

@@ -19,6 +19,7 @@ export default function ChatContainer({
 	const [arrivalMessage, setArrivalMessage] = useState(null);
 	const [delBtnEffect, setDelBtnEffect] = useState(false);
 	const scrollRef = useRef();
+	const chatImgPath = process.env.NEXT_PUBLIC_API + currentChat.picture;
 
 	useEffect(() => {
 		if (session?.user) {
@@ -137,11 +138,11 @@ export default function ChatContainer({
 				<div className="flex items-center gap-[1rem]">
 					<div className="">
 						<Image
+							src={chatImgPath}
+							alt={`${currentChat.username} picture`}
 							width={0}
 							height={0}
 							placeholder="empty"
-							src={currentChat.picture}
-							alt={`${currentChat.username} picture`}
 							className="w-[4rem] aspect-square mob88:w-[3rem] object-cover rounded-full border-2 border-appmauvedark dark:border-apppinklight drop-shadow-linkTxt"
 						/>
 					</div>

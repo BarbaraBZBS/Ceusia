@@ -143,23 +143,11 @@ export default function ModifyPost({ post }) {
 		const handleFile = () => {
 			if (updatedPost?.fileUrl) {
 				if (updatedPost.fileUrl.includes("/image/")) {
-					setPostFile(
-						updatedPost.fileUrl.split(
-							"http://localhost:8000/image/"
-						)[1]
-					);
+					setPostFile(updatedPost.fileUrl.split("/image/")[1]);
 				} else if (updatedPost.fileUrl.includes("/video/")) {
-					setPostFile(
-						updatedPost.fileUrl.split(
-							"http://localhost:8000/video/"
-						)[1]
-					);
+					setPostFile(updatedPost.fileUrl.split("/video/")[1]);
 				} else if (updatedPost.fileUrl.includes("/audio/")) {
-					setPostFile(
-						updatedPost.fileUrl.split(
-							"http://localhost:8000/audio/"
-						)[1]
-					);
+					setPostFile(updatedPost.fileUrl.split("/audio/")[1]);
 				}
 			}
 		};

@@ -374,9 +374,7 @@ export default function Search() {
 																			}
 																			placeholder="empty"
 																			className="rounded-full object-cover w-full h-full"
-																			src={
-																				usr.picture
-																			}
+																			src={`${process.env.NEXT_PUBLIC_API}${usr.picture}`}
 																			alt={`${usr.username} picture`}
 																		/>
 																	</div>
@@ -456,9 +454,7 @@ export default function Search() {
 																						}
 																						placeholder="empty"
 																						className="rounded-xl object-cover object-top w-full h-full"
-																						src={
-																							pst.fileUrl
-																						}
+																						src={`${process.env.NEXT_PUBLIC_API}${pst.fileUrl}`}
 																						alt="post image"
 																					/>
 																				</div>
@@ -523,11 +519,7 @@ export default function Search() {
 																						}
 																						placeholder="empty"
 																						className="rounded-xl object-cover object-top w-full h-full"
-																						src={
-																							pst
-																								.user
-																								.picture
-																						}
+																						src={`${process.env.NEXT_PUBLIC_API}${pst.user.picture}`}
 																						alt={`${pst.user.username} picture`}
 																					/>
 																				</div>
@@ -544,11 +536,7 @@ export default function Search() {
 																					}
 																					placeholder="empty"
 																					className="rounded-xl object-cover object-top w-full h-full"
-																					src={
-																						pst
-																							.user
-																							.picture
-																					}
+																					src={`${process.env.NEXT_PUBLIC_API}${pst.user.picture}`}
 																					alt={`${pst.user.username} picture`}
 																				/>
 																			</div>

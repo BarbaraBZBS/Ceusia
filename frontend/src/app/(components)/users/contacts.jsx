@@ -20,6 +20,7 @@ export default function Contacts({
 	const cbu = searchParams.get("callbackUrl");
 	const [isLoading, setIsLoading] = useState(true);
 	const [logged, setLogged] = useState();
+	const [loggedImgPath, setLoggedImgPath] = useState("");
 	const {
 		onlineUsers,
 		contacts,
@@ -43,7 +44,7 @@ export default function Contacts({
 		const getLogged = async () => {
 			if (session) {
 				const resp = await axiosAuth.get(
-					`/auth/user/${session.user.user_id}`
+					`/auth/user/${session?.user?.user_id}`
 				);
 				console.log("logged user resp : ", resp);
 				setLogged(resp.data);
@@ -51,6 +52,11 @@ export default function Contacts({
 		};
 		getLogged();
 	}, [axiosAuth, session]);
+
+	useEffect(() => {
+		logged &&
+			setLoggedImgPath(process.env.NEXT_PUBLIC_API + logged.picture);
+	}, [logged]);
 
 	useEffect(() => {
 		let followers = [];
@@ -86,8 +92,12 @@ export default function Contacts({
 			}
 		};
 		getContacts();
-		setIsLoading(false);
+		//setIsLoading(false);
 	}, [axiosAuth, session, setContacts]);
+
+	useEffect(() => {
+		contacts && logged && setIsLoading(false);
+	}, [contacts, logged]);
 
 	const changeCurrentChat = (contact, index) => {
 		setSelectedUser(index);
@@ -118,7 +128,7 @@ export default function Contacts({
 		<>
 			{isLoading ? (
 				<Loading />
-			) : session && contacts.length > 0 ? (
+			) : logged && contacts.length > 0 ? (
 				<div className="sm:grid sm:grid-rows-[10%_75%_15%] lg:grid lg:grid-rows-[10%_72%_18%] overflow-hidden bg-appmauvedark dark:bg-appmauvedarker rounded-tl-xl rounded-bl-xl shadow-lightinner">
 					{isMobile && (
 						<>
@@ -149,11 +159,11 @@ export default function Contacts({
 									{/* logged user info */}
 									<div className="flex flex-col justify-center items-center gap-[1.2rem] w-full">
 										<Image
-											width={0}
-											height={0}
-											src={logged?.picture}
+											src={loggedImgPath}
 											alt={`${logged?.username} picture`}
 											placeholder="empty"
+											width={0}
+											height={0}
 											className="w-[5rem] aspect-square object-cover rounded-full border-2 border-apppinklight drop-shadow-linkTxt"
 										/>
 										<p className="w-[97%] pl-[0.4rem] text-clamp8 max-[383px]:text-clamp7 uppercase text-apppastgreen drop-shadow-linkTxt text-ellipsis text-center overflow-hidden">
@@ -167,7 +177,9 @@ export default function Contacts({
 										const userUnread = unread?.filter(
 											(un) => un.sender_id === contact.id
 										);
-
+										const contactImgPath =
+											process.env.NEXT_PUBLIC_API +
+											contact.picture;
 										return (
 											<div
 												tabIndex={0}
@@ -241,7 +253,7 @@ export default function Contacts({
 														height={0}
 														placeholder="empty"
 														alt="contact picture"
-														src={contact.picture}
+														src={contactImgPath}
 														className="rounded-full border-[0.15rem] border-t-appmauvedark border-r-appmauvedark border-b-apppink border-l-apppink object-cover w-[2.5rem] aspect-square"
 													/>
 													{/* online indicator */}
@@ -313,7 +325,9 @@ export default function Contacts({
 									const userUnread = unread?.filter(
 										(un) => un.sender_id === contact.id
 									);
-
+									const contactImgPath =
+										process.env.NEXT_PUBLIC_API +
+										contact.picture;
 									return (
 										<div
 											tabIndex={0}
@@ -365,6 +379,8 @@ export default function Contacts({
 												}
 											}}>
 											<Image
+												src={contactImgPath}
+												alt="contact picture"
 												aria-description={`${
 													selectedUser === index
 														? `${contact.username} selected`
@@ -381,8 +397,6 @@ export default function Contacts({
 												width={0}
 												height={0}
 												placeholder="empty"
-												alt="contact picture"
-												src={contact.picture}
 												className="rounded-full border-[0.15rem] border-t-appmauvedark border-r-appmauvedark border-b-apppink border-l-apppink object-cover w-[3.5rem] aspect-square"
 											/>
 											<p
@@ -423,10 +437,10 @@ export default function Contacts({
 							{/* logged user info */}
 							<div className="flex flex-col justify-center items-center gap-[1.2rem]">
 								<Image
+									src={loggedImgPath}
+									alt={`${logged?.username} picture`}
 									width={0}
 									height={0}
-									src={logged?.picture}
-									alt={`${logged?.username} picture`}
 									placeholder="empty"
 									className="w-[5rem] aspect-square object-cover rounded-full border-2 border-apppinklight drop-shadow-linkTxt"
 								/>
@@ -455,10 +469,10 @@ export default function Contacts({
 					</div>
 					<div className="flex flex-col justify-center items-center gap-[1.2rem]">
 						<Image
+							src={loggedImgPath}
+							alt={`${logged?.username} picture`}
 							width={0}
 							height={0}
-							src={logged?.picture}
-							alt={`${logged?.username} picture`}
 							placeholder="empty"
 							className="w-[2rem] aspect-square object-cover rounded-full border-2 border-apppinklight drop-shadow-linkTxt"
 						/>

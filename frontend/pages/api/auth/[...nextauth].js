@@ -42,6 +42,13 @@ export const authOptions = {
 	],
 
 	callbacks: {
+		//async redirect({ url, baseUrl }) {
+		//	// Allows relative callback URLs
+		//	if (url.startsWith("/")) return `${baseUrl}${url}`;
+		//	// Allows callback URLs on the same origin
+		//	else if (new URL(url).origin === baseUrl) return url;
+		//	return baseUrl;
+		//},
 		async jwt({ token, user, trigger, session }) {
 			if (user) {
 				user.tokenExp = Date.now() + 600000;
@@ -59,7 +66,7 @@ export const authOptions = {
 				const data = { refreshToken: token.refreshToken };
 				const tokenRes = await axios({
 					method: "post",
-					url: "http://localhost:8000/api/auth/refresh",
+					url: `${process.env.NEXT_PUBLIC_API}/api/auth/refresh`,
 					data: data,
 				});
 				token.token = tokenRes.data.token;

@@ -110,9 +110,7 @@ export default function CommentUpdate({
 	useEffect(() => {
 		const handleFile = () => {
 			if (comment?.image) {
-				setCommentImg(
-					comment.image.split("http://localhost:8000/image/")[1]
-				);
+				setCommentImg(comment.image.split("/image/")[1]);
 			}
 		};
 		handleFile();

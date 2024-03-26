@@ -39,8 +39,6 @@ export default function UserProfileCard({ user }) {
 		return usr?.userId === user?.id;
 	});
 	const { socket } = useContext(ChatContext);
-	//console.log(isOnline);
-	//console.log(user);
 
 	useEffect(() => {
 		if (usr) {
@@ -237,7 +235,7 @@ export default function UserProfileCard({ user }) {
 								width={0}
 								height={0}
 								priority={true}
-								src={usr.picture}
+								src={`${process.env.NEXT_PUBLIC_API}${usr.picture}`}
 								alt={`${usr.username} picture`}
 								placeholder="empty"
 								className="rounded-full object-cover w-full h-full cursor-pointer shadow-strip focus-visible:outline-8"
@@ -263,7 +261,7 @@ export default function UserProfileCard({ user }) {
 											height={0}
 											priority={true}
 											placeholder="empty"
-											src={usr.picture}
+											src={`${process.env.NEXT_PUBLIC_API}${usr.picture}`}
 											alt={`zoomed in ${usr.username} picture`}
 											className="block m-auto w-[96%] border-4 aspect-square object-cover rounded-full animate-resizeZoom"
 										/>

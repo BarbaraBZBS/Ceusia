@@ -315,11 +315,7 @@ export default function Cards({
 																				true
 																			}
 																			placeholder="empty"
-																			src={
-																				post
-																					.user
-																					.picture
-																			}
+																			src={`${process.env.NEXT_PUBLIC_API}${post.user.picture}`}
 																			alt={
 																				session
 																					?.user
@@ -361,9 +357,7 @@ export default function Cards({
 																				true
 																			}
 																			placeholder="empty"
-																			src={
-																				post.fileUrl
-																			}
+																			src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																			alt="zoomed post image"
 																			className="block m-auto w-[96%] h-auto object-cover rounded-lg animate-rotateZoom"
 																		/>
@@ -403,10 +397,7 @@ export default function Cards({
 																height={0}
 																placeholder="empty"
 																className="rounded-full object-cover w-full h-full cursor-pointer"
-																src={
-																	post.user
-																		.picture
-																}
+																src={`${process.env.NEXT_PUBLIC_API}${post.user.picture}`}
 																alt={
 																	session
 																		?.user
@@ -540,9 +531,7 @@ export default function Cards({
 																	height={0}
 																	placeholder="empty"
 																	className="rounded-2xl object-cover object-center-up hover:object-center-down hover:shadow-neatcard w-full h-auto max-w-[28rem] max-h-[15rem] cursor-pointer"
-																	src={
-																		post.fileUrl
-																	}
+																	src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																	alt="post image"
 																	priority={
 																		true
@@ -559,21 +548,15 @@ export default function Cards({
 																	controls
 																	className="rounded-lg">
 																	<source
-																		src={
-																			post.fileUrl
-																		}
+																		src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																		type="audio/mpeg"
 																	/>
 																	<source
-																		src={
-																			post.fileUrl
-																		}
+																		src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																		type="audio/ogg"
 																	/>
 																	<source
-																		src={
-																			post.fileUrl
-																		}
+																		src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																		type="audio/wav"
 																	/>
 																	Your browser
@@ -595,23 +578,17 @@ export default function Cards({
 																	controls
 																	className="rounded-2xl">
 																	<source
-																		src={
-																			post.fileUrl
-																		}
+																		src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																		type={
 																			"video/mp4"
 																		}
 																	/>
 																	<source
-																		src={
-																			post.fileUrl
-																		}
+																		src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																		type="video/ogg"
 																	/>
 																	<source
-																		src={
-																			post.fileUrl
-																		}
+																		src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																		type="video/webM"
 																	/>
 																	Your browser
@@ -938,11 +915,7 @@ export default function Cards({
 																					true
 																				}
 																				placeholder="empty"
-																				src={
-																					post
-																						.user
-																						.picture
-																				}
+																				src={`${process.env.NEXT_PUBLIC_API}${post.user.picture}`}
 																				alt={
 																					session
 																						?.user
@@ -984,9 +957,7 @@ export default function Cards({
 																					true
 																				}
 																				placeholder="empty"
-																				src={
-																					post.fileUrl
-																				}
+																				src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																				alt="zoomed post image"
 																				className="block m-auto w-[96%] h-auto object-cover rounded-lg animate-rotateZoom"
 																			/>
@@ -1028,11 +999,7 @@ export default function Cards({
 																	height={0}
 																	placeholder="empty"
 																	className="rounded-full object-cover w-full h-full cursor-pointer"
-																	src={
-																		post
-																			.user
-																			.picture
-																	}
+																	src={`${process.env.NEXT_PUBLIC_API}${post.user.picture}`}
 																	alt={
 																		session
 																			?.user
@@ -1140,7 +1107,7 @@ export default function Cards({
 																<div
 																	tabIndex={0}
 																	title="click or press enter to zoom in"
-																	className="flex w-[26rem] h-[15rem] max-w-[28rem] mob00:max-w-[90%] mx-auto mt-[2.2rem] mb-[2.4rem] focus-visible:outline-offset-[0.4rem] touch-auto rounded-2xl shadow-card"
+																	className="flex w-[70%] h-[20rem] mx-auto mt-[2.2rem] mb-[2.4rem] focus-visible:outline-offset-[0.4rem] touch-auto rounded-2xl shadow-card"
 																	onClick={() => {
 																		setClickedBtn(
 																			index
@@ -1169,10 +1136,8 @@ export default function Cards({
 																			0
 																		}
 																		placeholder="empty"
-																		className="rounded-2xl object-cover object-center-up hover:object-center-down hover:shadow-neatcard w-full h-auto max-w-[28rem] max-h-[15rem] cursor-pointer"
-																		src={
-																			post.fileUrl
-																		}
+																		className="rounded-2xl object-cover object-center-up hover:object-center-down hover:shadow-neatcard w-full h-auto cursor-pointer"
+																		src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																		alt="post image"
 																		priority={
 																			true
@@ -1189,21 +1154,15 @@ export default function Cards({
 																		controls
 																		className="rounded-lg">
 																		<source
-																			src={
-																				post.fileUrl
-																			}
+																			src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																			type="audio/mpeg"
 																		/>
 																		<source
-																			src={
-																				post.fileUrl
-																			}
+																			src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																			type="audio/ogg"
 																		/>
 																		<source
-																			src={
-																				post.fileUrl
-																			}
+																			src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																			type="audio/wav"
 																		/>
 																		Your
@@ -1230,23 +1189,17 @@ export default function Cards({
 																		controls
 																		className="rounded-2xl">
 																		<source
-																			src={
-																				post.fileUrl
-																			}
+																			src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																			type={
 																				"video/mp4"
 																			}
 																		/>
 																		<source
-																			src={
-																				post.fileUrl
-																			}
+																			src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																			type="video/ogg"
 																		/>
 																		<source
-																			src={
-																				post.fileUrl
-																			}
+																			src={`${process.env.NEXT_PUBLIC_API}${post.fileUrl}`}
 																			type="video/webM"
 																		/>
 																		Your
