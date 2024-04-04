@@ -21,6 +21,7 @@ export default function ChatContainer({
 	const scrollRef = useRef();
 	const chatImgPath = process.env.NEXT_PUBLIC_API + currentChat.picture;
 
+	//read messages between logged user and current chat function
 	useEffect(() => {
 		if (session?.user) {
 			const getChatMessages = async () => {
@@ -33,13 +34,14 @@ export default function ChatContainer({
 					url: "/messages/getmsgs",
 					data: data,
 				});
-				console.log("client msgs : ", response.data);
+				//console.log("client msgs : ", response.data);
 				setMessages(response.data);
 			};
 			getChatMessages();
 		}
 	}, [currentChat, session, axiosAuth]);
 
+	//send message with notification handler function
 	const handleSendMsg = async (msg) => {
 		await axiosAuth.post(`/messages/addmsg`, {
 			user_id: currentChat.id,
@@ -61,16 +63,17 @@ export default function ChatContainer({
 		setMessages(msgs);
 	};
 
+	//handle get notifications
 	useEffect(() => {
 		if (socket.current) {
-			console.log("sock curr", socket.current.id);
+			//console.log("sock curr", socket.current.id);
 			socket.current.on("msg-receive", (msg) => {
-				console.log("msg arrival", { msg });
-				console.log(
-					"msg current chat id && msg user id : ",
-					currentChat?.id,
-					msg?.sender_id
-				);
+				//console.log("msg arrival", { msg });
+				//console.log(
+				//	"msg current chat id && msg user id : ",
+				//	currentChat?.id,
+				//	msg?.sender_id
+				//);
 				if (currentChat?.id === msg.sender_id) {
 					setArrivalMessage({
 						fromSelf: false,
@@ -84,19 +87,22 @@ export default function ChatContainer({
 		}
 	}, [socket, currentChat, messages]);
 
+	//handle new incoming message display
 	useEffect(() => {
 		arrivalMessage && setMessages((prev) => [...prev, arrivalMessage]);
 	}, [arrivalMessage]);
 
+	//handle scrolling to last message on opening selected chat
 	useEffect(() => {
 		scrollRef.current?.scrollIntoView({
 			behavior: "smooth",
 			block: "nearest",
 			inline: "start",
 		});
-		console.log("scrollRef : ", scrollRef.current);
+		//console.log("scrollRef : ", scrollRef.current);
 	}, [messages]);
 
+	//handle delete all chat messages between logged user and current chat
 	const deleteChat = async () => {
 		setDelBtnEffect(true);
 		setTimeout(async () => {
@@ -115,7 +121,7 @@ export default function ChatContainer({
 							url: "/messages/del",
 							data: data,
 						});
-						console.log("del resp : ", resp);
+						//console.log("del resp : ", resp);
 						setCurrentChat(undefined);
 						setSelectedUser(undefined);
 					}
@@ -126,11 +132,11 @@ export default function ChatContainer({
 		}, 500);
 	};
 
-	console.log(
-		"curr chat nd user session : ",
-		currentChat?.id,
-		session?.user?.user_id
-	);
+	//console.log(
+	//	"curr chat nd user session : ",
+	//	currentChat?.id,
+	//	session?.user?.user_id
+	//);
 
 	return (
 		<div className="relative grid grid-rows-[10%_78%_12%] gap-[0.1rem] overflow-hidden">

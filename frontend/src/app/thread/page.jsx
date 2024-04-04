@@ -12,7 +12,7 @@ export default async function Thread({ searchParams }) {
 	const page = searchParams["page"] ?? "1";
 	const per_page = searchParams["per_page"] ?? "6";
 
-	console.log("session: thread page-- ", session);
+	//console.log("session: thread page-- ", session);
 	const allPosts = await getAllPosts();
 	const users = await getAllUsers();
 	const postsData = await getPosts(page, per_page);

@@ -10,6 +10,7 @@ export default function MeetFollow(props) {
 	const [followed, setFollowed] = useState(false);
 	const [followEffect, setFollowEffect] = useState(false);
 
+	//get follow status function
 	useEffect(() => {
 		const checkFollowingStatus = async () => {
 			const data = {
@@ -28,6 +29,7 @@ export default function MeetFollow(props) {
 		checkFollowingStatus();
 	}, [props.session, props.usr, followed, axiosAuth]);
 
+	//submit follow user
 	const handleFollow = () => {
 		setFollowEffect(true);
 		const data = {

@@ -48,6 +48,7 @@ export default function Cards({
 	const [allFollowings, setAllFollowings] = useState();
 	const [errMsg, setErrMsg] = useState(false);
 	const [hasMounted, setHasMounted] = useState(false);
+	const isBrowser = () => typeof window !== "undefined";
 	const isSmallDevice = useMediaQuery({
 		query: "(max-width: 1023px)",
 	});
@@ -55,24 +56,26 @@ export default function Cards({
 		query: "(min-width: 1024px)",
 	});
 
-	const isBrowser = () => typeof window !== "undefined";
-
+	//make sure page is loaded
 	useEffect(() => {
 		setHasMounted(true);
 	}, []);
 
+	//give user a token
 	useEffect(() => {
 		if (session.user.token) {
 			create(session.user.token);
 		}
 	}, [session.user.token]);
 
+	//remove spinner if loaded
 	useEffect(() => {
 		if (session && posts) {
 			setIsLoading(false);
 		}
 	}, [session, posts, display]);
 
+	//parse db timestamp to readable date
 	const dateParser = (num) => {
 		let options = {
 			hour: "2-digit",
@@ -88,16 +91,19 @@ export default function Cards({
 		return date.toString();
 	};
 
+	//parse db timestamp to readable until now date
 	const dateParser2 = (num) => {
 		const timeAgo = moment(num).fromNow();
 		return timeAgo;
 	};
 
+	//update post button function
 	const modifBtn = () => {
 		setModifyBtnEffect(true);
 		router.refresh();
 	};
 
+	//delete post button function
 	const handleDelete = async (postid) => {
 		setDeleteBtnEffect(true);
 		setErrMsg("");
@@ -108,7 +114,7 @@ export default function Cards({
 				);
 				if (answer) {
 					const res = await axiosAuth.delete(`/posts/${postid}`);
-					console.log("deleted ? : ", res);
+					//console.log("deleted ? : ", res);
 					if (!res) {
 						setErrMsg("Something went wrong, post was not removed");
 						if (!isBrowser()) return;
@@ -129,6 +135,7 @@ export default function Cards({
 		}, 601);
 	};
 
+	//handle scroll to id when navigating
 	useEffect(() => {
 		if (!isBrowser()) return;
 		const foundHash = window.location.hash;
@@ -156,7 +163,7 @@ export default function Cards({
 		setCommentEffect(true);
 	};
 
-	// handle overlays function
+	// handle overlays functions
 	function showOverlay() {
 		const scrollY =
 			document.documentElement.style.getPropertyValue("--scroll-y");
@@ -172,7 +179,8 @@ export default function Cards({
 		if (!isBrowser()) return;
 		window.scrollTo(0, parseInt(scrollY || "0") * -1);
 	}
-	// user picture zoom
+
+	// user picture zoom functions
 	function showUsrPicZoomOverlay() {
 		setUserPicZoom(true);
 		showOverlay();
@@ -181,7 +189,8 @@ export default function Cards({
 		hideOverlay();
 		setUserPicZoom(false);
 	}
-	// post image zoom
+
+	// post image zoom functions
 	function showPostImgZoomOverlay() {
 		setPostImgZoom(true);
 		showOverlay();
@@ -191,10 +200,12 @@ export default function Cards({
 		setPostImgZoom(false);
 	}
 
+	//make sure page is loaded
 	if (!hasMounted) {
 		return null;
 	}
 
+	//remember scroll position for overlays function
 	if (!isBrowser()) return;
 	window.addEventListener("scroll", () => {
 		document.documentElement.style.setProperty(

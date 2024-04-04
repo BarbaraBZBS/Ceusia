@@ -6,6 +6,7 @@ export default function TimeDisplay() {
 	const [date, setDate] = useState(moment().format("dddd, MMMM D, YYYY"));
 	const [time, setTime] = useState(moment().format("h:mm:ss A"));
 
+	//clock display
 	useEffect(() => {
 		setInterval(() => {
 			setDate(moment().format("dddd, MMMM D, YYYY"));

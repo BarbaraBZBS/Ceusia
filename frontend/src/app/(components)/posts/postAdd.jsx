@@ -63,12 +63,14 @@ export default function PostAdd({ setPosts, display }) {
 	const ctt = watch("content");
 	const isDisabled = !ctt;
 
+	//set focus on first form input when page loads
 	useEffect(() => {
 		if (errors?.content) {
 			setFocus("content");
 		}
 	});
 
+	//submit form function
 	const submitForm = async (data, e) => {
 		e.preventDefault();
 		setErrMsg("");
@@ -87,7 +89,7 @@ export default function PostAdd({ setPosts, display }) {
 			form.append("title", getValues("title"));
 			form.append("content", getValues("content"));
 			form.append("link", getValues("link"));
-			console.log("file upload? : ", form);
+			//console.log("file upload? : ", form);
 			data = form;
 			headers = { "Content-Type": "multipart/form-data" };
 		}
@@ -101,7 +103,7 @@ export default function PostAdd({ setPosts, display }) {
 				withCredentials: true,
 				signal: abortSignal,
 			}).then(async (response) => {
-				console.log(response);
+				//console.log(response);
 				setIsSent(true);
 				setShowAddPost(false);
 				const resp = await axiosAuth.get(
@@ -134,6 +136,7 @@ export default function PostAdd({ setPosts, display }) {
 		}
 	};
 
+	//reset form after submit if ok
 	useEffect(() => {
 		if (isSubmitSuccessful && isSent) {
 			setErrMsg("");
@@ -141,33 +144,39 @@ export default function PostAdd({ setPosts, display }) {
 		}
 	}, [isSubmitSuccessful, isSent, reset]);
 
+	//reset form button function
 	const btnReset = () => {
 		setResetBtnEffect(true);
 		reset();
 	};
 
+	//show or hide emoji picker for title function
 	const handleTEmojiPickerHideShow = () => {
 		setShowTEmojiPicker(!showTEmojiPicker);
 		setShowCEmojiPicker(false);
 	};
 
+	//show or hide emoji picker for content function
 	const handleCEmojiPickerHideShow = () => {
 		setShowCEmojiPicker(!showCEmojiPicker);
 		setShowTEmojiPicker(false);
 	};
 
+	//manage clicking emoji for title function
 	const handleTEmojiClick = (emoji) => {
 		let message = getValues("title");
 		message += emoji.emoji;
 		setValue("title", message);
 	};
 
+	//manage clicking emoji for content function
 	const handleCEmojiClick = (emoji) => {
 		let message = getValues("content");
 		message += emoji.emoji;
 		setValue("content", message);
 	};
 
+	//show add post card function
 	const handleShowAddPost = () => {
 		setAddPostEffect(true);
 		setTimeout(() => {
@@ -178,6 +187,7 @@ export default function PostAdd({ setPosts, display }) {
 		}, 1100);
 	};
 
+	//hide add post card function
 	const handleClose = () => {
 		setCloseAddPostEffect(true);
 		setTimeout(() => {
@@ -190,6 +200,7 @@ export default function PostAdd({ setPosts, display }) {
 		}, 400);
 	};
 
+	//manage how emoji picker for title is opened
 	const handleShowEmojiT = () => {
 		setEmojiTBtnClickEffect(true);
 		setTimeout(() => {
@@ -197,6 +208,7 @@ export default function PostAdd({ setPosts, display }) {
 		}, 400);
 	};
 
+	//manage how emoji picker for content is opened
 	const handleShowEmojiC = () => {
 		setEmojiCBtnClickEffect(true);
 		setTimeout(() => {
@@ -261,7 +273,6 @@ export default function PostAdd({ setPosts, display }) {
 										</button>
 									</div>
 
-									{/* <div>preview?</div> */}
 									<h1
 										id="add-ttl"
 										className="uppercase text-clamp5 mob88:text-clamp1 text-center font-semibold">

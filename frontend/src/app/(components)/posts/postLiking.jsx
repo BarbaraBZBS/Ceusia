@@ -27,12 +27,13 @@ export default function PostLiking({ post, session }) {
 	const [errMsg, setErrMsg] = useState("");
 	const { socket } = useContext(ChatContext);
 
+	//like post function
 	const like = async () => {
 		setErrMsg("");
 		try {
 			const resp = await axiosAuth.post(`/posts/${post.id}/like`);
 			const likeStat = resp.data.message;
-			if (likeStat === "post liked !") {
+			if (likeStat === "post liked") {
 				setLiked(true);
 				setDisliked(false);
 				socket.current.emit("like-post", {
@@ -41,7 +42,7 @@ export default function PostLiking({ post, session }) {
 					user_id: post.user_id,
 				});
 			}
-			if (likeStat === "post unliked !") {
+			if (likeStat === "post unliked") {
 				setLiked(false);
 				setDisliked(false);
 			}
@@ -67,12 +68,13 @@ export default function PostLiking({ post, session }) {
 		}
 	};
 
+	//dislike post function
 	const dislike = async () => {
 		setErrMsg("");
 		try {
 			const resp = await axiosAuth.post(`/posts/${post.id}/dislike`);
 			const dislikeStat = resp.data.message;
-			if (dislikeStat === "post disliked !") {
+			if (dislikeStat === "post disliked") {
 				setDisliked(true);
 				setLiked(false);
 				socket.current.emit("dislike-post", {
@@ -81,7 +83,7 @@ export default function PostLiking({ post, session }) {
 					user_id: post.user_id,
 				});
 			}
-			if (dislikeStat === "post dislike removed !") {
+			if (dislikeStat === "post undisliked") {
 				setDisliked(false);
 				setLiked(false);
 			}
@@ -105,6 +107,7 @@ export default function PostLiking({ post, session }) {
 		}
 	};
 
+	//like button function
 	const likeBtn = () => {
 		setLikeEffect(true);
 		setTimeout(() => {
@@ -112,6 +115,7 @@ export default function PostLiking({ post, session }) {
 		}, 400);
 	};
 
+	//dislike button function
 	const dislikeBtn = () => {
 		setDislikeEffect(true);
 		setTimeout(() => {
@@ -119,6 +123,7 @@ export default function PostLiking({ post, session }) {
 		}, 400);
 	};
 
+	//handle liked disliked display function
 	useEffect(() => {
 		const checkLiked = async () => {
 			const data = { post_id: post.id };

@@ -40,12 +40,14 @@ export default function UserProfileCard({ user }) {
 	});
 	const { socket } = useContext(ChatContext);
 
+	//hide spinner if user is loaded
 	useEffect(() => {
 		if (usr) {
 			setIsLoading(false);
 		}
 	}, [usr]);
 
+	//show and hide user picture zoom functions
 	function showUsrPicZoomOverlay() {
 		setIsPicZoomed(true);
 		const scrollY =
@@ -64,6 +66,7 @@ export default function UserProfileCard({ user }) {
 		setIsPicZoomed(false);
 	}
 
+	//get user followers and followings amount functions
 	useEffect(() => {
 		const getFollowers = async () => {
 			const res = await axios.get(`/auth/user/${user.id}/followers`);
@@ -77,6 +80,7 @@ export default function UserProfileCard({ user }) {
 		getFollowing();
 	}, [user.id, followers, following, followed, followingUsr]);
 
+	//get follow status functions
 	useEffect(() => {
 		const checkFollowedStatus = async () => {
 			const data = {
@@ -111,6 +115,7 @@ export default function UserProfileCard({ user }) {
 		checkFollowingStatus();
 	}, [session?.user.user_id, user.id, followed, followingUsr]);
 
+	//follow user function
 	const handleFollow = () => {
 		setFollowEffect(true);
 		const data = {
@@ -147,6 +152,7 @@ export default function UserProfileCard({ user }) {
 		}, 700);
 	};
 
+	//unfollow user function
 	const handleUnfollow = () => {
 		setUnfollowEffect(true);
 		const data = {
@@ -178,6 +184,7 @@ export default function UserProfileCard({ user }) {
 		}, 700);
 	};
 
+	//back button function
 	const goBackLink = () => {
 		setBackBtnEffect(true);
 		if (!postId) {
@@ -185,6 +192,7 @@ export default function UserProfileCard({ user }) {
 		}
 	};
 
+	//remember scroll position when user profile picture is zoomed
 	if (!isBrowser()) return;
 	window.addEventListener("scroll", () => {
 		document.documentElement.style.setProperty(

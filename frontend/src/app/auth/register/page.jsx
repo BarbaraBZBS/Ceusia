@@ -38,7 +38,6 @@ export default function RegisterPage({ props }) {
 			password: "",
 		},
 		mode: "onSubmit",
-		// mode: "onBlur"
 	});
 	const password = useRef({});
 	password.current = watch("password", "");
@@ -56,6 +55,7 @@ export default function RegisterPage({ props }) {
 	const isDisabled = !usrn || !eml || !psw || !password;
 	const [isSent, setIsSent] = useState(false);
 
+	//set focus on first input when page is loaded
 	useEffect(() => {
 		setTimeout(() => {
 			if (!usrn) {
@@ -64,10 +64,12 @@ export default function RegisterPage({ props }) {
 		}, 100);
 	}, [setFocus, usrn]);
 
+	//handle signing up loader display
 	useEffect(() => {
 		load && setSignupState("Signing up");
 	}, [load]);
 
+	//set focus if error
 	useEffect(() => {
 		if (errors?.username) {
 			setFocus("username");
@@ -76,6 +78,7 @@ export default function RegisterPage({ props }) {
 		}
 	});
 
+	//submit form
 	const submitForm = async (data, e) => {
 		e.preventDefault();
 		setErrMsg("");
@@ -96,7 +99,7 @@ export default function RegisterPage({ props }) {
 						withCredentials: true,
 					}
 				);
-				console.log(response?.data);
+				//console.log(response?.data);
 				setIsSent(true);
 				setSignupState("Signed up");
 				setLoad(false);

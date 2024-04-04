@@ -5,6 +5,8 @@ import Polar from "../../../../public/images/punk-polar-curious-nobg.gif";
 
 export default function StartChat({ session }) {
 	const [currentUser, setCurrentUser] = useState();
+
+	//set logged user as current
 	useEffect(() => {
 		if (session && session?.user) {
 			setCurrentUser(session?.user.username);

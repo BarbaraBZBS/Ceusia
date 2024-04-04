@@ -32,6 +32,7 @@ export default function TrendingCards(props) {
 		query: "(min-width: 1024px)",
 	});
 
+	//sort posts to most liked function
 	useEffect(() => {
 		if (props.posts?.length > 0) {
 			const postsArray = Object.keys(props.posts).map(
@@ -45,6 +46,7 @@ export default function TrendingCards(props) {
 		}
 	}, [props.posts, axiosAuth]);
 
+	//show trend card function
 	const showTrend = async () => {
 		setShowTrendingEffect(true);
 		setTimeout(() => {
@@ -55,6 +57,7 @@ export default function TrendingCards(props) {
 		}, 1300);
 	};
 
+	//hide trend card function
 	const hideTrend = async () => {
 		setHideTrendingEffect(true);
 		setTimeout(() => {
@@ -65,6 +68,7 @@ export default function TrendingCards(props) {
 		}, 500);
 	};
 
+	//manage link to user profile function
 	const usrProfileLnk = (link) => {
 		setUsrLinkEffect(true);
 		setTimeout(() => {

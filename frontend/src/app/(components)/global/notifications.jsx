@@ -34,6 +34,7 @@ export default function Notifications() {
 	const [isBtnClicked, setIsBtnClicked] = useState(false);
 	const isDisabled = unread?.length === 0;
 
+	//handle notifications for redirects and display
 	useEffect(() => {
 		const modifyNotifications = async () => {
 			if (notifications) {
@@ -54,6 +55,7 @@ export default function Notifications() {
 		modifyNotifications();
 	}, [notifications, axiosAuth]);
 
+	//sort notifications
 	useEffect(() => {
 		const unreadNotifications = () => {
 			if (notifications) {
@@ -64,8 +66,9 @@ export default function Notifications() {
 		unreadNotifications();
 	}, [notifications, session]);
 
+	//mark chat notifications as read function
 	const handleNotification = (n) => {
-		console.log("notif chat : ", n);
+		//console.log("notif chat : ", n);
 		setGoToChatEffect(true);
 		setTimeout(() => {
 			markAsRead(n, notifications, contacts);
@@ -73,8 +76,9 @@ export default function Notifications() {
 		}, 500);
 	};
 
+	//mark post notifications as read function
 	const handlePostNotification = (n) => {
-		console.log("notif post : ", n);
+		//console.log("notif post : ", n);
 		setGoToChatEffect(true);
 		setTimeout(() => {
 			markPostNotifAsRead(n, notifications);
@@ -82,8 +86,9 @@ export default function Notifications() {
 		}, 500);
 	};
 
+	//mark following notifications as read function
 	const handleFollowNotification = (n) => {
-		console.log("notif follow : ", n);
+		//console.log("notif follow : ", n);
 		setGoToUserEffect(true);
 		setTimeout(() => {
 			markPostNotifAsRead(n, notifications);
@@ -91,6 +96,7 @@ export default function Notifications() {
 		}, 500);
 	};
 
+	//mark all notifications as read function
 	const handleMark = () => {
 		setMarkEffect(true);
 		markAllAsRead(notifications);

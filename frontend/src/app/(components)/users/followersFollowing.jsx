@@ -19,6 +19,7 @@ export default function FollowersFollowing({ user }) {
 	const [usrLinkEffect, setUsrLinkEffect] = useState(false);
 	const [followsErrMsg, setFollowsErrMsg] = useState(false);
 
+	//get logged user followers and followings amount functions
 	useEffect(() => {
 		const getFollowers = async () => {
 			const res = await axios.get(`/auth/user/${user.id}/followers`);
@@ -32,6 +33,7 @@ export default function FollowersFollowing({ user }) {
 		getFollowing();
 	}, [user.id, followers, following]);
 
+	//show followers list function
 	function showFollowersList() {
 		setFollowsErrMsg("");
 		if (followers !== 0) {
@@ -66,6 +68,7 @@ export default function FollowersFollowing({ user }) {
 		}
 	}
 
+	//show followings list function
 	function showFollowingsList() {
 		setFollowsErrMsg("");
 		if (following !== 0) {
@@ -138,7 +141,6 @@ export default function FollowersFollowing({ user }) {
 						{followers} followers{" "}
 					</button>
 				)}
-				{/*&nbsp;/&nbsp;{" "}*/}
 				{following === 1 ? (
 					<button
 						title={

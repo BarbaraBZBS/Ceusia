@@ -3,9 +3,9 @@ import ModifyPost from "@/app/(components)/posts/postModify";
 import { PageWrap } from "@/app/(components)/motions/pageWrap";
 
 export default async function PostUpdate({ params: { id } }) {
-	console.log("post id ? : ", id);
+	//console.log("post id ? : ", id);
 	const post = await getPost(id);
-	console.log("post ? : ", post);
+	//console.log("post ? : ", post);
 	return (
 		<>
 			<PageWrap>

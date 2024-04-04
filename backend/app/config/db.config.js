@@ -1,3 +1,4 @@
+//sequelize configuration for mysql
 const dbConfig = {
 	HOST: "localhost",
 	USER: process.env.DB_USER,

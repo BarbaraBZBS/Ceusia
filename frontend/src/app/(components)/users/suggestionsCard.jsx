@@ -32,6 +32,7 @@ export default function SuggestionsCard(props) {
 		query: "(min-width: 1024px)",
 	});
 
+	//sort users list and randomize function
 	useEffect(() => {
 		const getPeopleList = async () => {
 			let friends = [];
@@ -58,6 +59,7 @@ export default function SuggestionsCard(props) {
 		}
 	}, [props.session, props.users, meetShown, axiosAuth]);
 
+	//show meet people card function
 	const showMeet = () => {
 		setShowMeetEffect(true);
 		setTimeout(() => {
@@ -68,6 +70,7 @@ export default function SuggestionsCard(props) {
 		}, 1300);
 	};
 
+	//hide meet people card function
 	const hideMeet = () => {
 		setHideMeetEffect(true);
 		setTimeout(() => {
@@ -78,6 +81,7 @@ export default function SuggestionsCard(props) {
 		}, 500);
 	};
 
+	//handle navigate to user profile link function
 	const usrProfileLnk = () => {
 		setUsrLinkEffect(true);
 		setTimeout(() => {

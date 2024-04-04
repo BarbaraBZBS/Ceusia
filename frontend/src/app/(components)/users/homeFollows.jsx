@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import axios from "@/app/(utils)/axios";
 
 export default function HomeFollows(props) {
+	//get user followers and followings amount functions
 	useEffect(() => {
 		const getFollowers = async () => {
 			const res = await axios.get(

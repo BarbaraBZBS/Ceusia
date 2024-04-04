@@ -1,5 +1,7 @@
 import Post from "../models/post.model.js";
 import User from "../models/user.model.js";
+
+//handling multer v2
 import fs from "fs";
 import { promisify } from "util";
 import stream from "stream";
@@ -8,12 +10,21 @@ import path from "path";
 import * as url from "url";
 const __dirname = url.fileURLToPath(new URL("..", import.meta.url));
 
-// Create and Save a new Post
+/**
+ * Create a post
+ * @date 3/31/2024 - 8:37:58 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const createPost = async (req, res, next) => {
-	console.log(req.body);
-	console.log(req.file);
+	//console.log(req.body);
+	//console.log(req.file);
 	const date = JSON.stringify(Date.now());
 	const newD = date.split(date[6]).pop();
+
 	try {
 		let filePath = "";
 		if (req.file) {
@@ -37,25 +48,16 @@ const createPost = async (req, res, next) => {
 					`${req.auth.user_id}` +
 					`${newD}` +
 					req.file.detectedFileExtension;
-				console.log("filen: ", fileName);
+				//console.log("filen: ", fileName);
 				if (req.file.detectedMimeType.startsWith("image")) {
 					filePath = `/image/${fileName}`;
-					//filePath = `${req.protocol}://${req.get(
-					//	"host"
-					//)}/image/${fileName}`;
-					console.log("image: ", filePath);
+					//console.log("image: ", filePath);
 				} else if (req.file.detectedMimeType.startsWith("video")) {
 					filePath = `/video/${fileName}`;
-					//filePath = `${req.protocol}://${req.get(
-					//	"host"
-					//)}/video/${fileName}`;
-					console.log("video: ", filePath);
+					//console.log("video: ", filePath);
 				} else if (req.file.detectedMimeType.startsWith("audio")) {
 					filePath = `/audio/${fileName}`;
-					//filePath = `${req.protocol}://${req.get(
-					//	"host"
-					//)}/audio/${fileName}`;
-					console.log("audio: ", filePath);
+					//console.log("audio: ", filePath);
 				}
 
 				await pipeline(
@@ -81,7 +83,7 @@ const createPost = async (req, res, next) => {
 				});
 			}
 		} else {
-			console.log("user: ", req.auth.user_id);
+			//console.log("user: ", req.auth.user_id);
 			await Post.create({
 				title: req.body.title,
 				content: req.body.content,
@@ -89,8 +91,8 @@ const createPost = async (req, res, next) => {
 				user_id: req.auth.user_id,
 			});
 		}
-		console.log("success: post created");
-		res.status(201).json({ message: "post created" });
+		//console.log("success: post created");
+		return res.status(201).json({ message: "post created" });
 	} catch (err) {
 		console.log(err);
 		console.log("error: post not created", res.statusCode);
@@ -98,7 +100,14 @@ const createPost = async (req, res, next) => {
 	}
 };
 
-// Retrieve all Posts from the database.
+/**
+ * Read all posts
+ * @date 3/31/2024 - 8:37:57 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ */
 const getAllPosts = async (req, res) => {
 	await Post.findAll({
 		order: [["createdAt", "DESC"]],
@@ -108,16 +117,24 @@ const getAllPosts = async (req, res) => {
 		},
 	})
 		.then((posts) => {
-			if (posts) {
-				//console.log( posts )
-				res.status(200).json(posts);
+			if (!posts) {
+				return res.status(404).json({ message: "No posts found" });
 			} else {
-				res.status(404).json({ message: "No posts found" });
+				//console.log( posts )
+				return res.status(200).json(posts);
 			}
 		})
 		.catch((err) => res.status(500).json({ err }));
 };
 
+/**
+ * Read a limited number of posts for frontend pagination
+ * @date 3/31/2024 - 8:37:57 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ */
 const getPosts = async (req, res) => {
 	const pageAsNumber = Number.parseInt(req.query.page);
 	const perPageAsNumber = Number.parseInt(req.query.per_page);
@@ -146,20 +163,26 @@ const getPosts = async (req, res) => {
 		],
 	})
 		.then((posts) => {
-			if (posts) {
-				console.log("sliced posts : ", posts);
-				res.status(200).json({
+			if (!posts) {
+				return res.status(404).json({ message: "No posts found" });
+			} else {
+				//console.log("sliced posts : ", posts);
+				return res.status(200).json({
 					content: posts.rows,
 					totalPages: Math.ceil(posts.count / per_page),
 				});
-			} else {
-				res.status(404).json({ message: "No posts found" });
 			}
 		})
 		.catch((err) => res.status(500).json({ err }));
 };
 
-// Find a single Post with an id
+/**
+ * Read one post
+ * @date 3/31/2024 - 8:37:57 PM
+ *
+ * @param {*} req
+ * @param {*} res
+ */
 const findOnePost = (req, res) => {
 	Post.findByPk(req.params.id, {
 		include: {
@@ -168,15 +191,23 @@ const findOnePost = (req, res) => {
 		},
 	})
 		.then((post) => {
-			if (post) {
-				res.status(200).json(post);
+			if (!post) {
+				return res.status(404).send();
 			} else {
-				res.status(404).send();
+				return res.status(200).json(post);
 			}
 		})
 		.catch((err) => res.status(500).json({ err }));
 };
 
+/**
+ * Read all posts of a user
+ * @date 3/31/2024 - 8:37:57 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ */
 const findUserPosts = async (req, res) => {
 	await Post.findAll({
 		where: {
@@ -185,16 +216,23 @@ const findUserPosts = async (req, res) => {
 		order: [["createdAt", "DESC"]],
 	})
 		.then((posts) => {
-			if (posts) {
-				res.status(200).json(posts);
+			if (!posts) {
+				return res.status(404).json({ message: "No posts found" });
 			} else {
-				res.status(404).json({ message: "No posts found" });
+				return res.status(200).json(posts);
 			}
 		})
 		.catch((err) => res.status(500).json({ err }));
 };
 
-// Update a Post identified by id in the request
+/**
+ * Update a post
+ * @date 3/31/2024 - 8:37:57 PM
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const updatePost = (req, res, next) => {
 	const date = JSON.stringify(Date.now());
 	const newD = date.split(date[6]).pop();
@@ -244,7 +282,7 @@ const updatePost = (req, res, next) => {
 								post.fileUrl.split("/image/")[1] ||
 								post.fileUrl.split("/video/")[1] ||
 								post.fileUrl.split("/audio/")[1];
-							console.log("old image file: ", oldFile);
+							//console.log("old image file: ", oldFile);
 							//fs.unlinkSync(`app/public/files/post/${oldFile}`);
 							fs.unlink(
 								`app/public/files/post/${oldFile}`,
@@ -253,23 +291,14 @@ const updatePost = (req, res, next) => {
 						}
 						if (req.file.detectedMimeType.startsWith("image")) {
 							filePath = `/image/${fileName}`;
-							//filePath = `${req.protocol}://${req.get(
-							//	"host"
-							//)}/image/${fileName}`;
 						} else if (
 							req.file.detectedMimeType.startsWith("video")
 						) {
 							filePath = `/video/${fileName}`;
-							//filePath = `${req.protocol}://${req.get(
-							//	"host"
-							//)}/video/${fileName}`;
 						} else if (
 							req.file.detectedMimeType.startsWith("audio")
 						) {
 							filePath = `/audio/${fileName}`;
-							//filePath = `${req.protocol}://${req.get(
-							//	"host"
-							//)}/audio/${fileName}`;
 						}
 						await pipeline(
 							req.file.stream,
@@ -294,11 +323,7 @@ const updatePost = (req, res, next) => {
 								editedByAdmin: 1,
 							})
 								.then(() => {
-									console.log(
-										"success, post updated: ",
-										post
-									);
-									res.status(200).json({
+									return res.status(200).json({
 										message: "post updated",
 									});
 								})
@@ -313,11 +338,7 @@ const updatePost = (req, res, next) => {
 								editedByAdmin: 0,
 							})
 								.then(() => {
-									console.log(
-										"success, post updated: ",
-										post
-									);
-									res.status(200).json({
+									return res.status(200).json({
 										message: "post updated",
 									});
 								})
@@ -330,7 +351,7 @@ const updatePost = (req, res, next) => {
 							post.fileUrl.split("/image/")[1] ||
 							post.fileUrl.split("/video/")[1] ||
 							post.fileUrl.split("/audio/")[1];
-						console.log("old image file: ", oldFile);
+						//console.log("old image file: ", oldFile);
 						fs.unlink(`app/public/files/post/${oldFile}`, () => {});
 						if (req.auth.role === "admin") {
 							post.update({
@@ -354,8 +375,8 @@ const updatePost = (req, res, next) => {
 							editedAt: new Date(),
 							editedByAdmin: 1,
 						});
-						console.log("success, post updated by admin: ", post);
-						res.status(200).json({
+						//console.log("success, post updated by admin: ", post);
+						return res.status(200).json({
 							message: "post updated by admin",
 						});
 					} else {
@@ -366,8 +387,10 @@ const updatePost = (req, res, next) => {
 							editedAt: new Date(),
 							editedByAdmin: 0,
 						});
-						console.log("success, post updated: ", post);
-						res.status(200).json({ message: "post updated" });
+						//console.log("success, post updated: ", post);
+						return res
+							.status(200)
+							.json({ message: "post updated" });
 					}
 				}
 			})
@@ -379,7 +402,13 @@ const updatePost = (req, res, next) => {
 	}
 };
 
-// Delete a Post with the specified id in the request
+/**
+ * Delete a post
+ * @date 3/31/2024 - 8:37:57 PM
+ *
+ * @param {*} req
+ * @param {*} res
+ */
 const deletePost = (req, res) => {
 	Post.findByPk(req.params.id)
 		.then((post) => {
@@ -394,18 +423,22 @@ const deletePost = (req, res) => {
 					post.fileUrl.split("/image/")[1] ||
 					post.fileUrl.split("/video/")[1] ||
 					post.fileUrl.split("/audio/")[1];
-				console.log("filename: ", filename);
+				//console.log("filename: ", filename);
 				fs.unlink(`app/public/files/post/${filename}`, () => {
 					post.destroy()
 						.then(() => {
-							res.status(200).json({ message: "Post deleted !" });
+							return res
+								.status(200)
+								.json({ message: "Post deleted" });
 						})
 						.catch((error) => res.status(400).json({ error }));
 				});
 			} else {
 				post.destroy()
 					.then(() => {
-						res.status(200).json({ message: "Post deleted !" });
+						return res
+							.status(200)
+							.json({ message: "Post deleted" });
 					})
 					.catch((error) => res.status(400).json({ error }));
 			}

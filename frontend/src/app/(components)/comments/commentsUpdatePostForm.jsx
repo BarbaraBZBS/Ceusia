@@ -66,18 +66,21 @@ export default function CommentsUpdatePostForm({
 		!filewatch?.[0]?.name &&
 		lnk == postDetail.link;
 
+	//set focus on first form input when page loads
 	useEffect(() => {
 		if (errors?.content) {
 			setFocus("content");
 		}
 	});
 
+	//post update function
 	const refreshPost = async () => {
 		const resp = await axiosAuth.get(`/posts/${postDetail.id}`);
 		setPostDetail(resp.data);
 		return resp.data;
 	};
 
+	//back button function
 	const cancelbackBtn = () => {
 		setCancelUpdBtnEffect(true);
 		setTimeout(() => {
@@ -88,12 +91,14 @@ export default function CommentsUpdatePostForm({
 		}, 500);
 	};
 
+	//reset form button function
 	const resetBtn = async () => {
 		setResetUpdEffect(true);
 		const data = await refreshPost();
 		reset({ ...data });
 	};
 
+	//submit form function
 	const submitUpdateForm = async (data, e) => {
 		e.preventDefault();
 		setErrMsg("");
@@ -157,6 +162,7 @@ export default function CommentsUpdatePostForm({
 		}, 500);
 	};
 
+	//delete file from post function
 	const handleFileDelete = () => {
 		setFileDeleteEffect(true);
 		const data = { fileUrl: "" };
@@ -172,7 +178,7 @@ export default function CommentsUpdatePostForm({
 						data: data,
 					}).then(async (response) => {
 						if (response) {
-							console.log("file removed", response);
+							//console.log("file removed", response);
 							setPostDetail({ ...postDetail, fileUrl: null });
 						}
 					});
@@ -190,6 +196,7 @@ export default function CommentsUpdatePostForm({
 		}, 600);
 	};
 
+	//rename file for display function
 	useEffect(() => {
 		const handleFile = () => {
 			if (postDetail?.fileUrl) {
@@ -205,6 +212,7 @@ export default function CommentsUpdatePostForm({
 		handleFile();
 	}, [postDetail.fileUrl, filewatch]);
 
+	//reset form after submit if ok function
 	useEffect(() => {
 		const resetForm = () => {
 			if (isSubmitSuccessful && isSent) {
@@ -218,28 +226,33 @@ export default function CommentsUpdatePostForm({
 		resetForm();
 	}, [isSubmitSuccessful, isSent, axiosAuth, setPostDetail, postDetail.id]);
 
+	//hide or show emoji picker for title function
 	const handleTEmojiPickerHideShow = () => {
 		setShowTEmojiPicker(!showTEmojiPicker);
 		setShowCEmojiPicker(false);
 	};
 
+	//hide or show emoji picker for content function
 	const handleCEmojiPickerHideShow = () => {
 		setShowCEmojiPicker(!showCEmojiPicker);
 		setShowTEmojiPicker(false);
 	};
 
+	//manage clicking emoji for title function
 	const handleTEmojiClick = (emoji) => {
 		let message = getValues("title");
 		message += emoji.emoji;
 		setValue("title", message);
 	};
 
+	//manage clicking emoji for content function
 	const handleCEmojiClick = (emoji) => {
 		let message = getValues("content");
 		message += emoji.emoji;
 		setValue("content", message);
 	};
 
+	//manage how emoji picker for title is opened function
 	const handleShowEmojiT = () => {
 		setEmojiTBtnClickEffect(true);
 		setTimeout(() => {
@@ -247,6 +260,7 @@ export default function CommentsUpdatePostForm({
 		}, 400);
 	};
 
+	//manage how emoji picker for content is opened function
 	const handleShowEmojiC = () => {
 		setEmojiCBtnClickEffect(true);
 		setTimeout(() => {

@@ -64,6 +64,7 @@ export default function ModifyPost({ post }) {
 		lnk == post.link;
 	const isBrowser = () => typeof window !== "undefined";
 
+	//submit form function
 	const submitUpdateForm = async (data, e) => {
 		e.preventDefault();
 		setErrMsg("");
@@ -83,7 +84,7 @@ export default function ModifyPost({ post }) {
 			form.append("title", getValues("title"));
 			form.append("content", getValues("content"));
 			form.append("link", getValues("link"));
-			console.log("file upload? : ", form);
+			//console.log("file upload? : ", form);
 			data = form;
 			headers = {
 				"Content-Type": "multipart/form-data",
@@ -139,6 +140,7 @@ export default function ModifyPost({ post }) {
 		}, 600);
 	};
 
+	//rename file for display
 	useEffect(() => {
 		const handleFile = () => {
 			if (updatedPost?.fileUrl) {
@@ -154,16 +156,19 @@ export default function ModifyPost({ post }) {
 		handleFile();
 	}, [updatedPost.fileUrl, filewatch]);
 
+	//reset form button function
 	const resetBtn = () => {
 		reset();
 		setResetUpdEffect(true);
 	};
 
+	//back button function
 	const backBtn = () => {
 		setBackBtnEffect(true);
 		router.refresh();
 	};
 
+	//delete file from post function
 	const handleFileDelete = () => {
 		setFileDeleteEffect(true);
 		const data = { fileUrl: "" };
@@ -179,7 +184,7 @@ export default function ModifyPost({ post }) {
 						data: data,
 					}).then(async (response) => {
 						if (response) {
-							console.log("file removed", response);
+							//console.log("file removed", response);
 							setUpdatedPost({ ...updatedPost, fileUrl: null });
 						}
 					});
@@ -197,28 +202,33 @@ export default function ModifyPost({ post }) {
 		}, 500);
 	};
 
+	//show or hide emoji picker for title function
 	const handleTEmojiPickerHideShow = () => {
 		setShowTEmojiPicker(!showTEmojiPicker);
 		setShowCEmojiPicker(false);
 	};
 
+	//show or hide emoji picker for content function
 	const handleCEmojiPickerHideShow = () => {
 		setShowCEmojiPicker(!showCEmojiPicker);
 		setShowTEmojiPicker(false);
 	};
 
+	//manage clicking emoji for title function
 	const handleTEmojiClick = (emoji) => {
 		let message = getValues("title");
 		message += emoji.emoji;
 		setValue("title", message);
 	};
 
+	//manage clicking emoji for content function
 	const handleCEmojiClick = (emoji) => {
 		let message = getValues("content");
 		message += emoji.emoji;
 		setValue("content", message);
 	};
 
+	//manage how emoji picker for title is opened
 	const handleShowEmojiT = () => {
 		setEmojiTBtnClickEffect(true);
 		setTimeout(() => {
@@ -226,6 +236,7 @@ export default function ModifyPost({ post }) {
 		}, 400);
 	};
 
+	//manage how emoji picker for content is opened
 	const handleShowEmojiC = () => {
 		setEmojiCBtnClickEffect(true);
 		setTimeout(() => {

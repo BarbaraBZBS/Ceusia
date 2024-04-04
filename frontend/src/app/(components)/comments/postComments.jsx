@@ -54,17 +54,20 @@ export default function PostComments({ post, comments }) {
 	const [postFocus, setPostFocus] = useState(true);
 	const isBrowser = () => typeof window !== "undefined";
 
+	//post update function
 	const refreshPost = async () => {
 		const resp = await axiosAuth.get(`/posts/${post.id}`);
 		setPostDetail(resp.data);
 		return resp.data;
 	};
 
+	//parse db timestamp to readable date
 	const dateParser2 = (num) => {
 		const timeAgo = moment(num).fromNow();
 		return timeAgo;
 	};
 
+	//handle scroll to id when navigating
 	useEffect(() => {
 		if (!isBrowser()) return;
 		const foundHash = window.location.hash;
@@ -83,7 +86,7 @@ export default function PostComments({ post, comments }) {
 		}, 500);
 	}, []);
 
-	// handle overlays function
+	//handle overlays functions
 	function showOverlay() {
 		const scrollY =
 			document.documentElement.style.getPropertyValue("--scroll-y");
@@ -99,7 +102,8 @@ export default function PostComments({ post, comments }) {
 		if (!isBrowser()) return;
 		window.scrollTo(0, parseInt(scrollY || "0") * -1);
 	}
-	// post user picture zoom
+
+	//post user picture zoom functions
 	function showUsrPicZoomOverlay() {
 		setUserPicZoom(true);
 		showOverlay();
@@ -108,7 +112,8 @@ export default function PostComments({ post, comments }) {
 		hideOverlay();
 		setUserPicZoom(false);
 	}
-	// post image zoom
+
+	//post image zoom functions
 	function showPostImgZoomOverlay() {
 		setPostImgZoom(true);
 		showOverlay();
@@ -117,7 +122,8 @@ export default function PostComments({ post, comments }) {
 		hideOverlay();
 		setPostImgZoom(false);
 	}
-	// comments user pic zoom
+
+	//comments user pic zoom functions
 	function showUsrPicComZoomOverlay() {
 		setUserComPicZoom(true);
 		showOverlay();
@@ -126,7 +132,8 @@ export default function PostComments({ post, comments }) {
 		hideOverlay();
 		setUserComPicZoom(false);
 	}
-	// update post form overlay
+
+	//update post form overlays
 	function showFormOverlay() {
 		setShowForm(true);
 		showOverlay();
@@ -144,6 +151,7 @@ export default function PostComments({ post, comments }) {
 		setCommentImgZoom(false);
 	}
 
+	//update comment function
 	const modifBtn = () => {
 		setModifyBtnEffect(true);
 		setTimeout(() => {
@@ -154,6 +162,7 @@ export default function PostComments({ post, comments }) {
 		}, 1300);
 	};
 
+	//delete post function
 	const handleDelete = (postid) => {
 		setDeleteBtnEffect(true);
 		setErrMsg("");
@@ -179,6 +188,7 @@ export default function PostComments({ post, comments }) {
 		}, 700);
 	};
 
+	//show add new comment card function
 	const addComment = () => {
 		setCommentEffect(true);
 		setTimeout(() => {
@@ -187,6 +197,7 @@ export default function PostComments({ post, comments }) {
 		}, 500);
 	};
 
+	//show update comment card function
 	const commentUpdBtn = () => {
 		setUpdCommentBtnEffect(true);
 		setTimeout(() => {
@@ -195,6 +206,7 @@ export default function PostComments({ post, comments }) {
 		}, 500);
 	};
 
+	//delete comment function
 	const handleDeleteComment = (commId) => {
 		setErrMsg("");
 		setDelCommentBtnEffect(true);
@@ -222,6 +234,7 @@ export default function PostComments({ post, comments }) {
 		}, 600);
 	};
 
+	//back button function
 	const backToLast = () => {
 		setBackBtnEffect(true);
 		setTimeout(() => {
@@ -229,6 +242,7 @@ export default function PostComments({ post, comments }) {
 		}, 500);
 	};
 
+	//remember scroll position for overlays function
 	if (!isBrowser()) return;
 	window.addEventListener("scroll", () => {
 		document.documentElement.style.setProperty(

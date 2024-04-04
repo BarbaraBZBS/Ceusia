@@ -6,6 +6,7 @@ export default function AppLoad() {
 	const loadRef = useRef();
 	const [loader, setLoader] = useState(true);
 
+	//hide loader after some time
 	useEffect(() => {
 		setTimeout(() => {
 			//loadRef.current.style.display = "none";

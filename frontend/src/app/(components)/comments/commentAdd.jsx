@@ -54,18 +54,21 @@ export default function CommentAdd({
 	const { socket } = useContext(ChatContext);
 	const isDisabled = !msg;
 
+	//post update function
 	const refreshPost = async () => {
 		const resp = await axiosAuth.get(`/posts/${post.id}`);
 		setPost(resp.data);
 		return resp.data;
 	};
 
+	//set focus on first form input when page loads
 	useEffect(() => {
 		if (!msg) {
 			setFocus("message");
 		}
 	}, [msg, setFocus]);
 
+	//submit form function
 	const submitAddComment = async (data, e) => {
 		e.preventDefault();
 		setErrMsg("");
@@ -142,12 +145,14 @@ export default function CommentAdd({
 		}, 500);
 	};
 
+	//reset form button function
 	const resetCommentBtn = async () => {
 		setResetCommentBtnEffect(true);
 		setErrMsg("");
 		reset();
 	};
 
+	//back button function
 	const commentbackBtn = () => {
 		setBackCommentBtnEffect(true);
 		setErrMsg("");
@@ -157,6 +162,7 @@ export default function CommentAdd({
 		}, 500);
 	};
 
+	//reset form after submit if ok
 	useEffect(() => {
 		if (isSubmitSuccessful && isSent) {
 			setErrMsg("");
@@ -164,16 +170,19 @@ export default function CommentAdd({
 		}
 	}, [isSubmitSuccessful, isSent, reset]);
 
+	//show or hide emoji picker function
 	const handleEmojiPickerHideShow = () => {
 		setShowEmojiPicker(!showEmojiPicker);
 	};
 
+	//manage clicking emoji function
 	const handleEmojiClick = (emoji) => {
 		let message = getValues("message");
 		message += emoji.emoji;
 		setValue("message", message);
 	};
 
+	//manage how emoji picker is opened function
 	const handleShowEmoji = () => {
 		setEmojiBtnClickEffect(true);
 		setTimeout(() => {

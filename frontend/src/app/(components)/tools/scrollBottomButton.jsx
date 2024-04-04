@@ -5,14 +5,14 @@ import { faAngleDown } from "@fortawesome/free-solid-svg-icons";
 import { motion, useScroll, useAnimationControls } from "framer-motion";
 import { usePathname } from "next/navigation";
 
-const ScrollToTopContainerVariants = {
+const ScrollToBottomContainerVariants = {
 	hide: { opacity: 0, y: 70 },
 	show: { opacity: 1, y: 0 },
 };
 
 export default function ScrollBottomButton() {
 	const path = usePathname();
-	const [backTopEffect, setBackTopEffect] = useState(false);
+	const [backBottomEffect, setBackBottomEffect] = useState(false);
 	const isBrowser = () => typeof window !== "undefined";
 	const { scrollYProgress } = useScroll();
 	const controls = useAnimationControls();
@@ -27,6 +27,7 @@ export default function ScrollBottomButton() {
 		path !== "/auth/signOut" &&
 		path !== "/chat";
 
+	//media queries with instant update on device width change function and eventlistener
 	useEffect(() => {
 		const mediaWatch = window.matchMedia("(max-width: 410px)");
 		setIsTallContent(mediaWatch.matches);
@@ -41,6 +42,7 @@ export default function ScrollBottomButton() {
 		};
 	}, []);
 
+	//handle scroll bottom button eventlistener
 	useEffect(() => {
 		let scrollBtn = document.getElementById("scroll-bottom");
 		if (scrollBtn) {
@@ -55,7 +57,8 @@ export default function ScrollBottomButton() {
 		}
 	});
 
-	function scrollToTop() {
+	//handle scroll bottom button function
+	function scrollToBottom() {
 		setIsBtnActivated(true);
 		if (!isBrowser()) return;
 		document
@@ -63,16 +66,18 @@ export default function ScrollBottomButton() {
 			.scrollIntoView({ block: "start", behavior: "smooth" });
 	}
 
+	//handle click and key press behavior
 	useEffect(() => {
 		if (isBtnActivated) {
 			setTimeout(() => {
 				document
-					.getElementById(isPressed ? "scroll-top" : "footer-link")
+					.getElementById(isPressed ? "scroll-bottom" : "footer-link")
 					.focus({ focusVisible: isPressed ? true : false });
 			}, 600);
 		}
 	}, [isPressed, isBtnActivated]);
 
+	//button animation
 	useEffect(() => {
 		return scrollYProgress.on("change", (latestValue) => {
 			if (latestValue > 0.05 && latestValue < 0.8) {
@@ -87,20 +92,20 @@ export default function ScrollBottomButton() {
 		<motion.button
 			title="scroll bottom"
 			id="scroll-bottom"
-			variants={ScrollToTopContainerVariants}
+			variants={ScrollToBottomContainerVariants}
 			initial={"hide"}
 			animate={controls}
 			whileFocus={"show"}
 			onClick={() => {
-				setBackTopEffect(true);
-				scrollToTop();
+				setBackBottomEffect(true);
+				scrollToBottom();
 			}}
 			onAnimationEnd={() => {
-				setBackTopEffect(false);
+				setBackBottomEffect(false);
 				setIsBtnActivated(false);
 			}}
 			className={`bottom-[2rem] left-[2.2rem] mob90:left-[1.4rem] max-[322px]:left-[1.6rem] z-[99] border-none bg-apppink dark:bg-appturq text-appblck rounded-lg w-[3.2rem] h-[3.2rem] mob88:w-[2.4rem] mob88:h-[2.4rem] hover:opacity-60 shadow-strip ${
-				backTopEffect && "animate-pressDown"
+				backBottomEffect && "animate-pressDown"
 			} ${enableToBottom ? "fixed" : "hidden"} ${
 				isAboutPage && (isTallContent ? "fixed" : "hidden")
 			}`}>

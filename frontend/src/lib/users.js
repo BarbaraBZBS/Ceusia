@@ -1,13 +1,12 @@
 import apiCall from "../app/(utils)/axiosConfig";
 import { getServerSession } from "next-auth";
 import { authOptions } from "../../pages/api/auth/[...nextauth]";
-//import { options } from "../app/api/auth/[...nextauth]/options";
+
 export async function getUser() {
 	const session = await getServerSession(authOptions);
 	const res = await apiCall.get(`/auth/user/${session.user.user_id}`);
 	if (!res?.status) {
 		console.log("error axios");
-		// throw new Error( 'Failed to fetch data' );
 	}
 	const data = res.data;
 	// console.log( 'res data: ', data );

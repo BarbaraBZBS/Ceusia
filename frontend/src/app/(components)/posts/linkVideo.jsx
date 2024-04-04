@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 export default function LinkVideo({ postLink, postid, postFocus }) {
 	const [video, setVideo] = useState();
 
+	//rename video for play
 	useEffect(() => {
 		const handleVideo = () => {
 			// console.log( 'post link : ', postLink )
@@ -24,7 +25,6 @@ export default function LinkVideo({ postLink, postid, postFocus }) {
 
 	return (
 		<>
-			{/* <iframe width="560" height="315" src="https://www.youtube.com/embed/mkqqwLuq30w?si=qzmipKdPCYUERrq-" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe> */}
 			{video ? (
 				<iframe
 					className="border-0 rounded-[1rem] mx-auto mt-[2.2rem] mb-[2.4rem] shadow-card"
@@ -35,7 +35,6 @@ export default function LinkVideo({ postLink, postid, postFocus }) {
 					allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
 					allowFullScreen></iframe>
 			) : (
-				// allowfullscreen></iframe>
 				<nav className="my-[0.4rem] mx-[0.8rem] flex justify-center text-clamp1">
 					<a
 						className="block px-[0.5rem] text-[blue]"

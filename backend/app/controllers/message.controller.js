@@ -1,6 +1,15 @@
 import Message from "../models/message.model.js";
 import User from "../models/user.model.js";
 
+/**
+ * Create a message from a sender to a user
+ * @date 3/31/2024 - 7:05:58 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const createMessage = async (req, res, next) => {
 	const { user_id, sender_id, body } = req.body;
 	try {
@@ -14,8 +23,8 @@ const createMessage = async (req, res, next) => {
 					body: body,
 					logged_user: sender_id,
 				}).then((msg) => {
-					console.log("success: msg sent");
-					res.status(201).json(msg);
+					//console.log("success: msg sent");
+					return res.status(201).json(msg);
 				});
 			}
 		});
@@ -26,6 +35,14 @@ const createMessage = async (req, res, next) => {
 	}
 };
 
+/**
+ * Read all messages between 2 users
+ * @date 3/31/2024 - 7:05:58 PM
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const getAllMessages = (req, res, next) => {
 	const { user_id, sender_id } = req.body;
 	try {
@@ -53,7 +70,7 @@ const getAllMessages = (req, res, next) => {
 								createdAt: message.createdAt,
 							};
 						});
-						res.status(200).json(alteredMessages);
+						return res.status(200).json(alteredMessages);
 					}
 				});
 			}
@@ -63,27 +80,23 @@ const getAllMessages = (req, res, next) => {
 	}
 };
 
-//const updateMsgOnRead = () => {
-//	Message.findByPK(req.params.id).then(async (message) => {
-//		if (!message) {
-//			return res.status(404).json({ message: "msg not found" });
-//		} else {
-//			await message
-//				.update({
-//					marked_as_read: true,
-//				})
-//				.then(() => {
-//					console.log("marked as read");
-//					res.status(200).json(message, {
-//						message: "user message(s) successfully marked as read",
-//					});
-//				});
-//		}
-//	});
-//};
-//
+/** Update a message to read */
+//(managed with socket.io)
+//const updateMsgOnRead = () => {};
+
+/** Update all messages to read */
+//(managed with socket.io)
 //const updateAllMsgsAsRead = () => {};
 
+/**
+ * Delete all messages between 2 users
+ * @date 3/31/2024 - 8:32:33 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const deleteAllMessages = async (req, res, next) => {
 	const { user_id, sender_id } = req.body;
 	const loggedUsr = req.auth.user_id;
@@ -104,7 +117,7 @@ const deleteAllMessages = async (req, res, next) => {
 			})
 				.then((deleted) => {
 					if (deleted > 0) {
-						res.status(200).json({
+						return res.status(200).json({
 							message: "Chat deleted!",
 						});
 					}

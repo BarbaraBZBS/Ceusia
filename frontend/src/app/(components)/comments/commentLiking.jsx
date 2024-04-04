@@ -29,6 +29,7 @@ export default function CommentLiking({ post, comment, errorMsg, session }) {
 	const [dislikeEffect, setDislikeEffect] = useState(false);
 	const { socket } = useContext(ChatContext);
 
+	//like comment function
 	const like = async () => {
 		errorMsg("");
 		try {
@@ -36,7 +37,7 @@ export default function CommentLiking({ post, comment, errorMsg, session }) {
 				`/posts/comment/${comment.id}/like`
 			);
 			const likeStat = resp.data.message;
-			if (likeStat === "comment liked !") {
+			if (likeStat === "comment liked") {
 				setLiked(true);
 				setDisliked(false);
 				socket.current.emit("like-comment", {
@@ -46,7 +47,7 @@ export default function CommentLiking({ post, comment, errorMsg, session }) {
 					user_id: comment.user_id,
 				});
 			}
-			if (likeStat === "comment unliked !") {
+			if (likeStat === "comment unliked") {
 				setLiked(false);
 				setDisliked(false);
 			}
@@ -71,6 +72,8 @@ export default function CommentLiking({ post, comment, errorMsg, session }) {
 			}
 		}
 	};
+
+	//dislike comment function
 	const dislike = async () => {
 		errorMsg("");
 		try {
@@ -78,7 +81,7 @@ export default function CommentLiking({ post, comment, errorMsg, session }) {
 				`/posts/comment/${comment.id}/dislike`
 			);
 			const dislikeStat = resp.data.message;
-			if (dislikeStat === "comment disliked !") {
+			if (dislikeStat === "comment disliked") {
 				setDisliked(true);
 				setLiked(false);
 				socket.current.emit("dislike-comment", {
@@ -88,7 +91,7 @@ export default function CommentLiking({ post, comment, errorMsg, session }) {
 					user_id: comment.user_id,
 				});
 			}
-			if (dislikeStat === "comment dislike removed !") {
+			if (dislikeStat === "comment undisliked") {
 				setDisliked(false);
 				setLiked(false);
 			}
@@ -114,6 +117,7 @@ export default function CommentLiking({ post, comment, errorMsg, session }) {
 		}
 	};
 
+	//like button function
 	const likeBtn = () => {
 		setLikeEffect(true);
 		setTimeout(() => {
@@ -121,6 +125,7 @@ export default function CommentLiking({ post, comment, errorMsg, session }) {
 		}, 400);
 	};
 
+	//dislike button function
 	const dislikeBtn = () => {
 		setDislikeEffect(true);
 		setTimeout(() => {
@@ -128,6 +133,7 @@ export default function CommentLiking({ post, comment, errorMsg, session }) {
 		}, 400);
 	};
 
+	//manage liked and disliked app display
 	useEffect(() => {
 		async function checkLiked() {
 			const data = { comment_id: comment.id };
@@ -207,7 +213,6 @@ export default function CommentLiking({ post, comment, errorMsg, session }) {
 					}>
 					<FontAwesomeIcon
 						icon={disliked ? thumbdownfull : thumbdownempty}
-						//icon={heartcrackfull}
 						className={
 							disliked
 								? "text-appred hover:text-appgreenlight"

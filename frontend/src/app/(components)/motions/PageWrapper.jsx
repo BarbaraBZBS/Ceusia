@@ -1,3 +1,6 @@
+//example framer-motion workaround
+//not used in project
+
 //working workaround for exit animation on page transitions
 //with framer-motion next-js with app directory
 //wrap motion pages with this component

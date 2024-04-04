@@ -98,6 +98,7 @@ export default function LoggedUser({ user }) {
 	const isBtnImgDisabled = filewatch === null || !filewatch?.[0]?.name;
 	const isBtnPicDisabled = user.picture === "/profile/defaultUser.png";
 
+	//set focus on inputs if error
 	useEffect(() => {
 		if (errors?.username) {
 			setFocus("username");
@@ -108,6 +109,7 @@ export default function LoggedUser({ user }) {
 		}
 	});
 
+	//show user posts function
 	const showPosts = () => {
 		setPostsErrMsg("");
 		animate([
@@ -138,6 +140,7 @@ export default function LoggedUser({ user }) {
 		}, 900);
 	};
 
+	//close user posts function
 	const handleClose = () => {
 		setCloseUserPostsEffect(true);
 		setTimeout(() => {
@@ -148,6 +151,7 @@ export default function LoggedUser({ user }) {
 		}, 400);
 	};
 
+	//handle navigate to post link function
 	const goToPost = () => {
 		setGoToPostEffect(true);
 		setTimeout(() => {
@@ -158,6 +162,7 @@ export default function LoggedUser({ user }) {
 		}, 500);
 	};
 
+	//submit form
 	const submitUpdate = async (data) => {
 		setPasswordUpdated(false);
 		setPictureUpdated(false);
@@ -226,13 +231,14 @@ export default function LoggedUser({ user }) {
 		}
 	};
 
+	//submit form for profile picture function
 	const submitPicUpdate = async (data) => {
 		if (data.picture <= 0) {
 			return;
 		}
 		const form = new FormData();
 		form.append("picture", data.picture[0]);
-		console.log("file upload? : ", form);
+		//console.log("file upload? : ", form);
 		const headers = {
 			"Content-Type": "multipart/form-data",
 		};
@@ -284,6 +290,7 @@ export default function LoggedUser({ user }) {
 		}
 	};
 
+	//handle delete user account function
 	const handleDelete = async () => {
 		setPasswordUpdated(false);
 		setPictureUpdated(false);
@@ -306,7 +313,7 @@ export default function LoggedUser({ user }) {
 						method: "delete",
 						url: `/auth/user/${user.id}`,
 					}).then(() => {
-						console.log("account removed !");
+						//console.log("account removed !");
 						signOut({ callbackUrl: "/" });
 					});
 					logout();
@@ -327,6 +334,7 @@ export default function LoggedUser({ user }) {
 		}
 	};
 
+	//reset form after submit if ok
 	useEffect(() => {
 		if (isSubmitSuccessful && isSent) {
 			setErrMsg("");
@@ -335,6 +343,7 @@ export default function LoggedUser({ user }) {
 		}
 	}, [isSubmitSuccessful, isSent, reset]);
 
+	//show and hide user picture zoom functions
 	function showUsrPicZoomOverlay() {
 		setBgZoomed(true);
 		const scrollY =
@@ -353,6 +362,7 @@ export default function LoggedUser({ user }) {
 		setBgZoomed(false);
 	}
 
+	//reset user profile picture to default
 	const restoreDefault = () => {
 		setDefaultPicEffect(true);
 		setPasswordUpdated(false);
@@ -367,8 +377,8 @@ export default function LoggedUser({ user }) {
 					data: data,
 				}).then(async (response) => {
 					if (response) {
-						console.log("response data: ", response.data);
-						console.log("updated and restored default pic");
+						//console.log("response data: ", response.data);
+						//console.log("updated and restored default pic");
 						const resp = await axiosAuth.get(
 							`/auth/user/${user.id}`
 						);
@@ -388,16 +398,19 @@ export default function LoggedUser({ user }) {
 		}, 700);
 	};
 
+	//hide or show emoji picker function
 	const handleEmojiPickerHideShow = () => {
 		setShowEmojiPicker(!showEmojiPicker);
 	};
 
+	//manage clicking emoji function
 	const handleEmojiClick = (emoji) => {
 		let message = getValues("motto");
 		message += emoji.emoji;
 		setValue("motto", message);
 	};
 
+	//manage how emoji picker is opened
 	const handleShowEmoji = () => {
 		setEmojiBtnClickEffect(true);
 		setTimeout(() => {
@@ -405,6 +418,7 @@ export default function LoggedUser({ user }) {
 		}, 400);
 	};
 
+	//remember scroll position when picture zooming
 	if (!isBrowser()) return;
 	window.addEventListener("scroll", () => {
 		document.documentElement.style.setProperty(
@@ -835,9 +849,7 @@ export default function LoggedUser({ user }) {
 										type="password"
 										autoComplete="off"
 										placeholder="  Current Password"
-										{...register("currpsw", {
-											// required: 'This field is required'
-										})}
+										{...register("currpsw", {})}
 										className={`border-2 border-appstone rounded-md h-[3.2rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc my-[0.4rem] focus:border-apppink focus:outline-none focus:invalid:border-appred w-[60%] ${
 											errors.currpsw
 												? "border-appred focus:border-appred"

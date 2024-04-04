@@ -8,6 +8,7 @@ export default function ThemeButton() {
 	const { resolvedTheme, setTheme } = useTheme();
 	const [mounted, setMounted] = useState(false);
 
+	//make sure page is loaded
 	useEffect(() => {
 		setMounted(true);
 	}, []);

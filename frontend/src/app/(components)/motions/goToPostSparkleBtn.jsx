@@ -19,6 +19,7 @@ export default function GoToPostSparkleBtn({
 	const [isBlueBg, setIsBlueBg] = useState(false);
 	const [scope, animate] = useAnimate();
 
+	//link to post animation function
 	const goToPost = () => {
 		setIsBlueBg(true);
 		const sparkles = Array.from({ length: 20 });

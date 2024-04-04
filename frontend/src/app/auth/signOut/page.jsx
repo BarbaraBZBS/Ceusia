@@ -9,6 +9,7 @@ export default function SignOut() {
 	const [isLoading, setIsLoading] = useState(false);
 	const [logoutEffect, setLogoutEffect] = useState(false);
 
+	//handle log out function
 	const logUserOut = () => {
 		setLogoutEffect(true);
 		setTimeout(() => {

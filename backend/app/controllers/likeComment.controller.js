@@ -1,31 +1,42 @@
-// import Post from '../models/post.model.js';
 import Comment from "../models/comment.model.js";
 import User from "../models/user.model.js";
-import Likecomment from "../models/likecomment.model.js";
-import Dislikecomment from "../models/dislikecomment.model.js";
+import LikeComment from "../models/likeComment.model.js";
+import DislikeComment from "../models/dislikeComment.model.js";
 import { db } from "../models/db.js";
 
-//like post
+/**
+ * Create or delete a comment like
+ * @date 3/31/2024 - 6:12:11 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ */
 const likeComment = async (req, res) => {
 	const userId = req.auth.user_id;
 	const commentId = req.params.cid;
+	//console.log(commentId);
+	//console.log(userId);
 
 	if (commentId <= 0) {
 		return res.status(400).json({ message: "invalid parameters" });
 	}
 	Comment.findOne({ where: { id: commentId } }).then((comment) => {
-		console.log("post found: ", comment);
+		//console.log("post found: ", comment);
+		if (!comment)
+			return res.status(404).json({ message: "post not found" });
 	});
 
 	User.findOne({ where: { id: userId } }).then((user) => {
-		console.log("user found: ", user.username);
+		//console.log("user found: ", user.username);
+		if (!user) return res.status(404).json({ message: "user not found" });
 	});
 
-	Likecomment.findOne({
+	LikeComment.findOne({
 		where: { comment_id: commentId, user_id: userId },
 	}).then(async (alreadyLiked) => {
 		if (alreadyLiked) {
-			await Likecomment.destroy({
+			await LikeComment.destroy({
 				where: { comment_id: commentId, user_id: userId },
 			})
 				.then(() => {
@@ -34,8 +45,8 @@ const likeComment = async (req, res) => {
 							await comment.update({
 								likes: db.literal("likes - 1"),
 							});
-							res.status(200).json({
-								message: "comment unliked !",
+							return res.status(200).json({
+								message: "comment unliked",
 							});
 						})
 						.catch((error) => res.status(400).json(error));
@@ -45,11 +56,11 @@ const likeComment = async (req, res) => {
 					res.status(404).json({ error });
 				});
 		} else {
-			Dislikecomment.findOne({
+			DislikeComment.findOne({
 				where: { comment_id: commentId, user_id: userId },
 			}).then(async (disliked) => {
 				if (disliked) {
-					await Dislikecomment.destroy({
+					await DislikeComment.destroy({
 						where: { comment_id: commentId, user_id: userId },
 					}).then(() => {
 						Comment.findOne({ where: { id: commentId } })
@@ -57,14 +68,14 @@ const likeComment = async (req, res) => {
 								await comment.update({
 									dislikes: db.literal("dislikes - 1"),
 								});
-								console.log("comment dislike removed");
+								//console.log("comment undisliked");
 							})
 							.catch((err) => {
 								res.status(400).json({ err });
 							});
 					});
 				}
-				await Likecomment.create({
+				await LikeComment.create({
 					comment_id: commentId,
 					user_id: userId,
 				})
@@ -74,8 +85,8 @@ const likeComment = async (req, res) => {
 								await comment.update({
 									likes: db.literal("likes + 1"),
 								});
-								res.status(201).json({
-									message: "comment liked !",
+								return res.status(201).json({
+									message: "comment liked",
 								});
 							})
 							.catch((error) => res.status(400).json({ error }));
@@ -86,31 +97,41 @@ const likeComment = async (req, res) => {
 			});
 		}
 	});
-	console.log(commentId);
-	console.log(userId);
 };
 
-//dislike post
+/**
+ * Create or delete a comment dislike
+ * @date 3/31/2024 - 6:12:11 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ */
 const dislikeComment = async (req, res) => {
 	const userId = req.auth.user_id;
 	const commentId = req.params.cid;
+	//console.log(commentId);
+	//console.log(userId);
 
 	if (commentId <= 0) {
 		return res.status(400).json({ message: "invalid parameters" });
 	}
 	Comment.findOne({ where: { id: commentId } }).then((comment) => {
-		console.log("comment found: ", comment);
+		//console.log("comment found: ", comment);
+		if (!comment)
+			return res.status(404).json({ message: "comment not found" });
 	});
 
 	User.findOne({ where: { id: userId } }).then((user) => {
-		console.log("user found: ", user.username);
+		//console.log("user found: ", user.username);
+		if (!user) return res.status(404).json({ message: "user not found" });
 	});
 
-	Dislikecomment.findOne({
+	DislikeComment.findOne({
 		where: { comment_id: commentId, user_id: userId },
 	}).then(async (alreadyDisliked) => {
 		if (alreadyDisliked) {
-			await Dislikecomment.destroy({
+			await DislikeComment.destroy({
 				where: { comment_id: commentId, user_id: userId },
 			})
 				.then(() => {
@@ -119,8 +140,8 @@ const dislikeComment = async (req, res) => {
 							await comment.update({
 								dislikes: db.literal("dislikes - 1"),
 							});
-							res.status(200).json({
-								message: "comment dislike removed !",
+							return res.status(200).json({
+								message: "comment undisliked",
 							});
 						})
 						.catch((error) => res.status(400).json(error));
@@ -130,11 +151,11 @@ const dislikeComment = async (req, res) => {
 					res.status(404).json({ error });
 				});
 		} else {
-			Likecomment.findOne({
+			LikeComment.findOne({
 				where: { comment_id: commentId, user_id: userId },
 			}).then(async (liked) => {
 				if (liked) {
-					await Likecomment.destroy({
+					await LikeComment.destroy({
 						where: { comment_id: commentId, user_id: userId },
 					}).then(() => {
 						Comment.findOne({ where: { id: commentId } })
@@ -142,14 +163,14 @@ const dislikeComment = async (req, res) => {
 								await comment.update({
 									likes: db.literal("likes - 1"),
 								});
-								console.log("comment unliked");
+								//console.log("comment unliked");
 							})
 							.catch((err) => {
 								res.status(400).json({ err });
 							});
 					});
 				}
-				await Dislikecomment.create({
+				await DislikeComment.create({
 					comment_id: commentId,
 					user_id: userId,
 				})
@@ -159,8 +180,8 @@ const dislikeComment = async (req, res) => {
 								await comment.update({
 									dislikes: db.literal("dislikes + 1"),
 								});
-								res.status(201).json({
-									message: "comment disliked !",
+								return res.status(201).json({
+									message: "comment disliked",
 								});
 							})
 							.catch((error) => res.status(400).json({ error }));
@@ -171,31 +192,38 @@ const dislikeComment = async (req, res) => {
 			});
 		}
 	});
-	console.log(commentId);
-	console.log(userId);
 };
 
-//like dislike display
+/**
+ * Read comment liked and disliked status
+ * @date 3/31/2024 - 6:12:11 PM
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const commentLikedDisliked = (req, res, next) => {
 	const comment_id = req.body.comment_id;
 	const user_id = req.auth.user_id;
-	Likecomment.findOne({ where: { comment_id: comment_id, user_id: user_id } })
+	LikeComment.findOne({ where: { comment_id: comment_id, user_id: user_id } })
 		.then((liked) => {
 			if (liked) {
-				res.status(200).json({ message: "liked: ", liked });
+				return res
+					.status(200)
+					.json({ message: "comment liked: ", liked });
 			} else {
-				console.log("not liked");
-				Dislikecomment.findOne({
+				DislikeComment.findOne({
 					where: { comment_id: comment_id, user_id: user_id },
 				}).then((disliked) => {
 					if (disliked) {
-						res.status(200).json({
-							message: "disliked: ",
+						return res.status(200).json({
+							message: "comment disliked: ",
 							disliked,
 						});
 					} else {
-						console.log("not disliked");
-						res.status(200).json({ message: "none found" });
+						return res.status(200).json({
+							message: "comment neither liked nor disliked",
+						});
 					}
 				});
 			}

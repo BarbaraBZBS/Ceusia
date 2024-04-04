@@ -14,6 +14,7 @@ export const PageWrap = ({ children }) => {
 	const path = usePathname();
 	const [isClient, setIsClient] = useState(false);
 
+	//make sure page is loaded
 	useEffect(() => {
 		setIsClient(true);
 	}, []);

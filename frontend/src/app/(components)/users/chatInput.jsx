@@ -12,6 +12,7 @@ export default function ChatInput({ handleSendMsg }) {
 	const isDisabled = !msg;
 	const isBrowser = () => typeof window !== "undefined";
 
+	//handle automatic input resize
 	if (!isBrowser()) return;
 	document.querySelectorAll("textarea").forEach((element) => {
 		element.style.height = `${element.scrollHeight}px`;
@@ -21,16 +22,19 @@ export default function ChatInput({ handleSendMsg }) {
 		});
 	});
 
+	//show or hide emoji picker function
 	const handleEmojiPickerHideShow = () => {
 		setShowEmojiPicker(!showEmojiPicker);
 	};
 
+	//manage clicking emoji function
 	const handleEmojiClick = (emoji) => {
 		let message = msg;
 		message += emoji.emoji;
 		setMsg(message);
 	};
 
+	//submit sending message
 	const sendChat = (event) => {
 		event.preventDefault();
 		setBtnClickEffect(true);
@@ -42,12 +46,14 @@ export default function ChatInput({ handleSendMsg }) {
 		}
 	};
 
+	//manage how emoji picker is opened
 	const handleShowEmoji = () => {
 		setEmojiBtnClickEffect(true);
 		setTimeout(() => {
 			handleEmojiPickerHideShow();
 		}, 400);
 	};
+
 	return (
 		<div className="grid grid-cols-[8%_92%] items-center pl-[1.4rem] pb-[0.3rem] text-clamp1 gap-[0.8rem] shadow-toplinelight">
 			<div className="flex items-center gap-[1rem]">

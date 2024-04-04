@@ -51,6 +51,7 @@ export default function CommentUpdate({
 	const imgupdwatch = watch("image");
 	const isDisabled = msg == comment.message && !imgupdwatch?.[0]?.name;
 
+	//submit form function
 	const handleUpdateComment = (data, e) => {
 		e.preventDefault();
 		setErrMsg("");
@@ -107,6 +108,7 @@ export default function CommentUpdate({
 		}, 500);
 	};
 
+	//rename file for display function
 	useEffect(() => {
 		const handleFile = () => {
 			if (comment?.image) {
@@ -116,6 +118,7 @@ export default function CommentUpdate({
 		handleFile();
 	}, [comment.image, imgupdwatch]);
 
+	//delete file from comment function
 	const handleFileDelete = () => {
 		setFileDeleteEffect(true);
 		const data = { image: "" };
@@ -131,7 +134,7 @@ export default function CommentUpdate({
 						data: data,
 					}).then(async (response) => {
 						if (response) {
-							console.log("image removed", response);
+							//console.log("image removed", response);
 							const res = await axiosAuth.get(
 								`/posts/${post.id}/comments`
 							);
@@ -155,16 +158,19 @@ export default function CommentUpdate({
 		}, 600);
 	};
 
+	//show or hide emoji picker function
 	const handleEmojiPickerHideShow = () => {
 		setShowEmojiPicker(!showEmojiPicker);
 	};
 
+	//manage clicking emoji function
 	const handleEmojiClick = (emoji) => {
 		let message = getValues("message");
 		message += emoji.emoji;
 		setValue("message", message);
 	};
 
+	//manage how emoji picker is opened function
 	const handleShowEmoji = () => {
 		setEmojiBtnClickEffect(true);
 		setTimeout(() => {

@@ -40,6 +40,7 @@ export default function Contacts({
 	const isPortrait = useMediaQuery({ query: "(orientation: portrait)" });
 	const isRetina = useMediaQuery({ query: "(min-resolution: 2dppx)" });
 
+	//set logged user function
 	useEffect(() => {
 		const getLogged = async () => {
 			if (session) {
@@ -53,11 +54,13 @@ export default function Contacts({
 		getLogged();
 	}, [axiosAuth, session]);
 
+	//handle image link address
 	useEffect(() => {
 		logged &&
 			setLoggedImgPath(process.env.NEXT_PUBLIC_API + logged.picture);
 	}, [logged]);
 
+	//set user contacts function
 	useEffect(() => {
 		let followers = [];
 		let userContacts = [];
@@ -95,16 +98,19 @@ export default function Contacts({
 		//setIsLoading(false);
 	}, [axiosAuth, session, setContacts]);
 
+	//hide spinner when all is loaded
 	useEffect(() => {
 		contacts && logged && setIsLoading(false);
 	}, [contacts, logged]);
 
+	//set current chat function
 	const changeCurrentChat = (contact, index) => {
 		setSelectedUser(index);
 		changeChat(contact);
-		console.log("contact : ", contact);
+		//console.log("contact : ", contact);
 	};
 
+	//handle link navigation for notifications
 	useEffect(() => {
 		if (cbu) {
 			changeChat(isDesiredChat);
@@ -114,6 +120,7 @@ export default function Contacts({
 		}
 	}, [cbu, isDesiredChat, changeChat, router]);
 
+	//sort notifications for display
 	useEffect(() => {
 		const unreadNotifications = () => {
 			if (notifications) {

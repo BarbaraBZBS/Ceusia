@@ -49,6 +49,7 @@ export default function Search() {
 	const src = watch("search");
 	const isDisabled = !src;
 
+	//show search card function
 	const handleSearch = () => {
 		setShowSearchBtnEffect(true);
 		setShowResult(false);
@@ -57,6 +58,7 @@ export default function Search() {
 		}, 400);
 	};
 
+	//handle showing search result
 	useEffect(() => {
 		if (showSearchInput) {
 			setTimeout(() => {
@@ -66,6 +68,7 @@ export default function Search() {
 		}
 	}, [showSearchInput, setFocus]);
 
+	//close search card function
 	const handleClose = () => {
 		setCloseSearchEffect(true);
 		setTimeout(() => {
@@ -77,6 +80,7 @@ export default function Search() {
 		}, 400);
 	};
 
+	//submit form
 	const submitSearch = async () => {
 		setIsLoading(true);
 		setErrMsg("");
@@ -153,6 +157,7 @@ export default function Search() {
 		}
 	};
 
+	//navigate to user profile function
 	const usrProfileLnk = () => {
 		setUsrLinkEffect(true);
 		setTimeout(() => {
@@ -164,6 +169,7 @@ export default function Search() {
 		}, 500);
 	};
 
+	//hide spinner if result
 	useEffect(() => {
 		if (showResult) {
 			setTimeout(() => {
@@ -172,6 +178,7 @@ export default function Search() {
 		}
 	}, [showResult, pstsResults, usrsResults]);
 
+	//hide results if no input
 	useEffect(() => {
 		if (!src) {
 			setShowResult(false);

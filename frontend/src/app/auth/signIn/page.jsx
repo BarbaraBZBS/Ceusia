@@ -39,6 +39,7 @@ export default function LogInPage() {
 	const psw = watch("password");
 	const isDisabled = !eml || !psw;
 
+	//set focus on first input when page is loaded
 	useEffect(() => {
 		setTimeout(() => {
 			if (!eml) {
@@ -47,10 +48,12 @@ export default function LogInPage() {
 		}, 100);
 	}, [setFocus, eml]);
 
+	//handle logging in loader display
 	useEffect(() => {
 		load && setLogState("Logging in");
 	}, [load]);
 
+	//set focus if error
 	useEffect(() => {
 		if (errors?.email) {
 			setFocus("email");
@@ -59,6 +62,7 @@ export default function LogInPage() {
 		}
 	});
 
+	//submit form
 	const submitForm = async () => {
 		setTimeout(async () => {
 			setLoad(true);
@@ -71,6 +75,7 @@ export default function LogInPage() {
 		}, 700);
 	};
 
+	//handle nextauth signin error page display
 	const signErrors = {
 		CredentialsSignin:
 			"Sign in failed. Check the details you provided are correct.",
@@ -92,6 +97,7 @@ export default function LogInPage() {
 		);
 	};
 
+	//handle callback navigate if error
 	useEffect(() => {
 		if (error) {
 			const newcbu = cbu?.split("/")[2] ?? "/thread";

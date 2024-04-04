@@ -14,7 +14,6 @@ import {
 const USER_REGEX = /(^[a-zA-Z]{2,})+([A-Za-z0-9-_])/;
 
 export default function CeusianDetailsModifier(props) {
-	// export default function CeusianDetailsModifier( { user, current, setuser, seterr } ) {
 	const axiosAuth = useAxiosAuth();
 	const isBrowser = () => typeof window !== "undefined";
 	const {
@@ -48,6 +47,7 @@ export default function CeusianDetailsModifier(props) {
 	const isResetDisabled =
 		props.user.picture === "http://localhost:8000/profile/defaultUser.png";
 
+	//submit form function
 	const submitUpdate = async (data) => {
 		setPictureUpdated(false);
 		setIsSent(false);
@@ -87,13 +87,15 @@ export default function CeusianDetailsModifier(props) {
 		}
 	};
 
+	//not used for admin
+	//submit form for picture only
 	const submitPicUpdate = async (data) => {
 		if (data.picture <= 0) {
 			return;
 		}
 		const form = new FormData();
 		form.append("picture", data.picture[0]);
-		console.log("file upload? : ", form);
+		//console.log("file upload? : ", form);
 		const headers = {
 			"Content-Type": "multipart/form-data",
 		};
@@ -140,6 +142,7 @@ export default function CeusianDetailsModifier(props) {
 		}
 	};
 
+	//reset picture to default function
 	const restoreDefault = () => {
 		setDefaultPicEffect(true);
 		setPictureUpdated(false);
@@ -153,8 +156,8 @@ export default function CeusianDetailsModifier(props) {
 					data: data,
 				}).then(async (response) => {
 					if (response) {
-						console.log("response data: ", response.data);
-						console.log("updated and restored default pic");
+						//console.log("response data: ", response.data);
+						//console.log("updated and restored default pic");
 						const resp = await axiosAuth.get(
 							`/auth/user/${props.user.id}`
 						);
@@ -178,6 +181,7 @@ export default function CeusianDetailsModifier(props) {
 		}, 700);
 	};
 
+	//reset form after submit if ok
 	useEffect(() => {
 		if (isSubmitSuccessful && isSent) {
 			props.seterr("");

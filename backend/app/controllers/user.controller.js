@@ -2,33 +2,39 @@ import User from "../models/user.model.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
+// user details regex literal notations
 const USER_REGEX = /(^[a-zA-Z-_]{3,3})+([A-Za-z0-9]){1,12}$/;
 const EMAIL_REGEX =
 	/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 const PASSWORD_REGEX = /(?!^[0-9]*$)(?!^[a-zA-Z]*$)^([a-zA-Z0-9]{6,35})$/;
 
+/**
+ * Create a user
+ * @date 3/31/2024 - 9:17:50 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const signup = async (req, res, next) => {
 	if (req.body.email == null || req.body.password == null) {
 		return res.status(400).json({ message: "empty field(s)" });
 	}
 	if (!USER_REGEX.test(req.body.username)) {
-		return res
-			.status(400)
-			.json({
-				message:
-					"username must be 4 to 15 characters, starting with letters.",
-			});
+		return res.status(400).json({
+			message:
+				"username must be 4 to 15 characters, starting with letters.",
+		});
 	}
 	if (!EMAIL_REGEX.test(req.body.email)) {
 		return res.status(400).json({ message: "invalid email" });
 	}
 	if (!PASSWORD_REGEX.test(req.body.password)) {
-		return res
-			.status(400)
-			.json({
-				message:
-					"password must be 6 to 35 characters and contain at least 1 number and 1 letter.",
-			});
+		return res.status(400).json({
+			message:
+				"password must be 6 to 35 characters and contain at least 1 number and 1 letter.",
+		});
 	}
 
 	const usernameExists = await User.findOne({
@@ -59,7 +65,7 @@ const signup = async (req, res, next) => {
 							role: req.body.role,
 						});
 					}
-					res.status(200).json(user);
+					return res.status(200).json(user);
 				})
 				.catch((error) => {
 					res.status(400).send({ message: error.message });
@@ -68,10 +74,17 @@ const signup = async (req, res, next) => {
 		.catch((error) => res.status(500).json({ error }));
 };
 
+/**
+ * Allow user to enter application
+ * @date 3/31/2024 - 9:17:49 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const login = async (req, res, next) => {
 	const maxAge = 3 * 24 * 60 * 60 * 1000;
-	console.log(req.body.email);
-	console.log(req.body.password);
 	try {
 		const user = await User.findOne({ where: { email: req.body.email } });
 		console.log(req.body.email);
@@ -103,8 +116,6 @@ const login = async (req, res, next) => {
 					process.env.REFRESH_SECRET_TOKEN,
 					{ expiresIn: maxAge }
 				);
-				console.log("role :", user.role);
-				const sentCookie = req.cookies;
 				//cookie secure is changed for production
 				return res
 					.cookie("jwt", token, {
@@ -114,19 +125,16 @@ const login = async (req, res, next) => {
 					})
 					.status(200)
 					.json({
-						// sentCookie,
-						// user,
 						user_id: user.id,
 						username: user.username,
 						role: user.role,
 						token,
 						refreshToken,
 					});
-				// res.send( req.cookies )
 			})
 			.catch((error) => {
-				// console.log( 'error where?', res.cookie )
-				console.log("error where?", error);
+				// console.log( 'cookies error', res.cookie )
+				console.log("error", error);
 				res.status(500).json({ error });
 			});
 	} catch (error) {
@@ -135,22 +143,22 @@ const login = async (req, res, next) => {
 	}
 };
 
+/**
+ * Leave application
+ * @date 3/31/2024 - 9:17:49 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const logout = async (req, res, next) => {
-	// On client, also delete the accessToken
-	// console.log( ' 1 req cookies: ', req.cookies )
 	const cookie = req.cookies;
-	// const refresh = req.body.refreshToken
-	// if ( refresh ) {
-	//     await refresh.remove()
-	// }
-	// console.log( 'jwt cookies from req.cookies.jwt: ', cookie )
-	if (!cookie.jwt) return res.sendStatus(204); //No content
+	if (!cookie.jwt) return res.sendStatus(204);
 	const token = cookie.jwt;
 	const decodedToken = jwt.verify(token, process.env.SECRET_TOKEN);
 	const user_id = decodedToken.user_id;
-	// console.log( 'user id: ', user_id )
 	const user = await User.findOne({ where: { id: user_id } });
-	// console.log( 'user', user )
 	if (!user) {
 		res.clearCookie("jwt", {
 			httpOnly: true,
@@ -159,8 +167,6 @@ const logout = async (req, res, next) => {
 		});
 		return res.sendStatus(204);
 	}
-	// user.update( { token: '' } )
-	// console.log( token );
 	res.clearCookie("jwt", {
 		httpOnly: true,
 		sameSite: "None",
@@ -168,17 +174,23 @@ const logout = async (req, res, next) => {
 	}).sendStatus(204);
 };
 
+/**
+ * Give user a new token
+ * @date 3/31/2024 - 9:17:49 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const refreshUserToken = async (req, res, next) => {
 	try {
 		const refresh = req.body.refreshToken;
-		// const token = req.headers.authorization.split( ' ' )[ 1 ];
 		const decodedRefToken = jwt.verify(
 			refresh,
 			process.env.REFRESH_SECRET_TOKEN
 		);
-		// const decodedToken = jwt.verify( token, process.env.SECRET_TOKEN );
 		const user_id = decodedRefToken.user_id;
-		// const user_id = decodedToken.user_id;
 		const user = await User.findOne({ where: { id: user_id } });
 		if (user_id === user.id) {
 			const token = jwt.sign(
@@ -197,75 +209,83 @@ const refreshUserToken = async (req, res, next) => {
 				.status(200)
 				.json({ token });
 		} else {
-			res.sendStatus(401);
+			return res.sendStatus(401);
 		}
 	} catch (err) {
 		console.log("error refreshing", err);
 		res.status(500).json({ message: "Could not refresh token" });
 	}
 };
-// const removeRefresh = async (req, res, next) => {
-//     const refresh = req.body.refreshToken
-//     if(refresh) {
-//         delete(refresh)
-//     }
-//         res.sendStatus(204)
-// }
 
-// Retrieve all Users from the database (with condition).
+/**
+ * Read all users' details
+ * @date 3/31/2024 - 9:17:49 PM
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const getAllUsers = (req, res, next) => {
 	User.findAll({
 		attributes: { exclude: ["password", "role"] },
-	}) //not an issue on front?
+	})
 		.then((users) => {
-			if (users) {
-				res.status(200).json(users);
+			if (!users) {
+				return res.status(404).json({ message: "No users found" });
 			} else {
-				res.status(404).json({ message: "No users found" });
+				return res.status(200).json(users);
 			}
 		})
 		.catch((error) => res.status(400).json({ error }));
 };
 
-// Find a single User with an id
+/**
+ * Read a single user details
+ * @date 3/31/2024 - 9:17:49 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const findOneUser = async (req, res, next) => {
 	await User.findByPk(req.params.id, {
 		attributes: { exclude: ["password", "role"] },
 	})
 		.then((user) => {
-			if (user) {
-				res.status(200).json(user);
+			if (!user) {
+				return res.status(404).json({ message: "User not found" });
 			} else {
-				res.status(404).json({ message: "User not found" });
+				return res.status(200).json(user);
 			}
 		})
 		.catch((error) => res.status(400).json({ error }));
 };
 
-// Update a User identified by the id in the request
+/**
+ * Update a user' detail(s)
+ * @date 3/31/2024 - 9:17:49 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ */
 const updateUser = async (req, res) => {
-	// if ( req.body.email == null || req.body.password == null ) {
-	//     return res.status( 400 ).json( { message: 'empty field(s)' } )
-	// }
 	await User.findByPk(req.params.id)
 		.then(async (user) => {
-			// console.log( user )
 			if (!user) {
 				return res.status(404).json({ message: "User not found" });
 			} else {
+				// console.log( user )
 				if (req.auth.role != "admin" && user.id != req.auth.user_id) {
-					// if ( user.id != req.auth.user_id ) {
 					return res.status(401).json({ message: "Unauthorized" });
-					// }
 				}
 				if (req.body.password) {
 					if (!PASSWORD_REGEX.test(req.body.password)) {
-						return res
-							.status(409)
-							.json({
-								message:
-									"password must be 6 to 35 characters and contain at least 1 number and 1 letter.",
-							});
+						return res.status(409).json({
+							message:
+								"password must be 6 to 35 characters and contain at least 1 number and 1 letter.",
+						});
 					}
 					await bcrypt
 						.compare(req.body.currpsw, user.password)
@@ -299,15 +319,13 @@ const updateUser = async (req, res) => {
 						req.body.username.length <= 4 ||
 						req.body.username.length >= 16
 					) {
-						return res
-							.status(409)
-							.json({
-								message: "username must be 4 to 15 characters.",
-							});
+						return res.status(409).json({
+							message: "username must be 4 to 15 characters.",
+						});
 					} else {
 						user.update({ username: req.body.username })
 							.then(() => {
-								console.log(req.body.username);
+								//console.log(req.body.username);
 								res.status(200).json({
 									message: "Success: username modified.",
 								});
@@ -325,7 +343,7 @@ const updateUser = async (req, res) => {
 					} else {
 						user.update({ email: req.body.email })
 							.then(() => {
-								console.log(req.body.email);
+								//console.log(req.body.email);
 								res.status(200).json({
 									message: "Success: user email modified.",
 								});
@@ -339,7 +357,7 @@ const updateUser = async (req, res) => {
 					if (req.body.motto === " ") {
 						user.update({ motto: null })
 							.then(() => {
-								console.log(req.body.motto);
+								//console.log(req.body.motto);
 								res.status(200).json({
 									message: "Success: user motto modified.",
 								});
@@ -351,7 +369,7 @@ const updateUser = async (req, res) => {
 					} else {
 						user.update({ motto: req.body.motto })
 							.then(() => {
-								console.log(req.body.motto);
+								//console.log(req.body.motto);
 								res.status(200).json({
 									message: "Success: user motto modified.",
 								});
@@ -367,7 +385,15 @@ const updateUser = async (req, res) => {
 		.catch((error) => res.status(500).json({ error }));
 };
 
-// Delete a Post with the specified id in the request
+/**
+ * Delete a post
+ * @date 3/31/2024 - 9:17:49 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const deleteUser = async (req, res, next) => {
 	await User.findByPk(req.params.id)
 		.then((user) => {

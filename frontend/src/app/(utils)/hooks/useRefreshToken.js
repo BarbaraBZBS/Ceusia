@@ -9,10 +9,12 @@ export const useRefreshToken = () => {
 	const [secToken, setSecToken] = useState();
 	const [hasMounted, setHasMounted] = useState(false);
 
+	//make sure page is loaded
 	useEffect(() => {
 		setHasMounted(true);
 	}, []);
 
+	//handle token
 	useEffect(() => {
 		const secRefresh = getStored();
 		setSecToken(secRefresh);

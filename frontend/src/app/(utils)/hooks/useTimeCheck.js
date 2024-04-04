@@ -10,6 +10,7 @@ const useTimeCheck = () => {
 
 	const hasTimePassed = currTimestamp - timestamp > timeLimit;
 
+	//handle clock display
 	useEffect(() => {
 		hasTimePassed
 			? storage.setItem("timestamp", currTimestamp.tostring())

@@ -10,9 +10,18 @@ import path from "path";
 import * as url from "url";
 const __dirname = url.fileURLToPath(new URL("..", import.meta.url));
 
+/**
+ * Create a post comment
+ * @date 3/31/2024 - 5:50:13 PM
+ *
+ * @async
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const createComment = async (req, res, next) => {
-	console.log("request body : ", req.body);
-	console.log("request file : ", req.file);
+	//console.log("request body : ", req.body);
+	//console.log("request file : ", req.file);
 	const date = JSON.stringify(Date.now());
 	const newD = date.split(date[6]).pop();
 	try {
@@ -39,12 +48,9 @@ const createComment = async (req, res, next) => {
 							`${req.auth.user_id}` +
 							`${newD}` +
 							req.file.detectedFileExtension;
-						console.log("filen: ", fileName);
+						//console.log("filen: ", fileName);
 						const filePath = `/image/${fileName}`;
-						//const filePath = `${req.protocol}://${req.get(
-						//	"host"
-						//)}/image/${fileName}`;
-						console.log("image: ", filePath);
+						//console.log("image: ", filePath);
 						await pipeline(
 							req.file.stream,
 							fs.createWriteStream(
@@ -67,7 +73,9 @@ const createComment = async (req, res, next) => {
 						await post.update({
 							discussions: db.literal("discussions + 1"),
 						});
-						res.status(201).json({ message: "comment added" });
+						return res
+							.status(201)
+							.json({ message: "comment added" });
 					})
 					.catch((err) => res.status(400).json({ err }));
 			}
@@ -88,7 +96,7 @@ const createComment = async (req, res, next) => {
 					await post.update({
 						discussions: db.literal("discussions + 1"),
 					});
-					res.status(201).json({ message: "comment added" });
+					return res.status(201).json({ message: "comment added" });
 				})
 				.catch((err) => res.status(400).json({ err }));
 		}
@@ -98,6 +106,14 @@ const createComment = async (req, res, next) => {
 	}
 };
 
+/**
+ * Read all comments for a post
+ * @date 3/31/2024 - 5:50:54 PM
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const getAllPostComments = (req, res, next) => {
 	Post.findByPk(req.params.id).then(async (post) => {
 		if (!post) {
@@ -119,15 +135,24 @@ const getAllPostComments = (req, res, next) => {
 		})
 			.then((comments) => {
 				if (comments) {
-					res.status(200).json(comments);
+					return res.status(200).json(comments);
 				} else {
-					res.status(404).json({ message: "No comments found" });
+					return res
+						.status(404)
+						.json({ message: "No comments found" });
 				}
 			})
 			.catch((err) => res.status(500).json({ err }));
 	});
 };
 
+/**
+ * Read one post comment
+ * @date 3/31/2024 - 5:51:32 PM
+ *
+ * @param {*} req
+ * @param {*} res
+ */
 const findOnePostComment = (req, res) => {
 	Post.findByPk(req.params.id).then((post) => {
 		if (!post) {
@@ -148,15 +173,23 @@ const findOnePostComment = (req, res) => {
 		})
 			.then((comment) => {
 				if (comment) {
-					res.status(200).json(comment);
+					return res.status(200).json(comment);
 				} else {
-					res.status(404).send();
+					return res.status(404).send();
 				}
 			})
 			.catch((err) => res.status(500).json({ err }));
 	});
 };
 
+/**
+ * Update one post comment
+ * @date 3/31/2024 - 5:52:35 PM
+ *
+ * @param {*} req
+ * @param {*} res
+ * @param {*} next
+ */
 const updateComment = (req, res, next) => {
 	const date = JSON.stringify(Date.now());
 	const newD = date.split(date[6]).pop();
@@ -208,16 +241,13 @@ const updateComment = (req, res, next) => {
 							if (comment.image) {
 								const oldImg =
 									comment.image.split("/image/")[1];
-								console.log("old image file: ", oldImg);
+								//console.log("old image file: ", oldImg);
 								fs.unlink(
 									`app/public/files/comment/${oldImg}`,
 									() => {}
 								);
 							}
 							const filePath = `/image/${fileName}`;
-							//const filePath = `${req.protocol}://${req.get(
-							//	"host"
-							//)}/image/${fileName}`;
 							await pipeline(
 								req.file.stream,
 								fs.createWriteStream(
@@ -240,11 +270,7 @@ const updateComment = (req, res, next) => {
 										editedByAdmin: 1,
 									})
 									.then(() => {
-										console.log(
-											"success, post updated by admin: ",
-											comment
-										);
-										res.status(200).json({
+										return res.status(200).json({
 											message: "comment updated by admin",
 										});
 									})
@@ -260,11 +286,7 @@ const updateComment = (req, res, next) => {
 										editedByAdmin: 0,
 									})
 									.then(() => {
-										console.log(
-											"success, post updated: ",
-											comment
-										);
-										res.status(200).json({
+										return res.status(200).json({
 											message: "comment updated",
 										});
 									})
@@ -276,7 +298,7 @@ const updateComment = (req, res, next) => {
 					} else {
 						if (req.body.image == "") {
 							const oldImg = comment.image.split("/image/")[1];
-							console.log("old image: ", oldImg);
+							//console.log("old image: ", oldImg);
 							fs.unlink(
 								`app/public/files/comment/${oldImg}`,
 								() => {}
@@ -303,11 +325,7 @@ const updateComment = (req, res, next) => {
 									editedByAdmin: 1,
 								})
 								.then(() => {
-									console.log(
-										"success, post updated by admin: ",
-										comment
-									);
-									res.status(200).json({
+									return res.status(200).json({
 										message: "comment updated by admin",
 									});
 								})
@@ -320,11 +338,7 @@ const updateComment = (req, res, next) => {
 									editedByAdmin: 0,
 								})
 								.then(() => {
-									console.log(
-										"success, post updated: ",
-										comment
-									);
-									res.status(200).json({
+									return res.status(200).json({
 										message: "comment updated",
 									});
 								})
@@ -340,6 +354,13 @@ const updateComment = (req, res, next) => {
 	}
 };
 
+/**
+ * Delete one post comment
+ * @date 3/31/2024 - 5:53:10 PM
+ *
+ * @param {*} req
+ * @param {*} res
+ */
 const deleteComment = (req, res) => {
 	Post.findByPk(req.params.id).then((post) => {
 		if (!post) {
@@ -364,7 +385,9 @@ const deleteComment = (req, res) => {
 						await post.update({
 							discussions: db.literal("discussions - 1"),
 						});
-						res.status(200).json({ message: "Comment deleted !" });
+						return res
+							.status(200)
+							.json({ message: "Comment deleted" });
 					})
 					.catch((error) => res.status(400).json({ error }));
 			})

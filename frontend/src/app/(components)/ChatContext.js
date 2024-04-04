@@ -22,18 +22,20 @@ export const ChatContextProvider = ({ children }) => {
 	const [isDesiredChat, setIsDesiredChat] = useState(undefined);
 	const [newN, setNewN] = useState(false);
 
-	console.log("online users : ", onlineUsers);
-	console.log("notifications ??? : ", notifications);
+	//console.log("online users : ", onlineUsers);
+	//console.log("notifications ??? : ", notifications);
 
+	//handle socket connection
 	useEffect(() => {
 		socket.current = io("http://localhost:8000");
 	}, [socket]);
 
+	//handle online users for socket
 	useEffect(() => {
 		if (socket.current && session?.user) {
 			socket.current.emit("add-new-user", session?.user?.user_id);
 			socket.current.on("getOnlineUsers", (res) => {
-				console.log("online users res : ", res);
+				//console.log("online users res : ", res);
 				setOnlineUsers(res);
 			});
 			return () => {
@@ -42,14 +44,16 @@ export const ChatContextProvider = ({ children }) => {
 		}
 	}, [socket, session]);
 
+	//handle change current chat
 	const handleChatChange = (chat) => {
 		setCurrentChat(chat);
 	};
 
+	//handle socket notifications
 	useEffect(() => {
 		if (socket.current) {
 			socket.current.on("getNotification", (res) => {
-				console.log("notifications ?? : ", { res });
+				//console.log("notifications ?? : ", { res });
 				if (res.sender_id === session?.user?.user_id) return;
 				if (!res?.post_id) {
 					const isChatOpen = currentChat?.id === res.sender_id;
@@ -73,7 +77,7 @@ export const ChatContextProvider = ({ children }) => {
 		}
 	}, [socket, currentChat, session]);
 
-	//mark all notifications on click
+	//mark all notifications on click function
 	const markAllAsRead = useCallback((notifications) => {
 		const markedNotifications = notifications.map((n) => {
 			return { ...n, isRead: true };
@@ -81,6 +85,7 @@ export const ChatContextProvider = ({ children }) => {
 		setNotifications(markedNotifications);
 	}, []);
 
+	//mark chat notification as read
 	const markAsRead = useCallback((notification, notifications, contacts) => {
 		let index = 0;
 		const desiredChat = contacts.find((chat) => {
@@ -104,6 +109,7 @@ export const ChatContextProvider = ({ children }) => {
 		setNotifications(markedNotifications);
 	}, []);
 
+	//mark notification as read for other than chat notifications
 	const markPostNotifAsRead = useCallback((notification, notifications) => {
 		const markedNotifications = notifications.map((ele) => {
 			if (notification.sender_id === ele.sender_id) {
@@ -115,7 +121,7 @@ export const ChatContextProvider = ({ children }) => {
 		setNotifications(markedNotifications);
 	}, []);
 
-	//for contacts when opening chat
+	//mark notification as read for contacts when opening chat
 	const markUserAllAsRead = useCallback(
 		(userNotifications, notifications) => {
 			const mNotifications = notifications.map((ele) => {

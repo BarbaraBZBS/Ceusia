@@ -3,7 +3,8 @@
 //wrap children into layout.jsx with this component
 //combined with template.jsx
 //and replace all links with 'a's (or buttons)
-////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////
+
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
@@ -14,6 +15,7 @@ export default function RootLayoutClient({ children }) {
 	const router = useRouter();
 	const [isLoading, setIsLoading] = useState(false);
 
+	//handle navigation buttons function
 	useEffect(() => {
 		const onClick = (e) => {
 			const target = e.target;
@@ -50,6 +52,7 @@ export default function RootLayoutClient({ children }) {
 		return () => window.removeEventListener("click", onClick);
 	}, [router, pathName]);
 
+	//scroll top when loader is gone
 	useEffect(() => {
 		window.scrollTo(0, 0);
 		setIsLoading(false);

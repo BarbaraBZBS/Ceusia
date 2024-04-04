@@ -27,6 +27,7 @@ export default function ScrollTopButton() {
 		path !== "/auth/signOut" &&
 		path !== "/chat";
 
+	//media queries with instant update on device width change function and eventlistener
 	useEffect(() => {
 		const mediaWatch = window.matchMedia("(max-width: 410px)");
 		setIsTallContent(mediaWatch.matches);
@@ -41,6 +42,7 @@ export default function ScrollTopButton() {
 		};
 	}, []);
 
+	//handle scroll top button eventlistener
 	useEffect(() => {
 		const scrollBtn = document.getElementById("scroll-top");
 		if (scrollBtn) {
@@ -48,13 +50,14 @@ export default function ScrollTopButton() {
 				if (e.key === "Enter") {
 					setIsPressed(true);
 				}
-				scrollBtn.addEventListener("click", (ev) => {
-					setIsPressed(false);
-				});
+			});
+			scrollBtn.addEventListener("click", (ev) => {
+				setIsPressed(false);
 			});
 		}
 	});
 
+	//handle scroll top button function
 	function scrollToTop() {
 		setIsBtnActivated(true);
 		if (!isBrowser()) return;
@@ -63,6 +66,7 @@ export default function ScrollTopButton() {
 			.scrollIntoView({ block: "start", behavior: "smooth" });
 	}
 
+	//handle click and key press behavior
 	useEffect(() => {
 		if (isBtnActivated) {
 			setTimeout(() => {
@@ -73,6 +77,7 @@ export default function ScrollTopButton() {
 		}
 	}, [isPressed, isBtnActivated]);
 
+	//button animation
 	useEffect(() => {
 		return scrollYProgress.on("change", (latestValue) => {
 			if (latestValue > 0.3) {

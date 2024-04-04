@@ -18,14 +18,15 @@ export default function Chat() {
 		setSelectedUser,
 	} = useContext(ChatContext);
 
+	//remove current chat selection display
 	useEffect(() => {
 		if (!currentChat) {
 			setSelectedUser(undefined);
 		}
 	}, [socket, currentChat, setSelectedUser]);
 
-	console.log("socket provider : ", socket);
-	console.log("chat, session : ", currentChat, session?.user?.user_id);
+	//console.log("socket provider : ", socket);
+	//console.log("chat, session : ", currentChat, session?.user?.user_id);
 	return (
 		<PageWrap>
 			<div className="flex flex-col w-screen h-[85vh] sm:h-[87vh] lg:h-[100vh] justify-center items-center mb-[2.4rem]">

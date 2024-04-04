@@ -34,6 +34,7 @@ export default function ShareLink({ post, comment }) {
 	const [shareEffect, setShareEffect] = useState(false);
 	//console.log("path : ", path);
 
+	//show share card function
 	const handleShare = () => {
 		setShareEffect(true);
 		setTimeout(() => {
@@ -45,6 +46,7 @@ export default function ShareLink({ post, comment }) {
 		}, 1300);
 	};
 
+	//hide share card function
 	const handleClose = () => {
 		setCloseShareEffect(true);
 		setTimeout(() => {

@@ -32,19 +32,22 @@ export default function AppNav() {
 	const [unreadAll, setUnreadAll] = useState([]);
 	const [unreadChat, setUnreadChat] = useState([]);
 	const [unreadPostsComments, setUnreadPostsComments] = useState([]);
-	console.log("nav session: ", { session });
+	//console.log("nav session: ", { session });
 
+	//remove selected contact on navigate from notifications if page is not /chat
 	useEffect(() => {
 		if (currentRoute !== "/chat") {
 			setCurrentChat(undefined);
 		}
 	});
 
+	//cancel logout button function
 	const goBackLink = () => {
 		setCancelLogoutEffect(true);
 		router.back();
 	};
 
+	//handle session expiration function
 	useEffect(() => {
 		let linkR;
 		if (
@@ -83,6 +86,7 @@ export default function AppNav() {
 		}
 	}, [session, currentRoute, status, cbu]);
 
+	//sort notifications for display
 	useEffect(() => {
 		const unreadNotifications = () => {
 			if (notifications) {
@@ -107,6 +111,7 @@ export default function AppNav() {
 	//console.log("unread chat msgs : ", unreadChat);
 	//console.log("unread posts and comments msgs : ", unreadPostsComments);
 
+	//handle notification pop up animation
 	useEffect(() => {
 		if (newN) {
 			setTimeout(() => {
@@ -151,7 +156,6 @@ export default function AppNav() {
 							height={0}
 							priority={true}
 							placeholder="empty"
-							//style={{ width: "17.6rem", height: "6.6rem" }}
 						/>
 					</a>
 				</nav>
@@ -227,8 +231,6 @@ export default function AppNav() {
 										{unreadChat?.length === 0 ? null : (
 											<>
 												<span
-													//role="alert"
-													//aria-live="assertive"
 													aria-label={`${unreadChat?.length} chat notifications`}
 													className="sr-only"></span>
 												<span aria-hidden>
