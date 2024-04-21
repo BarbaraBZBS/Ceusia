@@ -479,7 +479,7 @@ export default function LoggedUser({ user }) {
 											width={0}
 											height={0}
 											priority={true}
-											src={`${process.env.NEXT_PUBLIC_API}/profile/${userDetail.picture}`}
+											src={`${process.env.NEXT_PUBLIC_API}${userDetail.picture}`}
 											placeholder="empty"
 											alt={`zoomed ${userDetail.username} picture`}
 											className="block m-auto w-[96%] aspect-square object-cover rounded-full border-2 animate-resizeZoom"
@@ -578,7 +578,7 @@ export default function LoggedUser({ user }) {
 											</div>
 											<h1
 												id="posts-ttl"
-												className="uppercase text-clamp5 text-center font-semibold">
+												className="uppercase text-clamp5 xt-center font-semibold">
 												My Posts
 											</h1>
 											<AnimatePresence>
@@ -1048,7 +1048,7 @@ export default function LoggedUser({ user }) {
 
 						<div className="flex flex-col items-center">
 							<form
-								className=" py-[0.4rem] flex flex-col items-center text-clamp6 w-full"
+								className="py-[0.4rem] flex flex-col items-center text-clamp6 w-full"
 								onSubmit={handleSubmit(submitPicUpdate)}>
 								<div className="flex w-[60%] items-center justify-evenly">
 									<button

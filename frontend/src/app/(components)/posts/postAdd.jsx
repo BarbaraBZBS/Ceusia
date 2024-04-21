@@ -249,7 +249,7 @@ export default function PostAdd({ setPosts, display }) {
 						className={`z-[700] fixed top-0 left-0 bg-[rgb(255,255,255,0.01)] w-screen h-full ${
 							blur && "animate-pop"
 						}`}>
-						<div className="z-[5] bg-gray-200 dark:bg-applightdark absolute top-[8rem] mob88:top-[5.6rem] smallLandscape:top-[0.2rem] right-[calc(50vw-(90vw/2))] w-[90vw] lg:right-[calc(50vw-(70vw/2))] lg:w-[70vw] rounded-xl shadow-neatcard">
+						<div className="z-[5] bg-gray-200 dark:bg-applightdark absolute top-[8rem] mob88:top-[5.6rem] [@media((min-width:700px)_and_(max-width:800px)_and_(max-height:600px))]:top-[0.2rem] right-[calc(50vw-(90vw/2))] w-[90vw] lg:right-[calc(50vw-(70vw/2))] lg:w-[70vw] rounded-xl shadow-neatcard">
 							<FocusOn
 								onClickOutside={() => handleClose()}
 								onEscapeKey={() => handleClose()}>
@@ -339,7 +339,7 @@ export default function PostAdd({ setPosts, display }) {
 														required:
 															"This field is required",
 													})}
-													className={`border-2 border-appstone rounded-md my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-[70%] min-w-[11rem] h-[5.6rem] min-h-[2.6rem] resize max-w-[80%] max-h-[13.9rem] mob88:max-h-[11.6rem] smallLandscape:max-h-[10.5rem] lg:max-w-[90%] ${
+													className={`border-2 border-appstone rounded-md my-[0.4rem] shadow-neatcard hover:shadow-inputboxtext focus:shadow-inputboxtextfoc text-center focus:border-apppink focus:outline-none focus:invalid:border-appred w-[70%] min-w-[11rem] h-[5.6rem] min-h-[2.6rem] resize max-w-[80%] max-h-[13.9rem] mob88:max-h-[11.6rem] [@media((min-width:700px)_and_(max-width:800px)_and_(max-height:600px))]:max-h-[10.5rem] lg:max-w-[90%] ${
 														errors.content
 															? "border-appred focus:border-appred"
 															: ""

@@ -236,18 +236,18 @@ export default function Search() {
 								<div
 									role="dialog"
 									aria-labelledby="srch-ttl"
-									className="bg-appopstone dark:bg-applightdark absolute top-[7.6rem] left-[calc(50vw-(95vw/2))] p-3 w-[95%] min-h-[18rem] rounded-xl shadow-neatcard">
+									className="bg-appopstone dark:bg-applightdark absolute top-[7.6rem] left-[calc(50vw-(95vw/2))] lg:left-[calc(50vw-(75vw/2))] p-3 w-[95%] lg:w-[75%] min-h-[18rem] rounded-xl shadow-neatcard">
 									<div className="flex justify-end">
 										<button
 											title="Close Search"
 											onClick={() => handleClose()}>
 											<FontAwesomeIcon
 												icon={faXmark}
-												size="2xl"
+												//size="2xl"
 												onAnimationEnd={() =>
 													setCloseSearchEffect(false)
 												}
-												className={`cursor-pointer hover:text-appred ${
+												className={`cursor-pointer hover:text-appred w-[1.5rem] h-[2rem] ${
 													closeSearchEffect &&
 													"animate-pressed opacity-60"
 												}`}

@@ -6,6 +6,7 @@ import StartChat from "../(components)/users/startChat";
 import ChatContainer from "../(components)/users/chatContainer";
 import { PageWrap } from "../(components)/motions/pageWrap";
 import { ChatContext } from "../(components)/ChatContext";
+import { Suspense } from "react";
 
 export default function Chat() {
 	const { data: session } = useSession();
@@ -31,12 +32,14 @@ export default function Chat() {
 		<PageWrap>
 			<div className="flex flex-col w-screen h-[85vh] sm:h-[87vh] lg:h-[100vh] justify-center items-center mb-[2.4rem]">
 				<div className="w-[96%] h-[97%] bg-apppinklighter dark:bg-applightdark grid grid-rows-[30%_70%] sm:grid-rows-1 sm:grid-cols-[28%_72%] translate-x-0 shadow-neatcard rounded-xl">
-					<Contacts
-						session={session}
-						changeChat={handleChatChange}
-						selectedUser={selectedUser}
-						setSelectedUser={setSelectedUser}
-					/>
+					<Suspense>
+						<Contacts
+							session={session}
+							changeChat={handleChatChange}
+							selectedUser={selectedUser}
+							setSelectedUser={setSelectedUser}
+						/>
+					</Suspense>
 					{currentChat === undefined ? (
 						<StartChat session={session} />
 					) : (

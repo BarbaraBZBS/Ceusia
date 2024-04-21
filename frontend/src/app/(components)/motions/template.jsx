@@ -14,7 +14,7 @@ export default function Template({ children, isLoading }) {
 				animate={{ y: isLoading ? 100 : 0, opacity: isLoading ? 0 : 1 }}
 				exit={{ y: 100, opacity: 0 }}
 				transition={{ type: "spring", duration: 0.5 }}
-				className={`flex flex-col`}>
+				className={`flex flex-col ${isLoading && "h-screen"}`}>
 				{children}
 			</motion.div>
 		</>

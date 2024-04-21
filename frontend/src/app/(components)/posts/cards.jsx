@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Image from "next/image";
 import PostLiking from "./postLiking";
 import LinkVideo from "./linkVideo";
@@ -814,13 +814,15 @@ export default function Cards({
 									aria-label="no more posts for this page"></div>
 							</main>
 							{display?.length > 0 ? (
-								<PaginationController
-									totalPages={totalPages}
-									hasPrevPage={Number(page) > 1}
-									hasNextPage={
-										Number(page) < Number(totalPages)
-									}
-								/>
+								<Suspense>
+									<PaginationController
+										totalPages={totalPages}
+										hasPrevPage={Number(page) > 1}
+										hasNextPage={
+											Number(page) < Number(totalPages)
+										}
+									/>
+								</Suspense>
 							) : null}
 						</>
 					) : (
@@ -843,10 +845,12 @@ export default function Cards({
 												<h3 className="text-clamp7 mob88:text-clamp1 font-medium underline underline-offset-2">
 													What&apos;s on your mind?
 												</h3>
-												<PostAdd
-													display={display}
-													setPosts={setDisplay}
-												/>
+												<Suspense>
+													<PostAdd
+														display={display}
+														setPosts={setDisplay}
+													/>
+												</Suspense>
 											</div>
 											<hr className="w-[30vw] text-center my-[2rem] border-t-solid border-t-[0.22rem] rounded-md border-t-gray-300 dark:border-t-gray-600"></hr>
 										</div>
@@ -1447,13 +1451,16 @@ export default function Cards({
 							</div>
 							<div className="flex justify-center">
 								{display?.length > 0 ? (
-									<PaginationController
-										totalPages={totalPages}
-										hasPrevPage={Number(page) > 1}
-										hasNextPage={
-											Number(page) < Number(totalPages)
-										}
-									/>
+									<Suspense>
+										<PaginationController
+											totalPages={totalPages}
+											hasPrevPage={Number(page) > 1}
+											hasNextPage={
+												Number(page) <
+												Number(totalPages)
+											}
+										/>
+									</Suspense>
 								) : null}
 							</div>
 						</>

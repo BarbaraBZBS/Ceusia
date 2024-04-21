@@ -2,6 +2,7 @@ import { getPostComments } from "@/lib/posts";
 import { getPost } from "@/lib/posts";
 import PostComments from "@/app/(components)/comments/postComments";
 import { PageWrap } from "@/app/(components)/motions/pageWrap";
+import { Suspense } from "react";
 
 export default async function postComments({ params: { id } }) {
 	const post = await getPost(id);
@@ -10,7 +11,9 @@ export default async function postComments({ params: { id } }) {
 	return (
 		<PageWrap>
 			<main>
-				<PostComments post={post} comments={comments} />
+				<Suspense>
+					<PostComments post={post} comments={comments} />
+				</Suspense>
 			</main>
 		</PageWrap>
 	);

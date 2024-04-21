@@ -35,7 +35,7 @@ export default function Footer() {
 			</div>
 			<div className="flex justify-center my-[1.2rem]">
 				<Image
-					className="h-auto object-cover mob88:max-h-[2.8rem]  mob88:max-w-[2.8rem]"
+					className="h-auto object-cover mob88:max-h-[2.8rem] mob88:max-w-[2.8rem]"
 					src="/images/logoSmRound.png"
 					alt="ceusia footer logo"
 					width={35}

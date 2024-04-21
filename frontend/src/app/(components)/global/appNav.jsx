@@ -121,7 +121,7 @@ export default function AppNav() {
 	}, [newN, setNewN]);
 
 	return (
-		<div className="mb-[0.8rem] w-screen text-clamp5 bg-gray-200 bg-opacity-60 dark:bg-appblck mob88:text-clamp7 max-[293px]:text-clamp1">
+		<div className="mb-[0.8rem] w-screen text-clamp5 mob88:text-clamp7 max-[293px]:text-clamp1 bg-gray-200 bg-opacity-60 dark:bg-appblck">
 			<AnimatePresence>
 				{newN && (
 					<motion.div
@@ -131,7 +131,7 @@ export default function AppNav() {
 						transition={{ duration: 0.4, origin: 1, delay: 0.25 }}
 						role="alert"
 						aria-live="assertive"
-						className="z-[400] absolute top-[6.6rem] left-[15%] w-[70%] bg-blue-300 dark:bg-appstone rounded-lg p-3 shadow-neatcard">
+						className="z-[400] absolute top-[6.6rem] left-[15%] w-[70%] lg:left-[30%] lg:w-[40%] bg-blue-300 dark:bg-appstone rounded-lg p-3 shadow-neatcard">
 						<div className="flex justify-center text-center">
 							<p className="text-clamp7 mob88:text-clamp2">
 								You have a new notification <br />

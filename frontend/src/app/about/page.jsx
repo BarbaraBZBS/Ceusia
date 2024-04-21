@@ -5,7 +5,7 @@ import { PageWrap } from "../(components)/motions/pageWrap";
 export default function About() {
 	return (
 		<PageWrap>
-			<article className="m-[3.2rem] md:m-[5.2rem]">
+			<article className="m-[3.2rem] md:m-[5.2rem] ">
 				<h1 className="text-clamp3 mob88:text-clamp8 m-[1.2rem] font-semibold uppercase">
 					About us...
 				</h1>

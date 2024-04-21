@@ -4,6 +4,7 @@ import { getAllPosts } from "@/lib/posts";
 import { getPosts } from "@/lib/posts";
 import { getAllUsers } from "@/lib/users";
 import Cards from "../(components)/posts/cards";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -21,14 +22,16 @@ export default async function Thread({ searchParams }) {
 
 	return (
 		<div className="w-full h-full">
-			<Cards
-				posts={posts}
-				allPosts={allPosts}
-				users={users}
-				session={session}
-				totalPages={totalPages}
-				page={page}
-			/>
+			<Suspense>
+				<Cards
+					posts={posts}
+					allPosts={allPosts}
+					users={users}
+					session={session}
+					totalPages={totalPages}
+					page={page}
+				/>
+			</Suspense>
 		</div>
 	);
 }

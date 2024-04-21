@@ -367,7 +367,7 @@ export default function UserProfileCard({ user }) {
 										onAnimationEnd={() =>
 											setFollowEffect(false)
 										}
-										className={`bg-appstone dark:bg-appmauvedark text-clamp6  mob88:text-[1.4rem] text-white w-[3.6rem] h-[3.6rem] mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue shadow-neatcard ${
+										className={`bg-appstone dark:bg-appmauvedark text-clamp6 mob88:text-[1.4rem] text-white w-[3.6rem] h-[3.6rem] mob88:w-[2.8rem] mob88:h-[2.8rem] rounded-xl transition-all duration-300 ease-in-out hover:bg-appopred hover:text-appblck hover:translate-y-[7px] hover:shadow-btnblue shadow-neatcard ${
 											followEffect &&
 											"animate-btnFlat text-appblck bg-apppastgreen"
 										}`}>

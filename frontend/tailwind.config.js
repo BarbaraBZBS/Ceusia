@@ -247,26 +247,20 @@ module.exports = {
 				pop: "pop 1s forwards",
 			},
 			screens: {
-				small: {
-					raw: "((min-width: 450px) and (max-width: 639px) and (max-height: 720px))",
-				},
-				smallLandscape: {
-					raw: "((min-width: 700px) and (max-width: 800px) and (max-height: 600px))",
-				},
 				mob90: {
-					raw: "((max-width: 290px))",
+					max: "290px",
 				},
 				mob00: {
-					raw: "((max-width: 300px))",
+					max: "300px",
 				},
 				mob20: {
-					raw: "((max-width: 320px))",
+					max: "320px",
 				},
 				mob48: {
-					raw: "((max-width: 348px))",
+					max: "348px",
 				},
 				mob88: {
-					raw: "((max-width: 388px))",
+					max: "388px",
 				},
 			},
 		},

@@ -1,6 +1,7 @@
 import { getPost } from "@/lib/posts";
 import ModifyPost from "@/app/(components)/posts/postModify";
 import { PageWrap } from "@/app/(components)/motions/pageWrap";
+import { Suspense } from "react";
 
 export default async function PostUpdate({ params: { id } }) {
 	//console.log("post id ? : ", id);
@@ -13,7 +14,9 @@ export default async function PostUpdate({ params: { id } }) {
 					<h1 className="text-clamp5 mob88:text-clamp7 text-center uppercase font-semibold">
 						Modify your post
 					</h1>
-					<ModifyPost post={post} />
+					<Suspense>
+						<ModifyPost post={post} />
+					</Suspense>
 				</main>
 			</PageWrap>
 		</>

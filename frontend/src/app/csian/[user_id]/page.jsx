@@ -11,7 +11,9 @@ export default async function UserIdProfile({ params: { user_id } }) {
 		<Suspense fallback={<Loading />}>
 			<PageWrap>
 				<main>
-					<UserProfileCard user={user} />
+					<Suspense>
+						<UserProfileCard user={user} />
+					</Suspense>
 				</main>
 			</PageWrap>
 		</Suspense>

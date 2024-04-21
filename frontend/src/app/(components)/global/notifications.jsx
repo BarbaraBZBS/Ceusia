@@ -150,7 +150,7 @@ export default function Notifications() {
 						className="z-[300] bg-gray-200 dark:bg-applightdark absolute top-[6.5rem] mob88:top-[5.1rem] left-[45%] p-3 w-[50%] lg:w-[30%] rounded-xl mob88:text-clamp2 shadow-neatcard overflow-auto">
 						<div className="flex flex-col text-center">
 							<div className="py-[1rem] flex flex-col justify-center items-center">
-								<h1 className="text-clamp1 mob88:text-[1.2rem]  font-medium uppercase mb-[0.8rem]">
+								<h1 className="text-clamp1 mob88:text-[1.2rem] font-medium uppercase mb-[0.8rem]">
 									Notifications
 								</h1>
 								<button

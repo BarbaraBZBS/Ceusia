@@ -1,8 +1,6 @@
 import { PageWrap } from "./(components)/motions/pageWrap";
 import TimeDisplay from "./(components)/tools/timeDisplay";
 
-export const dynamic = "force-dynamic";
-
 export default async function Home() {
 	return (
 		<PageWrap>

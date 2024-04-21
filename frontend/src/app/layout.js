@@ -13,6 +13,7 @@ import ThemeButton from "./(components)/global/themeButton";
 import SkipNavigationLink from "./(components)/tools/skipNavigationLink";
 import ScrollBottomButton from "./(components)/tools/scrollBottomButton";
 import ScrollTopButton from "./(components)/tools/scrollTopButton";
+import { Suspense } from "react";
 
 export const metadata = {
 	title: "Ceusia",
@@ -41,7 +42,9 @@ export default function RootLayout({ children }) {
 							<AppLoad />
 							<SkipNavigationLink />
 							<ScrollBottomButton />
-							<AppNav />
+							<Suspense>
+								<AppNav />
+							</Suspense>
 							<ThemeButton />
 							<Search />
 							<RootLayoutClient>
